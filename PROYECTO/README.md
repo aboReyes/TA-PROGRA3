@@ -38,5 +38,9 @@ Los nombres de módulo siguen la convención minúscula-con-guiones (`<proyecto>
 
 - `DBManager` usa el patrón Singleton (`getInstance()`), como se enseñó en clase.
 - Versión de Java estandarizada para todo el equipo: **25** (revisar que todos tengan este JDK instalado).
+
+## Últimos cambios
+
+- Los módulos se renombraron a la convención minúscula-con-guiones (`patitasarriba-modelo`, etc.), y se agregaron los módulos `patitasarriba-persistencia` y `patitasarriba-negocio` (todavía en construcción).
 - El modelo aplica encapsulamiento reforzado en todas sus clases: los getters de listas devuelven una vista no modificable (`Collections.unmodifiableList`), los setters de listas y de referencias a objetos guardan copias defensivas y validan nulos, y cada clase tiene un constructor de copia (`new Cliente(cliente)`) además del constructor normal.
 - `NivelGravedad` (enum: `LEVE`, `MODERADO`, `GRAVE`, `CRITICO`) reemplaza al `String` que antes tenía `AtencionDiagnostico` para el nivel de gravedad.

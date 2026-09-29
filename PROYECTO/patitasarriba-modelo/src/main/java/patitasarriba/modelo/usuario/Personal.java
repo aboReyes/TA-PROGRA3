@@ -1,66 +1,57 @@
 package patitasarriba.modelo.usuario;
 
 import patitasarriba.modelo.horario.Horario;
+import patitasarriba.modelo.horario.HorarioPersonal;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public abstract class Personal extends Persona {
-    private boolean estado;
-    private List<Horario> horarios;
+    private List<HorarioPersonal> horariosPersonal;
 
-    public Personal(int idPersona, String nombres, String apellidoPaterno, String apellidoMaterno,
-                    String telefono, String dni,
-                    Cuenta cuenta, boolean estado, List<Horario> horarios) {
-        super(idPersona, nombres, apellidoPaterno, apellidoMaterno, telefono, dni, cuenta);
-        setEstado(estado);
-        setHorarios(horarios);
+    public Personal() {
+        this.horariosPersonal = new ArrayList<>();
+    }
+
+    public Personal(int id, boolean activo, String nombres, String apellidoPaterno, String apellidoMaterno, String telefono, String dni, Cuenta cuenta, List<HorarioPersonal> horariosPersonales) {
+        super(id, activo, nombres, apellidoPaterno, apellidoMaterno, telefono, dni, cuenta);
+        setHorariosPersonal(horariosPersonales);
     }
 
     // Constructor de copia
-    protected Personal(Personal personal) {
+    public Personal(final Personal personal) {
+        if (personal == null) {
+            throw new IllegalArgumentException("personal no puede ser nulo");
+        }
         super(personal);
-        setEstado(personal.isEstado());
-        setHorarios(personal.getHorarios());
+        setHorariosPersonal(new ArrayList<>(personal.getHorariosPersonal()));
     }
 
     // Getters y Setters
-    public boolean isEstado() {
-        return estado;
+    public List<HorarioPersonal> getHorariosPersonal() {
+        return Collections.unmodifiableList(horariosPersonal);
     }
 
-    public void setEstado(boolean estado) {
-        this.estado = estado;
-    }
-
-    public List<Horario> getHorarios() {
-        return Collections.unmodifiableList(horarios);
-    }
-
-    public void setHorarios(List<Horario> horarios) {
-        if (horarios == null) {
-            throw new IllegalArgumentException("horarios no puede ser nulo");
+    public void setHorariosPersonal(List<HorarioPersonal> horariosPersonales) {
+        if (horariosPersonales == null) {
+            throw new IllegalArgumentException("horariosPersonales no puede ser nulo");
         }
-        this.horarios = new ArrayList<>(horarios);
+        this.horariosPersonal = new ArrayList<>(horariosPersonales);
     }
 
-    public void agregarHorario(Horario horario) {
-        this.horarios.add(horario);
+    public void agregarHorarioPersonal(int id, boolean activo, Horario horario) {
+        horariosPersonal.add(new HorarioPersonal(id, activo, horario));
     }
 
-    public void eliminarHorario(Horario horario) {
-        this.horarios.remove(horario);
+    public void eliminarHorarioPersonal(HorarioPersonal horarioPersonal) {
+        horariosPersonal.remove(horarioPersonal);
     }
 
-    @Override
     public String toString() {
         return "Personal{" +
-                "idPersona='" + getIdPersona() + '\'' +
-                "nombres='" + getNombres() + '\'' +
-                ", apellidoPaterno='" + getApellidoPaterno() + '\'' +
-                ", estado=" + estado + '\'' +
-                ", horarios='" + horarios + '\'' +
+                super.toString() +
+                ", horariosPersonales=" + horariosPersonal +
                 '}';
     }
 }
