@@ -4,9 +4,10 @@
 
 - **patitasarriba-modelo**: clases del modelo de dominio (paquete `patitasarriba.modelo`).
 - **patitasarriba-dbmanager**: conexión JDBC a la base de datos (paquete `conexion`, clase `DBManager`).
-- **patitasarriba-persistencia**: capa de acceso a datos (DAOs) — en construcción.
-- **patitasarriba-negocio**: capa de negocio (reglas, validaciones de flujo) — en construcción.
+- **patitasarriba-persistencia**: capa de acceso a datos (DAOs), patrón `DAO<T,ID>` genérico + `RegistroDAOImpl`. Implementado para `categoria_articulo`, `articulo`, `cita`/`detalle_cita`, más lo sincronizado del resto del equipo.
+- **patitasarriba-negocio**: capa de negocio (`RegistroBL<T,ID>`/`BLException`), con validaciones de reglas y manejo de transacciones (`TransactionsManager`). Implementado para `categoria_articulo`, `articulo` y `cita`.
 - **patitasarriba-app**: aplicación de prueba — `Principal.java` (prueba el modelo) y `PruebaConexion.java` (prueba la conexión a la base de datos).
+- **patitasarriba-mysql**: scripts de base de datos — `ddl.sql` (esquema completo) y `procedures/` (procedimientos CRUD por tabla), más `limpiar-tablas.sql`/`insertar-datos.sql` para pruebas locales.
 
 Los nombres de módulo siguen la convención minúscula-con-guiones (`<proyecto>-<capa>`) usada por el profesor en su ejemplo `testsoft`.
 
@@ -41,6 +42,10 @@ Los nombres de módulo siguen la convención minúscula-con-guiones (`<proyecto>
 
 ## Últimos cambios
 
-- Los módulos se renombraron a la convención minúscula-con-guiones (`patitasarriba-modelo`, etc.), y se agregaron los módulos `patitasarriba-persistencia` y `patitasarriba-negocio` (todavía en construcción).
+- DAOs y capa de negocio implementados para `categoria_articulo`, `articulo` y `cita`/`detalle_cita` (maestro-detalle, con `TransactionsManager` orquestado desde la capa BL).
+- DDL actualizado: `fk_DETALLE_CITA_MEDICA_CITA_MEDICA1` ahora es `ON DELETE CASCADE` (los detalles de una cita se borran junto con ella); el resto de FKs se mantiene en `NO ACTION` a propósito, para no perder historial real (ventas, recetas, atenciones médicas) al borrar un registro padre.
+- Se eliminó el campo `estado` duplicado de `Producto`/`Receta` (ya redundante con `activo`, heredado de `Registro`).
+- Scripts SQL reorganizados en el módulo `patitasarriba-mysql/` (antes dispersos en `DLL_Seccion/`, `Procedures/`, `SQL/`).
+- Los módulos se renombraron a la convención minúscula-con-guiones (`patitasarriba-modelo`, etc.).
 - El modelo aplica encapsulamiento reforzado en todas sus clases: los getters de listas devuelven una vista no modificable (`Collections.unmodifiableList`), los setters de listas y de referencias a objetos guardan copias defensivas y validan nulos, y cada clase tiene un constructor de copia (`new Cliente(cliente)`) además del constructor normal.
 - `NivelGravedad` (enum: `LEVE`, `MODERADO`, `GRAVE`, `CRITICO`) reemplaza al `String` que antes tenía `AtencionDiagnostico` para el nivel de gravedad.
