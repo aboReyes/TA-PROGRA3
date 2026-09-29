@@ -1,4 +1,4 @@
-package patitasarriba.bl.impl;
+package patitasarriba.bl.impl.producto;
 
 import patitasarriba.bl.BLException;
 import patitasarriba.bl.CategoriaArticuloBL;

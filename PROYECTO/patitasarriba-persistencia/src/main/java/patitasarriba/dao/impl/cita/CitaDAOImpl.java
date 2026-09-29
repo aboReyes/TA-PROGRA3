@@ -110,15 +110,21 @@ public class CitaDAOImpl extends RegistroDAOImpl<Cita> implements CitaDAO {
         }
     }
 
+    // Borra en 2 tablas (detalle_cita + cita) de forma atomica: requiere que la
+    // capa de negocio ya haya llamado TransactionsManager.iniciar() antes de esto.
     @Override
     public void delete(Integer id) throws SQLException {
         if (id == null) {
             throw new IllegalArgumentException("El id no puede ser nulo");
         }
 
+        Connection conn = TransactionsManager.getConnection();
+
+        // Primero eliminar los detalles (hijos antes que padre)
+        detalleCitaDAO.deleteDetalles(conn, id);
+
         String sql = "{call eliminar_cita(?)}";
-        try (Connection conn = DBManager.getInstance().getConnection();
-             CallableStatement cmd = conn.prepareCall(sql)) {
+        try (CallableStatement cmd = conn.prepareCall(sql)) {
             cmd.setInt("p_id", id);
 
             if (cmd.executeUpdate() == 0) {

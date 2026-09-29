@@ -3,8 +3,8 @@ package patitasarriba.dao.impl.mascota;
 import conexion.DBManager;
 import patitasarriba.dao.MascotaDAO;
 import patitasarriba.dao.impl.RegistroDAOImpl;
+import patitasarriba.dao.impl.usuario.ClienteDAOImpl;
 import patitasarriba.modelo.mascota.Mascota;
-import patitasarriba.modelo.usuario.Cliente;
 import patitasarriba.modelo.mascota.SexoMascota;
 import patitasarriba.modelo.mascota.TipoMascota;
 
@@ -69,7 +69,10 @@ public class MascotaDAOImpl extends RegistroDAOImpl<Mascota> implements MascotaD
             cmd.setBoolean("p_activo", mascota.isActivo());
             cmd.registerOutParameter("p_id", Types.INTEGER);
 
-            cmd.execute();
+            if (cmd.executeUpdate() == 0) {
+                throw new SQLException("No se pudo insertar la mascota");
+            }
+
             mascota.setId(cmd.getInt("p_id"));
         }
     }
@@ -164,7 +167,9 @@ public class MascotaDAOImpl extends RegistroDAOImpl<Mascota> implements MascotaD
         try (Connection conn = DBManager.getInstance().getConnection();
              CallableStatement cmd = conn.prepareCall(sql)) {
             cmd.setInt("p_id_cliente", idCliente);
-            cmd.executeUpdate();
+            if (cmd.executeUpdate() == 0) {
+                throw new SQLException("No se pudieron eliminar las mascotas del cliente");
+            }
         }
     }
 
@@ -182,11 +187,9 @@ public class MascotaDAOImpl extends RegistroDAOImpl<Mascota> implements MascotaD
             mascota.setRaza(raza);
         }
 
-        // Cliente no es parte de este modulo: se deja con solo el id
-        // hasta que exista ClienteDAOImpl (aun no la pushea su encargado)
-        Cliente cliente = new Cliente();
-        cliente.setId(rs.getInt("ID_CLIENTE"));
-        mascota.setCliente(cliente);
+        // FK obligatoria: ya existe ClienteDAOImpl, se resuelve el objeto completo
+        int idCliente = rs.getInt("ID_CLIENTE");
+        mascota.setCliente(new ClienteDAOImpl().findById(idCliente));
 
         return mascota;
     }

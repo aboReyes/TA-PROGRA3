@@ -43,9 +43,8 @@ Los nombres de módulo siguen la convención minúscula-con-guiones (`<proyecto>
 ## Últimos cambios
 
 - DAOs y capa de negocio implementados para `categoria_articulo`, `articulo` y `cita`/`detalle_cita` (maestro-detalle, con `TransactionsManager` orquestado desde la capa BL).
-- DDL actualizado: `fk_DETALLE_CITA_MEDICA_CITA_MEDICA1` ahora es `ON DELETE CASCADE` (los detalles de una cita se borran junto con ella); el resto de FKs se mantiene en `NO ACTION` a propósito, para no perder historial real (ventas, recetas, atenciones médicas) al borrar un registro padre.
+- Todas las FKs se mantienen en `ON DELETE NO ACTION` (ninguna usa `CASCADE`), para no perder historial real (ventas, recetas, atenciones médicas) al borrar un registro padre. El borrado de maestro-detalle se maneja a mano en la capa DAO transaccional, no en la base de datos — mismo patrón en los 3 casos del proyecto: `BoletaDAOImpl`, `RecetaDAOImpl` y `CitaDAOImpl` borran primero sus detalles (`eliminar_detalles_por_cita`, etc.) y luego el maestro, todo dentro de la misma transacción.
 - Se eliminó el campo `estado` duplicado de `Producto`/`Receta` (ya redundante con `activo`, heredado de `Registro`).
-- Scripts SQL reorganizados en el módulo `patitasarriba-mysql/` (antes dispersos en `DLL_Seccion/`, `Procedures/`, `SQL/`).
-- Los módulos se renombraron a la convención minúscula-con-guiones (`patitasarriba-modelo`, etc.).
+- Scripts SQL reorganizados en el módulo `patitasarriba-mysql/`.
 - El modelo aplica encapsulamiento reforzado en todas sus clases: los getters de listas devuelven una vista no modificable (`Collections.unmodifiableList`), los setters de listas y de referencias a objetos guardan copias defensivas y validan nulos, y cada clase tiene un constructor de copia (`new Cliente(cliente)`) además del constructor normal.
 - `NivelGravedad` (enum: `LEVE`, `MODERADO`, `GRAVE`, `CRITICO`) reemplaza al `String` que antes tenía `AtencionDiagnostico` para el nivel de gravedad.
