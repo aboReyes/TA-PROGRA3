@@ -69,8 +69,9 @@ END //
 
 CREATE PROCEDURE eliminar_servicio(IN p_id INT)
 BEGIN
-    DELETE FROM servicio
-    WHERE id_servicio = p_id;
+    UPDATE servicio
+    SET activo = 0
+	WHERE id_servicio = p_id;
 END //
 
 CREATE PROCEDURE buscar_servicio_por_id(IN p_id INT)
