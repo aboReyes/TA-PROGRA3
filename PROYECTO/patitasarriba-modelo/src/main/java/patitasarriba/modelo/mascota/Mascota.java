@@ -18,15 +18,11 @@ public class Mascota extends Registro {
     private TipoMascota tipoMascota;
     private String raza;
     private Cliente cliente;
-    private List<Cita> citas;
-    private List<AtencionMedica> atencionesMedicas;
 
     public Mascota() {
-        this.citas = new ArrayList<>();
-        this.atencionesMedicas = new ArrayList<>();
     }
 
-    public Mascota(int id, boolean activo, String nombre, SexoMascota sexo, double peso, LocalDate fechaNacimiento, TipoMascota tipoMascota, String raza, Cliente cliente, List<Cita> citas, List<AtencionMedica> atencionesMedicas) {
+    public Mascota(int id, boolean activo, String nombre, SexoMascota sexo, double peso, LocalDate fechaNacimiento, TipoMascota tipoMascota, String raza, Cliente cliente) {
         super(id, activo);
         setNombre(nombre);
         setSexo(sexo);
@@ -35,8 +31,6 @@ public class Mascota extends Registro {
         setTipoMascota(tipoMascota);
         setRaza(raza);
         setCliente(cliente);
-        setCitas(citas);
-        setAtencionesMedicas(atencionesMedicas);
     }
 
     // Constructor de copia
@@ -52,8 +46,6 @@ public class Mascota extends Registro {
         setTipoMascota(mascota.getTipoMascota());
         setRaza(mascota.getRaza());
         setCliente(mascota.getCliente());
-        setCitas(mascota.getCitas());
-        setAtencionesMedicas(mascota.getAtencionesMedicas());
     }
 
     // Getters y Setters
@@ -112,9 +104,6 @@ public class Mascota extends Registro {
     }
 
     public void setRaza(String raza) {
-        if (raza == null || raza.isEmpty()) {
-            throw new IllegalArgumentException("raza no puede ser nulo o vacío");
-        }
         this.raza = raza;
     }
 
@@ -127,32 +116,6 @@ public class Mascota extends Registro {
             throw new IllegalArgumentException("cliente no puede ser nulo");
         }
         this.cliente = cliente;
-    }
-
-    public List<Cita> getCitas() {
-        return Collections.unmodifiableList(citas);
-    }
-
-    public void setCitas(List<Cita> citas) {
-        if (citas == null) {
-            throw new IllegalArgumentException("citas no puede ser nulo");
-        }
-        this.citas = new ArrayList<>(citas);
-    }
-
-    public List<AtencionMedica> getAtencionesMedicas() {
-        return Collections.unmodifiableList(atencionesMedicas);
-    }
-
-    public void setAtencionesMedicas(List<AtencionMedica> atencionesMedicas) {
-        if (atencionesMedicas == null) {
-            throw new IllegalArgumentException("atencionesMedicas no puede ser nulo");
-        }
-        this.atencionesMedicas = new ArrayList<>(atencionesMedicas);
-    }
-
-    public void agregarAtencionMedica(AtencionMedica atencionMedica) {
-        atencionesMedicas.add(atencionMedica);
     }
 
     @Override
@@ -171,8 +134,6 @@ public class Mascota extends Registro {
                 ", tipoMascota=" + tipoMascota +
                 ", raza='" + raza + "'" +
                 ", cliente=" + dniCliente +
-                ", citas=" + citas +
-                ", atencionesMedicas=" + atencionesMedicas +
                 '}';
     }
 }

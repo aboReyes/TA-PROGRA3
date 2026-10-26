@@ -4,11 +4,11 @@ import conexion.DBManager;
 import patitasarriba.dao.CitaDAO;
 import patitasarriba.dao.impl.RegistroDAOImpl;
 import patitasarriba.dao.transacciones.TransactionsManager;
+import patitasarriba.dao.impl.mascota.MascotaDAOImpl;
+import patitasarriba.dao.impl.usuario.VeterinarioDAOImpl;
 import patitasarriba.modelo.cita.Cita;
 import patitasarriba.modelo.cita.DetalleCita;
 import patitasarriba.modelo.cita.EstadoCita;
-import patitasarriba.modelo.mascota.Mascota;
-import patitasarriba.modelo.usuario.Veterinario;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -82,7 +82,7 @@ public class CitaDAOImpl extends RegistroDAOImpl<Cita> implements CitaDAO {
             cita.setId(cmd.getInt("p_id"));
         }
 
-        // El maestro realiza la insercion de cada detalle, en la misma transaccion
+        // El maestro orquesta la insercion de cada detalle, en la misma transaccion
         for (DetalleCita detalle : cita.getDetalles()) {
             detalleCitaDAO.insert(conn, detalle, cita.getId());
         }
@@ -140,15 +140,8 @@ public class CitaDAOImpl extends RegistroDAOImpl<Cita> implements CitaDAO {
         cita.setFechaHora(rs.getTimestamp("fecha_hora").toLocalDateTime());
         cita.setEstado(EstadoCita.valueOf(rs.getString("estado")));
 
-        // Mascota y Veterinario no son parte de este modulo: se dejan con solo el id
-        // hasta que existan MascotaDAOImpl / VeterinarioDAOImpl
-        Mascota mascota = new Mascota();
-        mascota.setId(rs.getInt("id_mascota"));
-        cita.setMascota(mascota);
-
-        Veterinario veterinario = new Veterinario();
-        veterinario.setId(rs.getInt("id_veterinario"));
-        cita.setVeterinario(veterinario);
+        cita.setMascota(new MascotaDAOImpl().findById(rs.getInt("id_mascota")));
+        cita.setVeterinario(new VeterinarioDAOImpl().findById(rs.getInt("id_veterinario")));
 
         return cita;
     }

@@ -41,25 +41,25 @@ public class CuentaBLImpl implements CuentaBL {
         }
     }
 
-    @Override
-    public Cuenta login(String nombreUsuario, String passwordPlana) throws BLException {
-        if (nombreUsuario == null || nombreUsuario.trim().isEmpty() ||
-                passwordPlana == null || passwordPlana.trim().isEmpty()) {
-            throw new BLException("Debe ingresar el usuario y la contraseña");
-        }
-
-        Cuenta cuenta = findByNombreUsuario(nombreUsuario);
-        if (cuenta == null || !cuenta.isActivo()) {
-            throw new BLException("Usuario o contraseña incorrectos");
-        }
-
-        String hashIngresado = HashUtil.generarHashSHA256(passwordPlana);
-        if (!cuenta.getPassword().equals(hashIngresado)) {
-            throw new BLException("Usuario o contraseña incorrectos");
-        }
-
-        return cuenta;
-    }
+    // @Override
+    // public Cuenta login(String nombreUsuario, String passwordPlana) throws BLException {
+    //     if (nombreUsuario == null || nombreUsuario.trim().isEmpty() ||
+    //             passwordPlana == null || passwordPlana.trim().isEmpty()) {
+    //         throw new BLException("Debe ingresar el usuario y la contraseña");
+    //     }
+    //
+    //     Cuenta cuenta = findByNombreUsuario(nombreUsuario);
+    //     if (cuenta == null || !cuenta.isActivo()) {
+    //         throw new BLException("Usuario o contraseña incorrectos");
+    //     }
+    //
+    //     String hashIngresado = HashUtil.generarHashSHA256(passwordPlana);
+    //     if (!cuenta.getPassword().equals(hashIngresado)) {
+    //         throw new BLException("Usuario o contraseña incorrectos");
+    //     }
+    //
+    //     return cuenta;
+    // }
 
     @Override
     public void insert(Cuenta cuenta) throws BLException {
@@ -117,7 +117,7 @@ public class CuentaBLImpl implements CuentaBL {
         if (cuenta.getPassword() == null || cuenta.getPassword().trim().isEmpty()) {
             throw new BLException("La contraseña es obligatoria");
         }
-        if (cuenta.getCorreo() == null || !cuenta.getCorreo().contains("@")) {
+        if (cuenta.getCorreo() == null || !cuenta.getCorreo().matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
             throw new BLException("Debe ingresar un correo electrónico válido");
         }
     }

@@ -33,7 +33,7 @@ class HorarioAdministradorDAOImpl extends RegistroDAOImpl<HorarioPersonal>
                 cmd.registerOutParameter("p_id", Types.INTEGER);
 
                 if (cmd.executeUpdate() == 0) {
-                    throw new SQLException("No se pudo insertar el horario del administrador");
+                    throw new SQLException("No se pudo insertar la línea de la orden de venta");
                 }
                 horarioPersonal.setId(cmd.getInt("p_id"));
             }
