@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Patitas Arriba · Registro de cambios</title>
+<style>
+  @page { size: A4; margin: 15mm 14mm 15mm 14mm; }
+  :root { --verde:#3F6B52; --verde-oscuro:#325642; --salvia:#E3ECDD; --mostaza:#F2B33D; --texto:#1F2A24; --suave:#5b6b62; --linea:#d9d4c7; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: var(--texto); font-size: 10pt; line-height: 1.42; margin: 0; }
+  header { border-bottom: 3px solid var(--verde); padding-bottom: 8px; margin-bottom: 10px; }
+  header h1 { margin: 0; font-size: 19pt; color: var(--verde-oscuro); }
+  header p { margin: 3px 0 0; color: var(--suave); font-size: 9.3pt; }
+  h2 { font-size: 12.5pt; color: var(--verde-oscuro); margin: 17px 0 7px; border-left: 5px solid var(--mostaza); padding-left: 8px; break-after: avoid; }
+  h3 { font-size: 10.6pt; margin: 0 0 5px; color: var(--verde-oscuro); }
+  .nota { background: #fff7e0; border: 1px solid #ecd48a; border-radius: 6px; padding: 7px 10px; font-size: 9.3pt; margin: 7px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 5px 0 9px; font-size: 9.2pt; }
+  th { background: var(--verde); color: #fff; text-align: left; padding: 4px 6px; }
+  td { border-bottom: 1px solid var(--linea); padding: 4px 6px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f6f9f3; }
+  tr { break-inside: avoid; }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 8.7pt; background: #eef2ea; padding: 0 3px; border-radius: 3px; }
+  .cambio { border: 1px solid var(--linea); border-radius: 8px; padding: 9px 12px 7px; margin: 10px 0; break-inside: avoid; }
+  .cambio dl { margin: 0; display: grid; grid-template-columns: 92px 1fr; gap: 3px 9px; }
+  .cambio dt { font-weight: 700; color: var(--suave); font-size: 9pt; }
+  .cambio dd { margin: 0; }
+  ul { margin: 2px 0; padding-left: 17px; }
+  .estado { display: inline-block; border-radius: 99px; padding: 0 8px; font-size: 8.6pt; font-weight: 700; white-space: nowrap; }
+  .ok { background: var(--salvia); color: var(--verde-oscuro); border: 1px solid #bcd0b0; }
+  .pend { background: #fdecc8; color: #7a5a06; border: 1px solid #ecd48a; }
+  footer { margin-top: 14px; border-top: 1px solid var(--linea); padding-top: 5px; color: var(--suave); font-size: 8.6pt; }
+  .salto { break-before: page; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Patitas Arriba · Registro de cambios</h1>
+  <p>Front (Blazor) y backend (Java) · Equipo Los Huérfanos · PROG3 · Documento vivo: se agregan entradas a medida que se hacen cambios.</p>
+  <p><b>Última actualización:</b> 10/11/2026 · <b>Dónde están los cambios:</b> carpetas locales <code>PROYECTO-FRONT</code> y <code>PROYECTO-BACK</code> (aún <b>no</b> subidos al repositorio compartido).</p>
+</header>
+
+<h2>Resumen</h2>
+<table>
+  <tr><th style="width:4%">#</th><th>Cambio</th><th style="width:15%">Capa</th><th style="width:17%">Estado</th></tr>
+  <tr><td>1</td><td>Quitar la pantalla previa al login</td><td>Front</td><td><span class="estado ok">Hecho</span></td></tr>
+  <tr><td>2</td><td>Mejorar el login: ingreso por correo, rol automático, texto de solicitud de cuenta</td><td>Front y Java</td><td><span class="estado ok">Hecho</span></td></tr>
+  <tr><td>3</td><td>Corregir el doble ícono de “ver contraseña”</td><td>Front</td><td><span class="estado ok">Hecho</span></td></tr>
+  <tr><td>4</td><td>Registro de clientes con verificación de correo</td><td>SQL, Java, front</td><td><span class="estado ok">Hecho (front en demostración)</span></td></tr>
+  <tr><td>5</td><td>Recuperar contraseña por correo</td><td>SQL, Java, front</td><td><span class="estado ok">Hecho (front en demostración)</span></td></tr>
+  <tr><td>6</td><td>Alta de persona y cuenta en un solo paso por el administrador</td><td>Java, front</td><td><span class="estado ok">Hecho (front en demostración)</span></td></tr>
+  <tr><td>7</td><td>Pantallas de acceso del front: registro, verificar correo, olvidé y restablecer contraseña; enlaces en el login</td><td>Front</td><td><span class="estado ok">Hecho (demostración)</span></td></tr>
+  <tr><td>8</td><td>Errores en rojo que aparecen al hacer clic y salir del campo (login y pantallas de acceso); nombres solo con letras</td><td>Front</td><td><span class="estado ok">Hecho</span></td></tr>
+</table>
+<div class="nota"><b>Cómo se comprobó:</b> compilan el front y los módulos Java modelo, dbmanager, persistencia, negocio y app. El front se revisó en el navegador (login, registro, verificar, olvidé, restablecer y formulario de cliente nuevo). El módulo <code>rest</code> no se puede compilar sin conexión (faltan librerías de Jakarta): se revisó sintaxis y tipos con stubs. <b>No se ejecutó</b> el <code>Tester</code> contra la base de datos ni se probó el envío real de correos. Antes de correr el Tester hay que ejecutar <code>sql/actualizacion-acceso.sql</code>.</div>
+
+<h2>Cambios 1 a 3 (front y login)</h2>
+
+<div class="cambio">
+  <h3>1 · Quitar la pantalla previa al login</h3>
+  <dl>
+    <dt>Motivo</dt><dd>La portada solo tenía un botón “Iniciar sesión”, repetido con el de la barra, y ningún requerimiento la pide.</dd>
+    <dt>Cambio</dt><dd>Entrar a <code>/</code> sin sesión envía a <code>/login</code>; se eliminó el banner del visitante. Con sesión, el inicio sigue igual.</dd>
+    <dt>Archivos</dt><dd><code>Components/Pages/Home.razor</code></dd>
+    <dt>Pendiente</dt><dd>Decidir si se oculta el enlace “Iniciar sesión” de la barra en <code>/login</code>.</dd>
+  </dl>
+</div>
+
+<div class="cambio">
+  <h3>2 · Mejorar el login (retro Lab 9: correo y contraseña; rol automático)</h3>
+  <dl>
+    <dt>Front</dt><dd>Ingreso solo con correo (con validación de formato); error único “Correo o contraseña incorrectos”; texto “Pídela en la clínica…” para cuenta nueva u olvido; cuentas de prueba con correo. Archivos: <code>LoginViewModel</code>, <code>SesionDemo</code>, <code>LoginPage.razor</code>, <code>login.css</code>, <code>UnitTest1.cs</code>.</dd>
+    <dt>Java</dt><dd><code>CuentaDAO.findByCorreo</code> (usa el procedure ya existente <code>buscar_cuenta_por_correo</code>), <code>CuentaBL.findByCorreo</code> y <code>login(correo, password)</code>; <code>POST /login</code> recibe <code>{correo, password}</code>.</dd>
+    <dt>Avisar</dt><dd>Quien consuma <code>POST /login</code> (Postman, “Contrato API”, front al conectar) debe enviar <code>correo</code> en vez de <code>nombreUsuario</code>.</dd>
+  </dl>
+</div>
+
+<div class="cambio">
+  <h3>3 · Doble ícono de “ver contraseña”</h3>
+  <dl>
+    <dt>Causa</dt><dd>Edge dibuja su propio ojo en todo campo de contraseña, además del botón del login.</dd>
+    <dt>Cambio</dt><dd>Se oculta solo el del navegador, solo en el login: <code>login.css</code> (<code>::-ms-reveal</code>).</dd>
+  </dl>
+</div>
+
+<h2 class="salto">Cambios 4 a 6 · Acceso en el backend</h2>
+<p style="margin:0 0 6px">Cómo funciona (reglas completas: <code>REGLAS-DE-NEGOCIO.md</code> §4.1, RN-AC-01 a 09):</p>
+<ul>
+  <li><b>Registro de cliente:</b> el formulario guarda una <i>solicitud</i> y envía un enlace de 24 h. Al abrirlo se crean cuenta y cliente en una sola transacción. Sin abrirlo, no se crea nada.</li>
+  <li><b>Olvidé mi contraseña:</b> enlace de 30 min y un solo uso. La respuesta es igual exista o no el correo.</li>
+  <li><b>Alta por el administrador:</b> persona y cuenta en una transacción, con una clave que nadie conoce; la persona elige su contraseña con un enlace de 48 h (el administrador nunca la conoce).</li>
+  <li>Los tokens se guardan solo como hash. Contraseña mínima: 8 caracteres.</li>
+</ul>
+
+<h2>Impacto por capa</h2>
+<table>
+  <tr><th style="width:15%">Capa</th><th>Qué cambió</th></tr>
+  <tr><td><b>Scripts SQL</b></td><td><b>Solo agrega.</b> Tablas <code>registro_pendiente</code> y <code>token_recuperacion</code> (FK a <code>cuenta</code>) en <code>patitasarriba-mysql.sql</code>; 9 procedures nuevos en <code>procedures-registro_pendiente.sql</code> y <code>procedures-token_recuperacion.sql</code>; <code>limpiar-tablas.sql</code> las vacía; <code>actualizacion-acceso.sql</code> aplica todo en una base ya instalada. Ninguna tabla ni procedure existente cambia. <i>Excepción a RN-GE-01:</i> <code>registro_pendiente</code> borra físicamente, porque es una tabla de paso.</td></tr>
+  <tr><td><b>Modelo</b></td><td>Clases nuevas <code>RegistroPendiente</code> y <code>TokenRecuperacion</code> (paquete <code>usuario</code>).</td></tr>
+  <tr><td><b>DAO</b></td><td>Nuevos <code>RegistroPendienteDAO</code> y <code>TokenRecuperacionDAO</code> con sus <code>Impl</code>. <code>CuentaDAO</code> suma <code>findByCorreo</code>.</td></tr>
+  <tr><td><b>BL</b></td><td>Nuevo <code>AccesoBL</code> / <code>AccesoBLImpl</code> (7 métodos: solicitar y confirmar registro, solicitar y restablecer recuperación, registrar cliente / veterinario / administrador). <code>CuentaBL</code> suma <code>findByCorreo</code> y el login por correo. En <code>ClienteBLImpl</code>, <code>VeterinarioBLImpl</code>, <code>AdministradorBLImpl</code> y <code>CuentaBLImpl</code> solo cambió la <b>visibilidad</b> de <code>validar</code> y <code>validarUnicos</code> (de <code>private</code> a paquete) para reutilizarlas: la lógica es la misma. Nuevo paquete <code>bl.correo</code> (<code>CorreoService</code>, <code>CorreoConsola</code>, <code>CorreoSmtp</code>, <code>Correos</code>) y <code>TokenUtil</code>.</td></tr>
+  <tr><td><b>REST</b></td><td>Nuevo <code>AccesoResource</code> (4 endpoints) y <code>POST /con-cuenta</code> en clientes, veterinarios y administradores (con <code>toModeloSinCuenta</code> en cada mapper).</td></tr>
+  <tr><td><b>Pruebas</b></td><td><code>Tester</code>: nueva sección “ACCESO” (registro, verificación, recuperación, alta por administrador y reglas de rechazo), con los correos en memoria.</td></tr>
+</table>
+
+<h2>Endpoints nuevos (base <code>/api/v1</code>)</h2>
+<table>
+  <tr><th style="width:36%">Endpoint</th><th>Body → respuesta</th></tr>
+  <tr><td><code>POST /acceso/registro</code></td><td><code>{dni, nombres, apellidoPaterno, apellidoMaterno, telefono, correo, password}</code> → 202</td></tr>
+  <tr><td><code>POST /acceso/registro/confirmar</code></td><td><code>{token}</code> → 201</td></tr>
+  <tr><td><code>POST /acceso/recuperacion</code></td><td><code>{correo}</code> → 202 siempre igual</td></tr>
+  <tr><td><code>POST /acceso/recuperacion/restablecer</code></td><td><code>{token, password}</code> → 200</td></tr>
+  <tr><td><code>POST /clientes|veterinarios|administradores/con-cuenta</code></td><td>El mismo DTO del <code>POST</code> normal, con <code>cuenta: {correo}</code> (sin <code>id</code> ni contraseña) → 201</td></tr>
+</table>
+<p style="margin:0">Errores: 400 con <code>{error}</code> si no cumple una regla; el enlace inválido, usado o vencido responde “El enlace no es válido o ya venció”.</p>
+
+<h2 class="salto">Cambios 7 y 8 · Front de acceso (modo demostración)</h2>
+<p style="margin:0 0 6px">Como el front aún no está conectado a la API, las pantallas funcionan con los datos de ejemplo: validan igual que el backend (RN-AC-01) y simulan la respuesta. Cada una indica en su código el endpoint que usará al conectarse.</p>
+<table>
+  <tr><th style="width:30%">Pantalla / ruta (pública)</th><th>Qué hace hoy · endpoint al conectar</th></tr>
+  <tr><td><code>/login</code></td><td>Enlaces “¿Olvidaste tu contraseña?” y “¿No tienes una cuenta? Crea una”; errores en rojo. · <code>POST /login</code></td></tr>
+  <tr><td><code>/registro</code></td><td>DNI (8 dígitos), nombres, apellidos, teléfono (9), correo, contraseña (≥ 8) y confirmación. Rechaza correo o DNI ya registrados. Luego muestra “Revisa tu correo”. · <code>POST /acceso/registro</code></td></tr>
+  <tr><td><code>/verificar-correo?token=…</code></td><td>Resultado del enlace del correo: cuenta activa o “enlace no válido”. · <code>POST /acceso/registro/confirmar</code></td></tr>
+  <tr><td><code>/olvide-contrasena</code></td><td>Pide el correo; muestra siempre el mismo mensaje. · <code>POST /acceso/recuperacion</code></td></tr>
+  <tr><td><code>/restablecer-contrasena?token=…</code></td><td>Contraseña nueva y confirmación (también activa una cuenta creada por el administrador). · <code>POST /acceso/recuperacion/restablecer</code></td></tr>
+  <tr><td>Cliente, veterinario y administrador (formularios)</td><td>Piden solo el <b>correo</b>; al editar se muestra sin poder cambiarlo. Ya no hay usuario ni contraseña. · <code>POST …/con-cuenta</code></td></tr>
+</table>
+<ul>
+  <li><b>Archivos nuevos:</b> <code>Pages/Seguridad/</code> (<code>RegistroPage</code>, <code>VerificarCorreoPage</code>, <code>OlvideContrasenaPage</code>, <code>RestablecerContrasenaPage</code>), <code>Shared/</code> (<code>AccesoMarco</code>, <code>CampoAcceso</code>) y 3 ViewModels (<code>RegistroViewModel</code>, <code>OlvideContrasenaViewModel</code>, <code>RestablecerContrasenaViewModel</code>).</li>
+  <li><b>Modificados:</b> <code>LoginPage.razor</code>, <code>LoginViewModel</code>, <code>login.css</code>, <code>PersonaViewModel</code> (sin contraseña ni usuario) y <code>CamposCuenta.razor</code> (solo correo).</li>
+  <li><b>Validación al salir del campo:</b> el error aparece apenas se hace clic y se sale (<code>CampoAcceso</code> y <code>LoginPage</code> notifican el campo al perder el foco). Un campo correcto queda neutro: se quitó el contorno verde de la plantilla (<code>login.css</code>).</li>
+  <li><b>Registro más estricto:</b> nombres y apellidos solo con letras (con tildes y ñ), espacios, apóstrofes o guiones; DNI y teléfono solo con números y longitud exacta; límites de largo por campo. Mensajes distintos para “solo números” y “longitud”. La misma regla de nombres está en <code>PersonaViewModel</code> y en el backend (<code>AccesoBLImpl.validarContacto</code>), para que la API no acepte lo que el front rechaza.</li>
+  <li>Las rutas se llaman exactamente así porque los enlaces del correo (<code>PATITAS_URL_FRONT</code>, por defecto <code>http://localhost:5118</code>) apuntan a ellas.</li>
+  <li><b>Pendiente:</b> conectar estas pantallas a la API y quitar los avisos de “modo demostración” y las cuentas de prueba del login.</li>
+</ul>
+
+<h2>Para probar y limitaciones</h2>
+<ul>
+  <li><b>Probar:</b> (1) ejecutar <code>sql/actualizacion-acceso.sql</code>; (2) correr <code>Tester</code>, que debe terminar con “Sin fallas.” (aún no verificado); (3) opcional: configurar las variables <code>PATITAS_SMTP_*</code>; sin ellas los correos salen en la consola.</li>
+  <li><b>Sin probar:</b> el envío SMTP real (<code>CorreoSmtp</code>, solo JDK, puerto 465) y el módulo <code>rest</code> en ejecución.</li>
+  <li><b>Fuera de alcance:</b> límite de intentos y captcha en el registro público; contraseñas con SHA-256 sin sal (ya existente, cumple RNF05; BCrypt sería lo recomendable).</li>
+  <li><b>Condición:</b> los requerimientos nuevos y modificados necesitan la aprobación del JP.</li>
+</ul>
+
+<h2 class="salto">Ajustes que se deben hacer en el informe</h2>
+<table>
+  <tr><th style="width:17%">Sección</th><th>Ajuste</th></tr>
+  <tr><td>§5 Producto</td><td>Agregar una frase: los clientes pueden registrarse solos con verificación de correo y todos pueden recuperar su contraseña por correo.</td></tr>
+  <tr><td>§6 Tabla 1<br>(RF existentes)</td><td><b>RF01:</b> iniciar sesión con <i>correo</i> y contraseña, cerrar sesión y recuperar la contraseña por correo.<br><b>RF02:</b> los clientes pueden registrarse por sí mismos (verificando su correo); el administrador registra, modifica, elimina y consulta clientes; el veterinario solo consulta.<br><b>RF04:</b> el administrador registra veterinarios y otros administradores; la persona elige su contraseña con un enlace enviado a su correo.<br><b>RF05:</b> el administrador consulta, modifica (incluida la contraseña) y elimina cuentas; las del personal las crea junto con la persona y las de clientes se crean al registrarse.</td></tr>
+  <tr><td>§6 Tabla 1<br>(RF nuevos)</td><td><b>RF19 Registro de clientes con verificación de correo</b> (prioridad Alta): el cliente se registra y su cuenta se crea al confirmar el enlace que recibe por correo.<br><b>RF20 Recuperación de contraseña</b> (prioridad Alta): enlace por correo de un solo uso y con vencimiento. Comparte el servicio de correo con RF12.</td></tr>
+  <tr><td>§6 Tabla 2<br>(RNF)</td><td><b>RNF05 Seguridad:</b> agregar que los enlaces se guardan solo como hash y que la contraseña tiene mínimo 8 caracteres.<br><b>RNF08 (nuevo) Configuración segura:</b> las credenciales del correo se configuran por variables de entorno y no se guardan en el repositorio.</td></tr>
+  <tr><td>§6 Estado</td><td>Cambiar la columna “Estado” (hoy todo “Propuesto”) según el avance real. Indicar que los cambios y los RF nuevos fueron aprobados por el JP (fecha).</td></tr>
+  <tr><td>§7 Diagrama de clases</td><td>Agregar <code>RegistroPendiente</code> y <code>TokenRecuperacion</code> (esta última asociada a <code>Cuenta</code>, N a 1). Regenerar la imagen.</td></tr>
+  <tr><td>§8 Diagrama físico</td><td>Agregar las tablas <code>registro_pendiente</code> y <code>token_recuperacion</code> (FK a <code>cuenta</code>): pasan a ser 25 tablas. Actualizar el <code>.mwb</code> y la imagen.</td></tr>
+  <tr><td>§9 IA generativa</td><td>Registrar el uso de IA en esta etapa: diseño del login y de la pantalla de acceso, BL de acceso (registro y recuperación), scripts SQL, pruebas y documentación.</td></tr>
+  <tr><td>§12 Anexos</td><td>Adjuntar el script SQL actualizado (<code>patitasarriba-mysql.sql</code>, procedures y <code>actualizacion-acceso.sql</code>), el diagrama físico nuevo y los usuarios y contraseñas del login de prueba.</td></tr>
+  <tr><td>§3 Planificación</td><td>Revisar los porcentajes de Lab 11 y 12: el informe dice 80% y 100%, el correo del coordinador pide 60% y 90%.</td></tr>
+</table>
+
+<footer>Patitas Arriba · Registro de cambios · fuente: <code>DOCUMENTACION/registro-de-cambios.html</code></footer>
+</body>
+</html>

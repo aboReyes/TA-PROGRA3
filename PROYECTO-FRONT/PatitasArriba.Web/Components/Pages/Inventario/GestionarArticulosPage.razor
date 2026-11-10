@@ -1,0 +1,87 @@
+@page "/articulos/nuevo"
+@page "/articulos/editar/{Id:int}"
+@inject NavigationManager Nav;
+
+<PageTitle>Artículos</PageTitle>
+
+<div class="col-md-8">
+    <h3 class="mb-3">@(Id == null ? "Nuevo artículo" : "Editar artículo")</h3>
+
+    <EditForm Model="ViewModel" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <InputText tabindex="1" class="form-control" @bind-Value="ViewModel.Nombre" />
+            <ValidationMessage For="() => ViewModel.Nombre" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <InputTextArea tabindex="2" class="form-control" rows="2" @bind-Value="ViewModel.Descripcion" />
+            <ValidationMessage For="() => ViewModel.Descripcion" />
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Precio (S/)</label>
+                <InputNumber tabindex="3" class="form-control" @bind-Value="ViewModel.PrecioBase" />
+                <ValidationMessage For="() => ViewModel.PrecioBase" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Stock actual</label>
+                <InputNumber tabindex="4" class="form-control" @bind-Value="ViewModel.StockActual" disabled="@(Id != null)" />
+                @if (Id != null) {
+                    <div class="form-text">Use el botón "Stock" del listado para actualizarlo.</div>
+                }
+                <ValidationMessage For="() => ViewModel.StockActual" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Stock mínimo</label>
+                <InputNumber tabindex="5" class="form-control" @bind-Value="ViewModel.StockMinimo" />
+                <ValidationMessage For="() => ViewModel.StockMinimo" />
+            </div>
+        </div>
+
+        <h5 class="mt-2">Categorías</h5>
+        <div class="d-flex flex-wrap gap-3 mb-1">
+            @foreach (OpcionSeleccion categoria in ViewModel.Categorias) {
+                <div class="form-check">
+                    <InputCheckbox class="form-check-input" id="@($"categoria-{categoria.Id}")" @bind-Value="categoria.Seleccionado" />
+                    <label class="form-check-label" for="@($"categoria-{categoria.Id}")">@categoria.Texto</label>
+                </div>
+            }
+        </div>
+        <div class="mb-3">
+            <ValidationMessage For="() => ViewModel.Categorias" />
+        </div>
+
+        <div class="d-flex gap-2">
+            <button tabindex="7" type="submit" class="btn btn-primary btn-texto"><Icono Nombre="save" /><span>Guardar</span></button>
+            <a tabindex="8" class="btn btn-outline-primary" href="articulos">Cancelar</a>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private ArticuloViewModel ViewModel { get; set; } = new();
+
+    protected override void OnParametersSet() {
+        if (Id == null) {
+            ViewModel = new ArticuloViewModel { Categorias = DatosEjemplo.OpcionesCategoria() };
+            return;
+        }
+        ArticuloViewModel? articulo = DatosEjemplo.Articulos().FirstOrDefault(a => a.Id == Id);
+        if (articulo == null) {
+            Nav.NavigateTo("/articulos");
+            return;
+        }
+        ViewModel = articulo;
+    }
+
+    // Sin backend: solo regresa al listado. Al enlazar: POST /articulos o PUT /articulos/{Id}
+    private void Guardar() {
+        Nav.NavigateTo("/articulos");
+    }
+}

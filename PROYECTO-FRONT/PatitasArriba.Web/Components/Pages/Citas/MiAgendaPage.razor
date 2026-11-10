@@ -1,0 +1,97 @@
+@page "/mi-agenda"
+@inject NavigationManager Nav;
+@inject SesionDemo Sesion;
+
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+<PageTitle>Mi agenda</PageTitle>
+
+<h3 class="mb-3">Mi agenda</h3>
+
+<div class="barra-filtros d-flex align-items-center gap-2 mb-3">
+    <label class="text-nowrap">Fecha:</label>
+    <input tabindex="1" type="date" class="form-control w-auto" @bind="FechaFiltro" @bind:format="yyyy-MM-dd" />
+    <button tabindex="2" class="btn btn-primary btn-texto" @onclick="() => Filtrar()">
+        <Icono Nombre="search" /><span>Filtrar</span>
+    </button>
+</div>
+
+@if (!Agenda.Any()) {
+    <div class="alert alert-info">No tiene servicios programados para la fecha seleccionada.</div>
+}
+else {
+    <QuickGrid Items="Agenda" Class="table table-striped table-hover align-middle">
+        <PropertyColumn Title="Hora" Property="i => i.FechaHora" Format="HH:mm" Sortable="true" />
+        <TemplateColumn Title="Mascota">
+            @context.NombreMascota
+            @if (context.EsEmergencia) {
+                <span class="badge text-bg-danger ms-1">Emergencia</span>
+            }
+        </TemplateColumn>
+        <PropertyColumn Title="Dueño" Property="i => i.NombreCliente" />
+        <PropertyColumn Title="Servicio" Property="i => i.NombreServicio" />
+        @* El estado va en su propia columna (no es un botón) *@
+        <TemplateColumn Title="Estado">
+            @if (Atenciones.ContainsKey(context.IdDetalleCita)) {
+                <span class="estado estado-aprobado">Atendido</span>
+            } else {
+                <span class="estado estado-pendiente">Por atender</span>
+            }
+        </TemplateColumn>
+        <TemplateColumn Title="Acciones">
+            @* Espacios fijos: atender o editar la atención | historial *@
+            <div class="acciones-fija">
+                <span class="slot-texto">
+                    @* Cada servicio se atiende una sola vez (RN-AT-02); después solo se edita su atención *@
+                    @if (Atenciones.ContainsKey(context.IdDetalleCita)) {
+                        <button class="btn btn-outline-primary btn-sm btn-texto" @onclick="() => EditarAtencion(Atenciones[context.IdDetalleCita])">
+                            <Icono Nombre="edit" /><span>Ver atención</span>
+                        </button>
+                    } else {
+                        <button class="btn btn-primary btn-sm btn-texto" @onclick="() => Atender(context.IdDetalleCita)">
+                            <Icono Nombre="activity" /><span>Atender</span>
+                        </button>
+                    }
+                </span>
+                <span class="slot-texto">
+                    <button class="btn btn-secondary btn-sm btn-texto" @onclick="() => VerHistorial(context.IdMascota)">
+                        <Icono Nombre="clipboard" /><span>Historial</span>
+                    </button>
+                </span>
+            </div>
+        </TemplateColumn>
+    </QuickGrid>
+}
+
+@code {
+    // Agenda del veterinario que inició sesión (al enlazar: GET /citas?fecha=AAAA-MM-DD&veterinario={id})
+    private IQueryable<ItemAgendaViewModel> Agenda { get; set; } = Enumerable.Empty<ItemAgendaViewModel>().AsQueryable();
+    private DateTime FechaFiltro { get; set; } = DateTime.Today;
+
+    // Id del servicio de la cita (detalle_cita) -> id de su atención
+    private Dictionary<int, int> Atenciones { get; set; } = new();
+
+    protected override void OnInitialized() {
+        Atenciones = DatosEjemplo.Atenciones().ToDictionary(a => a.IdDetalleCita, a => a.Id);
+        Filtrar();
+    }
+
+    // Los datos de ejemplo solo traen la agenda de hoy
+    private void Filtrar() {
+        Agenda = DatosEjemplo.AgendaDeVeterinario(Sesion.NombreUsuario)
+            .Where(i => i.FechaHora.Date == FechaFiltro.Date)
+            .AsQueryable();
+    }
+
+    private void Atender(int idDetalleCita) {
+        Nav.NavigateTo($"/atenciones/registrar/{idDetalleCita}");
+    }
+
+    private void EditarAtencion(int idAtencion) {
+        Nav.NavigateTo($"/atenciones/editar/{idAtencion}");
+    }
+
+    private void VerHistorial(int idMascota) {
+        Nav.NavigateTo($"/reportes/historial-clinico/{idMascota}");
+    }
+}

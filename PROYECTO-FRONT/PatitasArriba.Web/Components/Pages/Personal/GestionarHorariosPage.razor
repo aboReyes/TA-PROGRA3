@@ -1,0 +1,73 @@
+@page "/horarios/nuevo"
+@page "/horarios/editar/{Id:int}"
+@inject NavigationManager Nav;
+
+<PageTitle>Horarios de atención</PageTitle>
+
+<div class="col-md-8">
+    <h3 class="mb-3">@(Id == null ? "Nuevo horario" : "Editar horario")</h3>
+
+    <EditForm Model="ViewModel" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Día</label>
+                <InputSelect tabindex="1" class="form-select" @bind-Value="ViewModel.DiaSemana">
+                    @foreach (DiaSemana dia in Dias) {
+                        <option value="@dia">@TextoEnum.De(dia)</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Hora de inicio</label>
+                <InputDate tabindex="2" Type="InputDateType.Time" class="form-control" @bind-Value="ViewModel.HoraInicio" />
+                <ValidationMessage For="() => ViewModel.HoraInicio" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Hora de fin</label>
+                <InputDate tabindex="3" Type="InputDateType.Time" class="form-control" @bind-Value="ViewModel.HoraFin" />
+                <ValidationMessage For="() => ViewModel.HoraFin" />
+            </div>
+        </div>
+
+        @if (Id != null) {
+            <div class="mb-3">
+                <label class="form-label">Personal asignado</label>
+                <input class="form-control" value="@(ViewModel.NombresPersonal.Count == 0 ? "Nadie" : ViewModel.PersonalAsignado)" disabled />
+                <div class="form-text">Se asigna desde la ficha de cada veterinario o administrador.</div>
+            </div>
+        }
+
+        <div class="d-flex gap-2">
+            <button tabindex="4" type="submit" class="btn btn-primary btn-texto"><Icono Nombre="save" /><span>Guardar</span></button>
+            <a tabindex="5" class="btn btn-outline-primary" href="horarios">Cancelar</a>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private HorarioViewModel ViewModel { get; set; } = new();
+    private DiaSemana[] Dias { get; } = Enum.GetValues<DiaSemana>();
+
+    protected override void OnParametersSet() {
+        if (Id == null) {
+            ViewModel = new HorarioViewModel();
+            return;
+        }
+        HorarioViewModel? horario = DatosEjemplo.Horarios().FirstOrDefault(h => h.Id == Id);
+        if (horario == null) {
+            Nav.NavigateTo("/horarios");
+            return;
+        }
+        ViewModel = horario;
+    }
+
+    // Sin backend: solo regresa al listado. Al enlazar: POST /horarios o PUT /horarios/{Id}
+    private void Guardar() {
+        Nav.NavigateTo("/horarios");
+    }
+}

@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patitas Arriba - Iniciar sesión</title>
+<style>
+  :root {
+    --teal: #0f766e;
+    --teal-dark: #0b524d;
+    --teal-soft: #ccfbf1;
+    --cream: #fff8ee;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; color: var(--ink); background: var(--cream); }
+  .page { min-height: 100vh; display: grid; grid-template-columns: 1.2fr 1fr; }
+
+  /* ================= Panel de perritos ================= */
+  .stage-panel {
+    position: relative; overflow: hidden; min-height: 100vh;
+    background: linear-gradient(180deg, #0e6b64 0%, #14a398 55%, #5fd3c4 100%);
+    display: flex; flex-direction: column; padding: 30px 38px 0;
+  }
+  .sun { position: absolute; top: -90px; right: -70px; width: 330px; height: 330px; border-radius: 50%;
+         background: radial-gradient(circle, rgba(255,236,170,.9) 0%, rgba(255,214,102,.45) 38%, rgba(255,214,102,0) 70%); }
+  .cloud { position: absolute; height: 26px; border-radius: 20px; background: rgba(255,255,255,.22); animation: drift 38s linear infinite; }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: inherit; border-radius: 50%; }
+  .cloud::before { width: 34px; height: 34px; left: 14px; top: -16px; }
+  .cloud::after  { width: 44px; height: 44px; left: 40px; top: -22px; }
+  .cloud.c1 { width: 120px; top: 150px; left: -140px; }
+  .cloud.c2 { width: 90px;  top: 250px; left: -140px; animation-duration: 55s; animation-delay: -20s; opacity: .8; }
+  @keyframes drift { to { transform: translateX(900px); } }
+
+  .brand { position: relative; z-index: 3; display: flex; align-items: center; gap: 12px; color: #fff; }
+  .brand .logo { width: 46px; height: 46px; border-radius: 14px; background: #fff; display: grid; place-items: center; box-shadow: 0 6px 16px rgba(0,0,0,.15); }
+  .brand h1 { margin: 0; font-size: 1.4rem; letter-spacing: .3px; line-height: 1.1; }
+  .brand small { display: block; opacity: .9; font-weight: 400; font-size: .8rem; margin-top: 2px; }
+  .tagline { position: relative; z-index: 3; color: #fff; max-width: 440px; margin: 26px 0 0; font-size: 1.9rem; line-height: 1.2; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,.12); }
+  .tagline span { color: #fde68a; }
+
+  .dogs { position: relative; flex: 1; min-height: 470px; margin: 0 -38px; z-index: 2; }
+  .dog { position: absolute; height: auto; overflow: visible; transition: transform .3s ease; }
+  .dog.lab   { width: 37%; left: -2%;  bottom: 4%;  z-index: 4; }
+  .dog.chi1  { width: 20%; left: 29%;  bottom: 3%;  z-index: 5; }
+  .dog.pug   { width: 25%; left: 43%;  bottom: 3%;  z-index: 6; }
+  .dog.chi2  { width: 20%; left: 61%;  bottom: 3%;  z-index: 5; }
+  .dog.chi3  { width: 21%; left: 78%;  bottom: 3%;  z-index: 6; }
+  .dog.husky { width: 33%; left: 57%;  bottom: 20%; z-index: 3; }
+  .dog.dal   { width: 28%; left: 20%;  bottom: 26%; z-index: 2; }
+
+  .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 9%; min-height: 40px; background: #0a4a45; z-index: 1; }
+  .ground::before { content: ""; position: absolute; left: -5%; right: -5%; top: -22px; height: 44px; border-radius: 50%; background: #0a4a45; }
+  .hill { position: absolute; bottom: 4%; border-radius: 50%; background: #0d6a62; z-index: 1; }
+  .hill.h1 { width: 70%; height: 200px; left: -18%; }
+  .hill.h2 { width: 80%; height: 240px; right: -28%; background: #0f7a70; }
+
+  /* ---- animaciones comunes ---- */
+  .tail { transform-box: fill-box; transform-origin: 0% 100%; animation: wag-idle 3.4s ease-in-out infinite; }
+  @keyframes wag-idle  { 0%,100% { transform: rotate(-5deg); } 50% { transform: rotate(7deg); } }
+  @keyframes wag-happy { from { transform: rotate(-26deg); } to { transform: rotate(30deg); } }
+  [data-state="email"] .tail { animation: wag-happy .26s ease-in-out infinite alternate; }
+
+  .lid { transform-box: fill-box; transform-origin: 50% 0%; transform: scaleY(0); animation: blink 5s infinite; }
+  @keyframes blink { 0%,93%,100% { transform: scaleY(0); } 96% { transform: scaleY(1); } }
+
+  .mouth-open, .tongue-big { opacity: 0; transition: opacity .15s; }
+  [data-state="email"] .mouth-open, [data-state="email"] .tongue-big { opacity: 1; }
+  [data-state="email"] .mouth-closed { opacity: 0; }
+  .blush { opacity: .35; transition: opacity .2s; }
+  [data-state="email"] .blush { opacity: .85; }
+  .brow { transition: transform .2s; transform-box: fill-box; }
+  [data-state="email"] .brow { transform: translateY(-5px); }
+
+  [data-state="email"] .dog { animation: hop .9s ease-in-out infinite; }
+  [data-state="email"] .dog.pug   { animation-delay: .12s; }
+  [data-state="email"] .dog.husky { animation-delay: .24s; }
+  [data-state="email"] .dog.dal   { animation-delay: .36s; }
+  [data-state="email"] .dog.chi1  { animation-delay: .06s; }
+  [data-state="email"] .dog.chi2  { animation-delay: .2s; }
+  [data-state="email"] .dog.chi3  { animation-delay: .3s; }
+  @keyframes hop { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+  .dogs.celebrate .dog { animation: jump .5s ease-out 3; }
+  @keyframes jump { 0%,100% { transform: translateY(0); } 45% { transform: translateY(-48px); } }
+
+  .heart { position: absolute; z-index: 9; font-size: 24px; color: #fb7185; pointer-events: none; text-shadow: 0 2px 6px rgba(0,0,0,.18);
+           animation: rise 2s ease-out forwards; }
+  @keyframes rise { 0% { opacity: 0; transform: translate(0,0) scale(.5); } 15% { opacity: 1; }
+                    100% { opacity: 0; transform: translate(var(--dx), -120px) scale(1.15); } }
+
+  /* ---- mirada y cabeza: sin transición para que sigan el mouse al instante ---- */
+  .head-look, .pupil { transition: none; }
+  .settling .head-look, .settling .pupil { transition: transform .35s ease; }
+  .head-pose { transform-box: view-box; transform-origin: 130px 205px; transition: transform .35s ease; }
+  .cover { opacity: 0; transform: translateY(70px); transition: transform .35s cubic-bezier(.3,1.4,.5,1), opacity .25s; }
+  .ear { transform-box: fill-box; transition: transform .4s ease; }
+  .ear-l { transform-origin: 75% 8%; }
+  .ear-r { transform-origin: 25% 8%; }
+  .husky .ear-l, .husky .ear-r, .chi1 .ear-l, .chi1 .ear-r { transform-origin: 50% 100%; }
+
+  /* ---- contraseña: unos se agachan y se tapan los ojitos ---- */
+  [data-state="password"] .dog[data-pw="cover"] .head-pose { transform: translateY(20px) scale(.97); }
+  [data-state="password"] .dog[data-pw="cover"] .cover { opacity: 1; transform: translateY(0); }
+  /* ---- otros miran al costado con las orejas caídas ---- */
+  [data-state="password"] .dog[data-pw="aside"] .head-pose { transform: rotate(-9deg) translateX(-8px); }
+  [data-state="password"] .husky .ear-l  { transform: rotate(-42deg); }
+  [data-state="password"] .husky .ear-r  { transform: rotate(42deg); }
+  [data-state="password"] .chi1 .ear-l   { transform: rotate(-40deg); }
+  [data-state="password"] .chi1 .ear-r   { transform: rotate(40deg); }
+  [data-state="password"] .dal .ear-l    { transform: rotate(12deg) translateY(10px); }
+  [data-state="password"] .dal .ear-r    { transform: rotate(-12deg) translateY(10px); }
+  /* ---- contraseña visible: los que se tapan espían, los otros se asoman curiosos ---- */
+  [data-state="peek"] .dog[data-pw="cover"] .head-pose { transform: translateY(12px); }
+  [data-state="peek"] .dog[data-pw="cover"] .cover { opacity: 1; transform: translateY(30px); }
+  [data-state="peek"] .dog[data-pw="aside"] .head-pose { transform: rotate(6deg) translateX(6px); }
+
+  /* ================= Formulario ================= */
+  .form-panel { display: grid; place-items: center; padding: 32px 24px; }
+  .card { width: 100%; max-width: 410px; background: #fff; border-radius: 22px; padding: 36px 34px 30px;
+          box-shadow: 0 18px 50px rgba(15,118,110,.14); border: 1px solid #f3e7d3; }
+  .card h2 { margin: 0 0 4px; font-size: 1.6rem; }
+  .card p.sub { margin: 0 0 24px; color: var(--muted); font-size: .95rem; }
+  label { display: block; font-weight: 600; font-size: .86rem; margin-bottom: 6px; }
+  .field { margin-bottom: 18px; }
+  .input-wrap { position: relative; }
+  input[type=email], input[type=password], input[type=text] {
+    width: 100%; padding: 12px 44px 12px 42px; border: 1.5px solid var(--line); border-radius: 12px; font-size: 1rem; outline: none;
+    background: #fafafa; transition: border-color .15s, box-shadow .15s, background .15s; }
+  input:focus { border-color: var(--teal); box-shadow: 0 0 0 4px rgba(20,184,166,.18); background: #fff; }
+  .input-wrap .ico { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--muted); }
+  .eye-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; cursor: pointer; padding: 6px; border-radius: 8px; color: var(--muted); }
+  .eye-btn:hover { background: #f1f5f9; color: var(--teal); }
+  .eye-btn svg { display: block; width: 20px; height: 20px; }
+  .row { display: flex; justify-content: space-between; align-items: center; margin: -4px 0 20px; font-size: .88rem; }
+  .row a { color: var(--teal); text-decoration: none; font-weight: 600; }
+  .row a:hover { text-decoration: underline; }
+  .row label { display: flex; align-items: center; gap: 8px; font-weight: 500; margin: 0; color: var(--muted); }
+  .btn { width: 100%; border: 0; border-radius: 12px; padding: 13px; font-size: 1.02rem; font-weight: 700; cursor: pointer; color: #fff;
+         background: var(--teal); transition: background .15s, transform .1s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn:hover { background: var(--teal-dark); }
+  .btn:active { transform: scale(.985); }
+  .hint { margin-top: 18px; padding: 10px 12px; border-radius: 10px; background: var(--teal-soft); color: var(--teal-dark); font-size: .83rem; display: flex; gap: 8px; }
+  .toast { margin-top: 14px; padding: 10px 12px; border-radius: 10px; background: #fef3c7; color: #92400e; font-size: .85rem; display: none; }
+  .toast.on { display: block; }
+
+  @media (max-width: 860px) {
+    .page { grid-template-columns: 1fr; }
+    .stage-panel { min-height: 0; padding: 18px 18px 0; }
+    .tagline { font-size: 1.15rem; margin-top: 12px; }
+    .dogs { min-height: 300px; margin: 0 -18px; }
+    .sun { width: 200px; height: 200px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .tail, .dog, .cloud, .lid { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <section class="stage-panel" id="stage" data-state="idle" aria-hidden="true">
+    <div class="sun"></div><div class="cloud c1"></div><div class="cloud c2"></div>
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 64 64" width="30" height="30" fill="#0f766e">
+          <ellipse cx="32" cy="42" rx="14" ry="12"/>
+          <ellipse cx="14" cy="26" rx="6" ry="8" transform="rotate(-18 14 26)"/>
+          <ellipse cx="25" cy="14" rx="6" ry="8" transform="rotate(-6 25 14)"/>
+          <ellipse cx="39" cy="14" rx="6" ry="8" transform="rotate(6 39 14)"/>
+          <ellipse cx="50" cy="26" rx="6" ry="8" transform="rotate(18 50 26)"/>
+        </svg>
+      </div>
+      <h1>Patitas Arriba<small>Clínica veterinaria</small></h1>
+    </div>
+    <p class="tagline">Cuidamos a tu mejor amigo con <span>mucho cariño</span>.</p>
+
+    <div class="dogs" id="dogs">
+      <div class="hill h1"></div><div class="hill h2"></div>
+    </div>
+    <div class="ground" style="position:absolute"></div>
+  </section>
+
+  <section class="form-panel">
+    <form class="card" id="form" novalidate>
+      <h2>¡Hola de nuevo!</h2>
+      <p class="sub">Ingresa con tu correo y contraseña.</p>
+
+      <div class="field">
+        <label for="correo">Correo electrónico</label>
+        <div class="input-wrap">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          <input id="correo" type="email" placeholder="nombre@correo.com" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="clave">Contraseña</label>
+        <div class="input-wrap">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          <input id="clave" type="password" placeholder="••••••••" autocomplete="off">
+          <button class="eye-btn" type="button" id="ver" aria-label="Mostrar contraseña">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="row">
+        <label><input type="checkbox"> Recordarme</label>
+        <a href="#">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button class="btn" type="submit">Ingresar
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+
+      <div class="toast" id="toast">Vista de diseño: aquí se validaría la cuenta y el sistema identificaría tu rol automáticamente.</div>
+      <div class="hint">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span>No eliges tu rol: el sistema lo detecta según tu cuenta.</span>
+      </div>
+    </form>
+  </section>
+</div>
+
+<script>
+/* ================= Piezas comunes de los perritos ================= */
+// Ojo con párpado (parpadeo), pupila que se mueve y brillos
+function ojo(cx, cy, r, lid, iris, escl) {
+  const pr = iris ? r * 0.36 : r * 0.55;
+  const max = r * (iris ? 0.30 : 0.40);
+  return `
+  <g class="eye">
+    <circle class="sclera" cx="${cx}" cy="${cy}" r="${r}" fill="${escl || '#fff'}" stroke="#0000002a" stroke-width="1.4"/>
+    <g class="pupil" data-max="${max}">
+      ${iris ? `<circle cx="${cx}" cy="${cy}" r="${r * 0.7}" fill="${iris}"/>` : ''}
+      <circle cx="${cx}" cy="${cy}" r="${pr}" fill="#161a24"/>
+      <circle cx="${cx - r * .22}" cy="${cy - r * .25}" r="${r * .2}" fill="#fff"/>
+      <circle cx="${cx + r * .2}" cy="${cy + r * .2}" r="${r * .09}" fill="#fff" opacity=".85"/>
+    </g>
+    <circle class="lid" cx="${cx}" cy="${cy}" r="${r + 1.6}" fill="${lid}"/>
+  </g>`;
+}
+function ceja(cx, cy, r, color) {
+  return `<path class="brow" d="M${cx - r} ${cy - r - 5} q${r} -11 ${2 * r} 0" stroke="${color}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+}
+// Boca cerrada (sonrisa) y boca abierta feliz con lengua
+function boca(cx, cy, w, stroke) {
+  return `
+  <g class="mouth-closed" stroke="${stroke}" stroke-width="2.8" fill="none" stroke-linecap="round">
+    <path d="M${cx} ${cy - 6}v8M${cx} ${cy + 2}q${-w * .5} ${w * .6} ${-w} 0M${cx} ${cy + 2}q${w * .5} ${w * .6} ${w} 0"/>
+  </g>
+  <path class="mouth-open" d="M${cx - w * 1.1} ${cy} Q${cx} ${cy + w * 2.3} ${cx + w * 1.1} ${cy} Q${cx} ${cy + w * .5} ${cx - w * 1.1} ${cy}Z" fill="#7f1d1d"/>
+  <ellipse class="tongue-big" cx="${cx}" cy="${cy + w * 1.25}" rx="${w * .55}" ry="${w * .6}" fill="#f9739a"/>`;
+}
+function patas(cx1, cx2, cy, fill, line) {
+  return [cx1, cx2].map(cx => `
+  <g class="cover">
+    <ellipse cx="${cx}" cy="${cy}" rx="25" ry="21" fill="${fill}" stroke="${line}" stroke-width="2.6"/>
+    <path d="M${cx - 9} ${cy + 3}v9M${cx} ${cy + 5}v10M${cx + 9} ${cy + 3}v9" stroke="${line}" stroke-width="2.2" stroke-linecap="round"/>
+  </g>`).join('');
+}
+const mejillas = (a, b, y) => `<circle class="blush" cx="${a}" cy="${y}" r="9" fill="#f472b6"/><circle class="blush" cx="${b}" cy="${y}" r="9" fill="#f472b6"/>`;
+
+/* ================= Cada perro con su propio diseño ================= */
+
+// 1) LABRADOR: grande, orejas caídas, collar rojo con medalla. Se agacha y se tapa los ojos.
+function labrador() { return `
+<svg class="dog lab" data-pw="cover" viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="gl" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="#f5d48e"/><stop offset="1" stop-color="#d9a441"/></radialGradient>
+  </defs>
+  <path class="tail" d="M198 262 Q254 262 247 190" stroke="#d9a441" stroke-width="25" fill="none" stroke-linecap="round"/>
+  <ellipse cx="196" cy="258" rx="40" ry="34" fill="#d19b3c"/>
+  <path d="M78 138 Q84 200 62 242 L194 242 Q172 200 178 138Z" fill="#d9a441"/>
+  <ellipse cx="128" cy="240" rx="78" ry="56" fill="url(#gl)"/>
+  <ellipse cx="128" cy="250" rx="42" ry="46" fill="#f6e2b4"/>
+  <rect x="92" y="252" width="31" height="42" rx="15.5" fill="url(#gl)"/><rect x="133" y="252" width="31" height="42" rx="15.5" fill="url(#gl)"/>
+  <ellipse cx="107" cy="291" rx="22" ry="9" fill="#f6e2b4"/><ellipse cx="149" cy="291" rx="22" ry="9" fill="#f6e2b4"/>
+  <path d="M99 288v5M107 289v5M115 288v5M141 288v5M149 289v5M157 288v5" stroke="#b9852f" stroke-width="2" stroke-linecap="round"/>
+  <path d="M80 176 Q128 206 176 176" stroke="#dc2626" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <circle cx="128" cy="199" r="11" fill="#fbbf24" stroke="#b45309" stroke-width="2.2"/>
+  <ellipse cx="128" cy="200" rx="4" ry="3.2" fill="#b45309"/>
+  <ellipse cx="130" cy="176" rx="48" ry="12" fill="#000" opacity=".11"/>
+  <g class="head-look"><g class="head-pose">
+    <g class="ear ear-l"><ellipse cx="58" cy="124" rx="24" ry="50" transform="rotate(10 58 124)" fill="#c58f33"/><ellipse cx="55" cy="118" rx="10" ry="30" transform="rotate(10 55 118)" fill="#d9a441"/></g>
+    <g class="ear ear-r"><ellipse cx="202" cy="124" rx="24" ry="50" transform="rotate(-10 202 124)" fill="#c58f33"/><ellipse cx="205" cy="118" rx="10" ry="30" transform="rotate(-10 205 118)" fill="#d9a441"/></g>
+    <ellipse cx="130" cy="112" rx="68" ry="60" fill="url(#gl)"/>
+    <ellipse cx="116" cy="70" rx="28" ry="11" fill="#fff" opacity=".22"/>
+    <ellipse cx="130" cy="140" rx="38" ry="30" fill="#f6e2b4"/>
+    ${ceja(100, 106, 15, '#a9741f')}${ceja(160, 106, 15, '#a9741f')}
+    ${ojo(100, 108, 16, '#e0ae55')}${ojo(160, 108, 16, '#e0ae55')}
+    <ellipse cx="130" cy="127" rx="15" ry="10.5" fill="#262626"/><ellipse cx="125" cy="123.5" rx="5" ry="2.6" fill="#fff" opacity=".5"/>
+    ${boca(130, 136, 14, '#3a2a15')}
+    ${mejillas(84, 176, 136)}
+    ${patas(100, 160, 108, '#e0ae55', '#a9741f')}
+  </g></g>
+</svg>`; }
+
+// 2) PUG: pequeño, cara chata y arrugada, antifaz oscuro, pañuelo azul, cola enrulada. Se tapa los ojos.
+function pug() { return `
+<svg class="dog pug" data-pw="cover" viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="gp" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="#f7e6c4"/><stop offset="1" stop-color="#e2c690"/></radialGradient>
+  </defs>
+  <path class="tail" d="M192 246 q36 -4 31 -32 q-4 -22 -24 -15 q-13 6 -3 18" stroke="#e2c690" stroke-width="14" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M72 146 Q80 206 58 246 L202 246 Q180 206 188 146Z" fill="#e2c690"/>
+  <ellipse cx="130" cy="246" rx="70" ry="48" fill="url(#gp)"/>
+  <ellipse cx="130" cy="262" rx="40" ry="26" fill="#f9edd3"/>
+  <rect x="92" y="262" width="32" height="30" rx="16" fill="url(#gp)"/><rect x="136" y="262" width="32" height="30" rx="16" fill="url(#gp)"/>
+  <ellipse cx="108" cy="291" rx="21" ry="8.5" fill="#f9edd3"/><ellipse cx="152" cy="291" rx="21" ry="8.5" fill="#f9edd3"/>
+  <path d="M100 289v4M108 290v4M116 289v4M144 289v4M152 290v4M160 289v4" stroke="#b8975c" stroke-width="2" stroke-linecap="round"/>
+  <path d="M76 182 Q130 214 184 182 L130 244Z" fill="#2563eb"/>
+  <g fill="#fff" opacity=".9"><circle cx="104" cy="196" r="3"/><circle cx="130" cy="210" r="3"/><circle cx="154" cy="196" r="3"/><circle cx="130" cy="226" r="3"/></g>
+  <ellipse cx="130" cy="176" rx="48" ry="12" fill="#000" opacity=".11"/>
+  <g class="head-look"><g class="head-pose">
+    <g class="ear ear-l"><path d="M72 72 Q38 82 44 132 Q80 128 96 98Z" fill="#4b3f38"/></g>
+    <g class="ear ear-r"><path d="M188 72 Q222 82 216 132 Q180 128 164 98Z" fill="#4b3f38"/></g>
+    <ellipse cx="130" cy="118" rx="76" ry="62" fill="url(#gp)"/>
+    <path d="M100 66 q30 -12 60 0M108 80 q22 -8 44 0" stroke="#b8975c" stroke-width="3.4" fill="none" stroke-linecap="round" opacity=".85"/>
+    <ellipse cx="130" cy="136" rx="54" ry="44" fill="#4b3f38"/>
+    ${ceja(94, 114, 17, '#e9d9b8')}${ceja(166, 114, 17, '#e9d9b8')}
+    ${ojo(94, 118, 20, '#4b3f38')}${ojo(166, 118, 20, '#4b3f38')}
+    <ellipse cx="130" cy="140" rx="15" ry="10" fill="#0f0f0f"/><circle cx="124" cy="140" r="2.2" fill="#555"/><circle cx="136" cy="140" r="2.2" fill="#555"/>
+    ${boca(130, 152, 12, '#e9d9b8')}
+    ${mejillas(70, 190, 150)}
+    ${patas(94, 166, 118, '#e2c690', '#8a6c38')}
+  </g></g>
+</svg>`; }
+
+// 3) HUSKY: orejas paradas, antifaz blanco, ojos azules, pelo esponjoso, collar naranja. Mira al costado y baja las orejas.
+function husky() { return `
+<svg class="dog husky" data-pw="aside" viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="gh" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="#93a1b5"/><stop offset="1" stop-color="#65748a"/></radialGradient>
+  </defs>
+  <path class="tail" d="M196 252 Q258 266 242 196 Q236 174 214 184" stroke="#6b7a90" stroke-width="30" fill="none" stroke-linecap="round"/>
+  <path d="M232 214 Q238 192 218 190" stroke="#f5f7fa" stroke-width="12" fill="none" stroke-linecap="round" opacity=".9"/>
+  <path d="M80 140 Q86 202 62 242 L198 242 Q174 202 180 140Z" fill="#6b7a90"/>
+  <ellipse cx="130" cy="238" rx="72" ry="58" fill="url(#gh)"/>
+  <path d="M82 214 Q130 176 178 214 Q190 258 130 296 Q70 258 82 214Z" fill="#f5f7fa"/>
+  <rect x="94" y="256" width="30" height="38" rx="15" fill="#f5f7fa"/><rect x="136" y="256" width="30" height="38" rx="15" fill="#f5f7fa"/>
+  <ellipse cx="109" cy="291" rx="21" ry="9" fill="#e9edf3"/><ellipse cx="151" cy="291" rx="21" ry="9" fill="#e9edf3"/>
+  <path d="M101 289v4M109 290v4M117 289v4M143 289v4M151 290v4M159 289v4" stroke="#aab3c2" stroke-width="2" stroke-linecap="round"/>
+  <path d="M82 178 Q130 208 178 178" stroke="#f97316" stroke-width="13" fill="none" stroke-linecap="round"/>
+  <path d="M120 198l10 12 10 -12z" fill="#fbbf24" stroke="#b45309" stroke-width="2" stroke-linejoin="round"/>
+  <ellipse cx="130" cy="176" rx="48" ry="12" fill="#000" opacity=".11"/>
+  <g class="head-look"><g class="head-pose">
+    <g class="ear ear-l"><path d="M70 90 L56 4 L126 56Z" fill="#4a5568"/><path d="M76 72 L68 28 L110 56Z" fill="#f9a8b8"/></g>
+    <g class="ear ear-r"><path d="M190 90 L204 4 L134 56Z" fill="#4a5568"/><path d="M184 72 L192 28 L150 56Z" fill="#f9a8b8"/></g>
+    <ellipse cx="130" cy="116" rx="67" ry="58" fill="url(#gh)"/>
+    <path d="M130 58 Q104 84 110 120 Q62 122 64 150 Q96 182 130 180 Q164 182 196 150 Q198 122 150 120 Q156 84 130 58Z" fill="#f8fafc"/>
+    <ellipse cx="98" cy="104" rx="25" ry="20" fill="#4a5568" opacity=".55"/><ellipse cx="162" cy="104" rx="25" ry="20" fill="#4a5568" opacity=".55"/>
+    ${ceja(98, 108, 14, '#3b4658')}${ceja(162, 108, 14, '#3b4658')}
+    ${ojo(98, 110, 16, '#7d8aa0', '#38bdf8')}${ojo(162, 110, 16, '#7d8aa0', '#38bdf8')}
+    <ellipse cx="130" cy="140" rx="14" ry="9.5" fill="#1f2937"/><ellipse cx="125" cy="137" rx="4.5" ry="2.3" fill="#fff" opacity=".45"/>
+    ${boca(130, 149, 13, '#3b4658')}
+    ${mejillas(80, 180, 146)}
+    ${patas(98, 162, 110, '#7d8aa0', '#3b4658')}
+  </g></g>
+</svg>`; }
+
+// 4) DÁLMATA cachorro: manchas, orejotas negras, collar verde con hueso. Mira al costado y baja las orejas.
+function dalmata() { return `
+<svg class="dog dal" data-pw="aside" viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg">
+  <path class="tail" d="M190 258 Q246 252 240 196" stroke="#e9ecef" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <path d="M240 214 Q241 202 238 196" stroke="#262626" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <path d="M80 144 Q86 204 64 244 L196 244 Q174 204 180 144Z" fill="#fff" stroke="#e5e7eb" stroke-width="2"/>
+  <ellipse cx="130" cy="242" rx="68" ry="52" fill="#fff" stroke="#e5e7eb" stroke-width="2"/>
+  <g fill="#262626"><circle cx="88" cy="226" r="11"/><circle cx="152" cy="214" r="14"/><circle cx="176" cy="258" r="9"/><circle cx="108" cy="266" r="7"/><circle cx="188" cy="232" r="7"/><circle cx="70" cy="252" r="6"/><circle cx="132" cy="246" r="5"/></g>
+  <rect x="96" y="258" width="29" height="34" rx="14.5" fill="#fff" stroke="#e5e7eb" stroke-width="2"/><rect x="135" y="258" width="29" height="34" rx="14.5" fill="#fff" stroke="#e5e7eb" stroke-width="2"/>
+  <circle cx="108" cy="272" r="5" fill="#262626"/>
+  <ellipse cx="110" cy="291" rx="20" ry="8.5" fill="#fff" stroke="#e5e7eb" stroke-width="2"/><ellipse cx="150" cy="291" rx="20" ry="8.5" fill="#fff" stroke="#e5e7eb" stroke-width="2"/>
+  <path d="M84 180 Q130 208 176 180" stroke="#16a34a" stroke-width="13" fill="none" stroke-linecap="round"/>
+  <g fill="#fde68a" stroke="#b45309" stroke-width="2"><circle cx="122" cy="202" r="5"/><circle cx="138" cy="202" r="5"/><circle cx="122" cy="214" r="5"/><circle cx="138" cy="214" r="5"/><rect x="122" y="202" width="16" height="12"/></g>
+  <ellipse cx="130" cy="176" rx="48" ry="12" fill="#000" opacity=".11"/>
+  <g class="head-look"><g class="head-pose">
+    <g class="ear ear-l"><ellipse cx="54" cy="116" rx="26" ry="54" transform="rotate(6 54 116)" fill="#262626"/><ellipse cx="50" cy="108" rx="8" ry="26" transform="rotate(6 50 108)" fill="#4b5563"/></g>
+    <g class="ear ear-r"><ellipse cx="206" cy="116" rx="26" ry="54" transform="rotate(-6 206 116)" fill="#262626"/><ellipse cx="210" cy="108" rx="8" ry="26" transform="rotate(-6 210 108)" fill="#4b5563"/></g>
+    <ellipse cx="130" cy="116" rx="66" ry="58" fill="#fff" stroke="#e5e7eb" stroke-width="2"/>
+    <ellipse cx="96" cy="106" rx="27" ry="23" fill="#262626"/>
+    <g fill="#262626"><circle cx="156" cy="70" r="9"/><circle cx="176" cy="92" r="6"/><circle cx="118" cy="64" r="5"/></g>
+    <ellipse cx="130" cy="144" rx="35" ry="27" fill="#fff" stroke="#e5e7eb" stroke-width="1.6"/>
+    <g fill="#262626" opacity=".7"><circle cx="112" cy="146" r="2"/><circle cx="108" cy="154" r="2"/><circle cx="148" cy="146" r="2"/><circle cx="153" cy="154" r="2"/></g>
+    ${ceja(96, 108, 15, '#fff')}${ceja(164, 108, 15, '#6b7280')}
+    ${ojo(96, 110, 18, '#262626', '#8b5a2b')}${ojo(164, 110, 18, '#fff', '#8b5a2b')}
+    <ellipse cx="130" cy="131" rx="13" ry="9.5" fill="#262626"/><ellipse cx="125" cy="128" rx="4.2" ry="2.2" fill="#fff" opacity=".5"/>
+    ${boca(130, 140, 12, '#3b3b3b')}
+    ${mejillas(82, 178, 140)}
+    ${patas(96, 164, 110, '#fff', '#6b7280')}
+  </g></g>
+</svg>`; }
+
+
+// 5-7) CHIHUAHUAS (basados en las fotos): cabezón, orejas grandes, ojos oscuros enormes, cuerpo flaquito
+function chihuahua(o) { return `
+<svg class="dog chi ${o.cls}" data-pw="${o.pw}" viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="g-${o.cls}" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="${o.fur1}"/><stop offset="1" stop-color="${o.fur2}"/></radialGradient>
+  </defs>
+  <path class="tail" d="M172 268 Q230 264 220 212" stroke="${o.fur2}" stroke-width="11" fill="none" stroke-linecap="round"/>
+  <path d="M92 146 Q96 204 74 246 L186 246 Q164 204 168 146Z" fill="${o.fur2}"/>
+  <ellipse cx="130" cy="248" rx="56" ry="46" fill="url(#g-${o.cls})"/>
+  <ellipse cx="130" cy="258" rx="32" ry="32" fill="${o.chest}"/>
+  <rect x="99" y="262" width="23" height="30" rx="11.5" fill="${o.fur1}"/><rect x="138" y="262" width="23" height="30" rx="11.5" fill="${o.fur1}"/>
+  <ellipse cx="110" cy="291" rx="17" ry="8" fill="${o.paw}"/><ellipse cx="150" cy="291" rx="17" ry="8" fill="${o.paw}"/>
+  <path d="M103 289v4M110 290v4M117 289v4M143 289v4M150 290v4M157 289v4" stroke="${o.pawLine}" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M88 176 Q130 204 172 176" stroke="${o.collar}" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <circle cx="130" cy="198" r="9" fill="#fbbf24" stroke="#b45309" stroke-width="2"/>
+  <ellipse cx="130" cy="176" rx="46" ry="11" fill="#000" opacity=".11"/>
+  <g class="head-look"><g class="head-pose">
+    ${o.ears}
+    <ellipse cx="130" cy="120" rx="66" ry="58" fill="url(#g-${o.cls})"/>
+    <ellipse cx="116" cy="76" rx="26" ry="10" fill="#fff" opacity=".2"/>
+    ${o.faceExtra || ''}
+    <ellipse cx="130" cy="148" rx="31" ry="24" fill="${o.muzzle}"/>
+    ${ceja(96, 118, 14, o.brow)}${ceja(164, 118, 14, o.brow)}
+    ${ojo(96, 120, 16, o.fur1, '#5a3a26', '#2a1a12')}${ojo(164, 120, 16, o.fur1, '#5a3a26', '#2a1a12')}
+    ${o.lids ? `<path d="M80 116 A16 16 0 0 1 112 116Z" fill="${o.fur1}"/><path d="M148 116 A16 16 0 0 1 180 116Z" fill="${o.fur1}"/>` : ''}
+    <ellipse cx="130" cy="139" rx="12" ry="8.5" fill="${o.nose}"/><ellipse cx="126" cy="136.5" rx="4" ry="2" fill="#fff" opacity=".4"/>
+    ${boca(130, 147, 11, o.mouth)}
+    ${o.whiskers || ''}
+    ${mejillas(78, 182, 148)}
+    ${patas(96, 164, 120, o.fur1, o.pawLine)}
+  </g></g>
+</svg>`; }
+
+// Chihuahua 1: blanco crema, orejas grandes paradas con interior rosado, párpados pesados, nariz oscura
+const chiA = chihuahua({ cls: 'chi1', pw: 'aside', fur1: '#fbf3e6', fur2: '#ecd9bd', chest: '#fffaf1', paw: '#e2bf98', pawLine: '#a77a4d',
+  muzzle: '#e9d3b7', nose: '#4a3832', mouth: '#4a3832', brow: '#b9916a', collar: '#38bdf8', lids: true,
+  ears: `<g class="ear ear-l"><path d="M72 92 Q36 44 52 8 Q98 22 116 64Z" fill="#dcb48c"/><path d="M76 80 Q56 46 64 26 Q90 38 104 62Z" fill="#f2b8b4"/></g>
+         <g class="ear ear-r"><path d="M188 92 Q224 44 208 8 Q162 22 144 64Z" fill="#dcb48c"/><path d="M184 80 Q204 46 196 26 Q170 38 156 62Z" fill="#f2b8b4"/></g>` });
+// Chihuahua 2: crema regordito, orejas chicas medio caídas, ojos redondos enormes, nariz gris
+const chiB = chihuahua({ cls: 'chi2', pw: 'cover', fur1: '#f6e8c9', fur2: '#e6d1a6', chest: '#fbf0d8', paw: '#f2e2c0', pawLine: '#b59a68',
+  muzzle: '#f3e6cb', nose: '#5b4b4b', mouth: '#5b4b4b', brow: '#c9a874', collar: '#f472b6', lids: false,
+  faceExtra: '<ellipse cx="96" cy="118" rx="22" ry="18" fill="#e9cf9e" opacity=".55"/><ellipse cx="164" cy="118" rx="22" ry="18" fill="#e9cf9e" opacity=".55"/>',
+  ears: `<g class="ear ear-l"><path d="M74 78 Q40 68 36 112 Q70 122 100 94Z" fill="#d9b98a"/><path d="M70 86 Q52 84 50 104 Q68 108 84 94Z" fill="#f2b8b4"/></g>
+         <g class="ear ear-r"><path d="M186 78 Q220 68 224 112 Q190 122 160 94Z" fill="#d9b98a"/><path d="M190 86 Q208 84 210 104 Q192 108 176 94Z" fill="#f2b8b4"/></g>` });
+// Chihuahua 3: canela con hocico blanco, manchas alrededor de los ojos, orejotas redondas, nariz rosada y bigotes
+const chiC = chihuahua({ cls: 'chi3', pw: 'cover', fur1: '#e3c9a0', fur2: '#cfae7c', chest: '#f7efe3', paw: '#f1e3cc', pawLine: '#9a7a4e',
+  muzzle: '#f7efe3', nose: '#a8665f', mouth: '#7a4a44', brow: '#a97c4a', collar: '#facc15', lids: false,
+  faceExtra: '<ellipse cx="96" cy="120" rx="24" ry="20" fill="#c99a68" opacity=".6"/><ellipse cx="164" cy="120" rx="24" ry="20" fill="#c99a68" opacity=".6"/><path d="M130 64 Q112 90 120 120 L140 120 Q148 90 130 64Z" fill="#f7efe3" opacity=".85"/>',
+  whiskers: '<g stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".9"><path d="M104 152 q-26 -4 -42 4M104 158 q-26 4 -40 14M156 152 q26 -4 42 4M156 158 q26 4 40 14"/></g>',
+  ears: `<g class="ear ear-l"><ellipse cx="46" cy="82" rx="30" ry="42" transform="rotate(-32 46 82)" fill="#cfae7c"/><ellipse cx="50" cy="84" rx="16" ry="26" transform="rotate(-32 50 84)" fill="#f2b8b4"/></g>
+         <g class="ear ear-r"><ellipse cx="214" cy="82" rx="30" ry="42" transform="rotate(32 214 82)" fill="#cfae7c"/><ellipse cx="210" cy="84" rx="16" ry="26" transform="rotate(32 210 84)" fill="#f2b8b4"/></g>` });
+
+const cont = document.getElementById('dogs');
+cont.insertAdjacentHTML('beforeend', labrador() + chiA + pug() + chiB + chiC + husky() + dalmata());
+document.querySelectorAll('.dog').forEach(d => {                 // parpadeos desfasados por perro
+  d.querySelectorAll('.lid').forEach(l => l.style.animationDelay = (-Math.random() * 5).toFixed(2) + 's');
+});
+
+/* ================= Comportamiento ================= */
+const stage = document.getElementById('stage');
+const correo = document.getElementById('correo');
+const clave = document.getElementById('clave');
+const ver = document.getElementById('ver');
+const dogs = [...document.querySelectorAll('.dog')];
+let mouse = { x: innerWidth * .6, y: innerHeight * .4 };
+let heartTimer = null, settleTimer = null;
+let miraCampo = true;                                              // en el correo: true = mira el campo, false = sigue el mouse
+
+function suave() {                                                // transición suave solo al cambiar de estado
+  stage.classList.add('settling');
+  clearTimeout(settleTimer);
+  settleTimer = setTimeout(() => stage.classList.remove('settling'), 450);
+}
+function estado(s) {
+  if (stage.dataset.state === s) return;
+  stage.dataset.state = s;
+  miraCampo = true;
+  suave();
+  clearInterval(heartTimer);
+  if (s === 'email') heartTimer = setInterval(corazon, 420);
+}
+function corazon() {
+  const d = dogs[Math.floor(Math.random() * dogs.length)].getBoundingClientRect();
+  const c = cont.getBoundingClientRect();
+  const h = document.createElement('span');
+  h.className = 'heart'; h.textContent = '♥';
+  h.style.left = (d.left - c.left + d.width * (.3 + Math.random() * .4)) + 'px';
+  h.style.top = (d.top - c.top + d.height * .12) + 'px';
+  h.style.setProperty('--dx', (Math.random() * 40 - 20) + 'px');
+  cont.appendChild(h);
+  setTimeout(() => h.remove(), 2000);
+}
+
+// Bucle de animación: cabeza y pupilas siguen el objetivo cuadro a cuadro (sin retraso)
+function objetivo() {
+  if (stage.dataset.state === 'email' && miraCampo) {             // miran el campo del correo mientras escribes
+    const r = correo.getBoundingClientRect();
+    return { x: r.left + Math.min(correo.value.length * 9 + 50, r.width - 14), y: r.top + r.height / 2 };
+  }
+  return mouse;
+}
+function frame() {
+  const st = stage.dataset.state, t = objetivo();
+  for (const d of dogs) {
+    const lado = d.dataset.pw;                                    // 'cover' o 'aside'
+    const head = d.querySelector('.head-look');
+    const ojos = d.querySelectorAll('.eye');
+    const sc = d.querySelector('.sclera').getBoundingClientRect();
+    const k = sc.width / 32;                                      // unidades SVG por px de pantalla (aprox.)
+    let hx = 0, hy = 0;
+    if (st === 'idle' || st === 'email') {
+      const a = ojos[0].querySelector('.sclera').getBoundingClientRect(), b = ojos[1].querySelector('.sclera').getBoundingClientRect();
+      const cx = (a.left + b.right) / 2, cy = (a.top + b.bottom) / 2;
+      const vx = t.x - cx, vy = t.y - cy, dist = Math.hypot(vx, vy) || 1, f = Math.min(1, dist / 220);
+      hx = vx / dist * 9 * f; hy = vy / dist * 6 * f;
+    } else if (st === 'password' && lado === 'aside') { hx = -5; hy = 2; }
+    head.style.transform = `translate(${hx}px, ${hy}px)`;
+
+    ojos.forEach(o => {
+      const s = o.querySelector('.sclera').getBoundingClientRect(), p = o.querySelector('.pupil');
+      const max = parseFloat(p.dataset.max);
+      let dx = 0, dy = 0;
+      if (st === 'idle' || st === 'email') {
+        const vx = t.x - (s.left + s.width / 2), vy = t.y - (s.top + s.height / 2), dist = Math.hypot(vx, vy) || 1, f = Math.min(1, dist / 90);
+        dx = vx / dist * max * f; dy = vy / dist * max * f;
+      } else if (st === 'password') {
+        if (lado === 'aside') { dx = -max; dy = max * .35; }      // miran al costado, lejos del formulario
+      } else if (st === 'peek') {
+        if (lado === 'cover') { dx = -max; dy = max * .4; }       // espían entre las patitas
+        else { dx = max; dy = max * .2; }                         // los otros se asoman curiosos hacia el formulario
+      }
+      p.style.transform = `translate(${dx}px, ${dy}px)`;
+    });
+  }
+  requestAnimationFrame(frame);
+}
+addEventListener('mousemove', e => { mouse = { x: e.clientX, y: e.clientY }; miraCampo = false; });
+addEventListener('touchmove', e => { const t = e.touches[0]; mouse = { x: t.clientX, y: t.clientY }; miraCampo = false; }, { passive: true });
+requestAnimationFrame(frame);
+
+correo.addEventListener('focus', () => estado('email'));
+correo.addEventListener('input', () => { miraCampo = true; });   // al teclear vuelven a mirar el campo
+correo.addEventListener('blur',  () => { if (stage.dataset.state === 'email') estado('idle'); });
+clave.addEventListener('focus', () => estado(clave.type === 'text' ? 'peek' : 'password'));
+clave.addEventListener('blur',  () => estado('idle'));
+ver.addEventListener('mousedown', e => e.preventDefault());       // mantiene el foco en la contraseña
+ver.addEventListener('click', () => {
+  const visible = clave.type === 'password';
+  clave.type = visible ? 'text' : 'password';
+  estado(visible ? 'peek' : (document.activeElement === clave ? 'password' : 'idle'));
+});
+document.getElementById('form').addEventListener('submit', e => {
+  e.preventDefault();
+  estado('idle');
+  cont.classList.add('celebrate');
+  for (let i = 0; i < 6; i++) setTimeout(corazon, i * 90);
+  setTimeout(() => cont.classList.remove('celebrate'), 1600);
+  document.getElementById('toast').classList.add('on');
+});
+</script>
+</body>
+</html>

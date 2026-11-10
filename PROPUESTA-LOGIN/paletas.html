@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Propuestas de paleta</title>
+<style>
+  *{box-sizing:border-box} body{margin:0;padding:34px 36px 30px;width:1500px;background:#17181b;color:#e8e8ea;font-family:"Segoe UI",system-ui,sans-serif}
+  h1{margin:0 0 4px;font-size:26px} .sub{color:#9a9ca3;font-size:15px;margin-bottom:26px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .col h2{margin:0 0 3px;font-size:19px;display:flex;gap:10px;align-items:center}
+  .tag{font-size:12px;background:#f6a04d;color:#2b1a05;border-radius:99px;padding:2px 10px;font-weight:700}
+  .desc{color:#9a9ca3;font-size:13.5px;margin-bottom:12px;min-height:38px}
+  .bar{display:grid;grid-template-columns:6fr 3fr 1fr;gap:8px;height:74px}
+  .bar div{border-radius:12px;position:relative;overflow:hidden;border:1px solid #ffffff22}
+  .bar .two{display:grid;grid-template-columns:1fr 1fr;border:0;gap:0}
+  .lbl{display:grid;grid-template-columns:6fr 3fr 1fr;gap:8px;margin:7px 0 16px;font-size:12px;color:#c9cbd1;line-height:1.35}
+  .lbl b{display:block;color:#fff;font-size:13px}
+  .mock{border-radius:14px;overflow:hidden;border:1px solid #ffffff2a}
+  .nav{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;font-size:13px}
+  .nav b{font-size:15px}.nav span{opacity:.85;margin-left:14px}
+  .hero{padding:22px 18px 18px}
+  .hero h3{margin:0 0 5px;font-size:21px;line-height:1.2} .hero p{margin:0 0 14px;font-size:13px}
+  .btn{display:inline-block;padding:9px 18px;border-radius:9px;font-weight:700;font-size:13.5px}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:16px}
+  .card{border-radius:10px;padding:10px 11px;font-size:12px} .card b{display:block;font-size:13px;margin-bottom:1px}
+  .ok{margin-top:13px;font-size:12.5px;color:#a9acb4} .ok i{font-style:normal;color:#fff}
+  .foot{margin-top:22px;color:#9a9ca3;font-size:13.5px;line-height:1.5}
+</style></head><body>
+<h1>Propuestas de paleta para Patitas Arriba</h1>
+<div class="sub">Regla 60-30-10: dos colores pálidos que combinan + un acento llamativo que contrasta, solo en la acción principal.</div>
+<div class="grid" id="g"></div>
+<div class="foot">El acento va <b>solo</b> en botones y llamadas a la acción. Texto oscuro sobre el acento (el blanco no se lee bien en naranja, coral ni mostaza). Rojo y verde puros quedan reservados para errores y éxito.</div>
+<script>
+const P=[
+ {t:'A · Verde azulado + naranja', tag:'Recomendada', d:'La de tu compañero, afinada. Casi igual a tu login actual, así que casi no hay que rehacer nada.',
+  bg:'#FAF6EF',bgN:'Crema',sl:'#D8EDE9',sd:'#1F6F6B',ac:'#F6A04D',txt:'#12403D',soft:'#4A5E5C',btnTxt:'#2b1a05',nav:'Verde oscuro'},
+ {t:'B · Azul sereno + coral', d:'Más “clínica”: transmite confianza y limpieza. El coral es cálido y sigue bien con los perritos.',
+  bg:'#FAF6EF',bgN:'Crema',sl:'#DCEBF5',sd:'#2B6C99',ac:'#F2705C',txt:'#16324A',soft:'#4B6075',btnTxt:'#2a0d07',nav:'Azul medio'},
+ {t:'C · Verde salvia + mostaza', d:'La más suave y natural, estilo “cuidado de mascotas”. Mostaza combina con el pelaje dorado.',
+  bg:'#FAF6EF',bgN:'Crema',sl:'#E3ECDD',sd:'#3F6B52',ac:'#F2B33D',txt:'#1F3A2B',soft:'#58695C',btnTxt:'#2d2003',nav:'Verde salvia'}
+];
+const ico=(c)=>`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M12 21s-7-4.6-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.4-9 9-9 9z"/></svg>`;
+document.getElementById('g').innerHTML=P.map(p=>`
+<div class="col">
+  <h2>${p.t}${p.tag?`<span class="tag">${p.tag}</span>`:''}</h2>
+  <div class="desc">${p.d}</div>
+  <div class="bar"><div style="background:${p.bg}"></div><div class="two"><div style="background:${p.sl};border-radius:0"></div><div style="background:${p.sd};border-radius:0"></div></div><div style="background:${p.ac}"></div></div>
+  <div class="lbl"><div><b>60% fondo</b>${p.bgN} ${p.bg}</div><div><b>30% secundario</b>${p.sl}<br>${p.sd}</div><div><b>10%</b>${p.ac}</div></div>
+  <div class="mock" style="background:${p.bg};color:${p.txt}">
+    <div class="nav" style="background:${p.sd};color:#fff"><b>${ico('#fff')}Patitas Arriba</b><div><span>Servicios</span><span>Nosotros</span><span>Contacto</span></div></div>
+    <div class="hero">
+      <h3>Cuidamos a tu mascota como si fuera nuestra</h3>
+      <p style="color:${p.soft}">Consultas, vacunas y cirugías con atención de lunes a sábado.</p>
+      <span class="btn" style="background:${p.ac};color:${p.btnTxt}">Reservar cita</span>
+      <div class="cards">
+        <div class="card" style="background:${p.sl}"><b>Consultas</b><span style="color:${p.soft}">Chequeo general</span></div>
+        <div class="card" style="background:${p.sl}"><b>Vacunas</b><span style="color:${p.soft}">Calendario al día</span></div>
+        <div class="card" style="background:${p.sl}"><b>Baño y corte</b><span style="color:${p.soft}">Con cita previa</span></div>
+      </div>
+    </div>
+  </div>
+</div>`).join('');
+</script></body></html>

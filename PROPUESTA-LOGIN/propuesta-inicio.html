@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patitas Arriba - Propuesta de inicio</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde: #3F6B52; --verde-oscuro: #325642; --verde-hondo: #2a4c39;
+    --salvia: #E3ECDD; --mostaza: #F2B33D; --mostaza-oscuro: #E0A22B;
+    --terracota: #B5483A; --texto: #1F2A24; --crema: #FAF6EF; --suave: #5b6b62;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: "Nunito", "Segoe UI", system-ui, sans-serif; background: var(--crema); color: var(--texto); }
+  a { color: inherit; text-decoration: none; }
+
+  /* ---- Barra: el visitante ya NO ve "Iniciar sesión" aquí (queda solo el botón del banner) ---- */
+  .nav { background: linear-gradient(90deg, var(--verde-oscuro), var(--verde)); color: #fff; padding: .7rem 1.4rem; display: flex; align-items: center; gap: .7rem; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+  .logo { width: 34px; height: 34px; border-radius: 10px; background: var(--mostaza); display: grid; place-items: center; }
+  .nav b { font-size: 1.25rem; font-weight: 800; letter-spacing: .2px; }
+
+  main { max-width: 1180px; margin: 0 auto; padding: 1.6rem 1.2rem 0; }
+
+  /* ---- Banner alto con el perro grande ---- */
+  .hero { position: relative; overflow: hidden; border-radius: 28px; min-height: 470px; color: #fff;
+          background: radial-gradient(120% 140% at 85% 40%, #5b8a6e 0%, var(--verde) 45%, var(--verde-oscuro) 100%);
+          box-shadow: 0 18px 40px rgba(42,76,57,.28); display: grid; grid-template-columns: 1.05fr 1fr; align-items: center; }
+  .hero-txt { padding: 2.6rem 2.4rem 2.6rem 3rem; position: relative; z-index: 3; }
+  .chip { display: inline-block; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.22); border-radius: 99px; padding: .3rem .95rem; font-size: .85rem; font-weight: 700; }
+  .hero h1 { font-size: clamp(2rem, 4.4vw, 3.3rem); line-height: 1.08; margin: 1rem 0 .8rem; font-weight: 800; }
+  .hero h1 span { color: #ffd98a; }
+  .hero p { font-size: 1.12rem; line-height: 1.5; max-width: 33ch; margin: 0 0 1.5rem; color: #e8f1ea; }
+  .btn { display: inline-flex; align-items: center; gap: .5rem; border: 0; border-radius: .7rem; font: 700 1.05rem "Nunito", sans-serif; padding: .85rem 1.6rem; cursor: pointer; }
+  .btn-mostaza { background: var(--mostaza); color: var(--texto); box-shadow: 0 6px 16px rgba(0,0,0,.2); transition: background .15s, transform .15s; }
+  .btn-mostaza:hover { background: var(--mostaza-oscuro); transform: translateY(-2px); }
+  .btn svg { width: 19px; height: 19px; }
+  .hero-note { margin-top: .9rem; font-size: .88rem; color: #cfe3d4; }
+
+  .hero-art { position: relative; align-self: stretch; min-height: 470px; }
+  .paws { position: absolute; inset: 0; z-index: 1; }
+  .paws svg { position: absolute; fill: #fff; opacity: .13; }
+  .dog { position: absolute; right: 3%; bottom: -4px; width: min(92%, 395px); z-index: 2; overflow: visible; }
+
+  /* animaciones suaves del perro */
+  .brazo { transform-box: fill-box; transform-origin: 70% 90%; animation: saluda 2.2s ease-in-out infinite; }
+  @keyframes saluda { 0%,100% { transform: rotate(-6deg); } 50% { transform: rotate(14deg); } }
+  .lid { transform-box: fill-box; transform-origin: 50% 0; transform: scaleY(0); animation: parpadeo 5s infinite; }
+  @keyframes parpadeo { 0%,93%,100% { transform: scaleY(0); } 96% { transform: scaleY(1); } }
+  .cola { transform-box: fill-box; transform-origin: 0 100%; animation: cola 1.6s ease-in-out infinite; }
+  @keyframes cola { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(10deg); } }
+  .respira { animation: resp 3.4s ease-in-out infinite; transform-origin: 50% 100%; }
+  @keyframes resp { 0%,100% { transform: scale(1); } 50% { transform: scale(1.012); } }
+  @media (prefers-reduced-motion: reduce) { .brazo, .lid, .cola, .respira { animation: none; } }
+
+  /* ---- Bloques de abajo ---- */
+  h2 { font-size: 1.6rem; font-weight: 800; margin: 3rem 0 .3rem; }
+  .sub { color: var(--suave); margin: 0 0 1.2rem; }
+  .servicios { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .serv { background: #fff; border: 1px solid #e8e1d2; border-radius: 18px; padding: 1.1rem 1.1rem 1.2rem; transition: transform .15s, box-shadow .15s; }
+  .serv:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(63,107,82,.13); }
+  .ico { width: 46px; height: 46px; border-radius: 14px; background: var(--salvia); color: var(--verde); display: grid; place-items: center; margin-bottom: .7rem; }
+  .ico svg { width: 24px; height: 24px; }
+  .serv b { display: block; font-size: 1.02rem; }
+  .serv span { color: var(--suave); font-size: .9rem; }
+  .urg .ico { background: #f6e4e0; color: var(--terracota); }
+
+  .pasos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; counter-reset: p; }
+  .paso { background: var(--salvia); border-radius: 18px; padding: 1.1rem 1.1rem 1.2rem; position: relative; }
+  .paso::before { counter-increment: p; content: counter(p); position: absolute; top: -14px; left: 16px; width: 30px; height: 30px; border-radius: 50%; background: var(--verde); color: #fff; font-weight: 800; display: grid; place-items: center; box-shadow: 0 3px 8px rgba(0,0,0,.2); }
+  .paso b { display: block; margin: .4rem 0 .2rem; } .paso span { color: #3f5a4a; font-size: .92rem; }
+
+  footer { margin-top: 3rem; border-top: 1px solid #e8e1d2; padding: 1.4rem 0 2rem; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 1.5rem; color: var(--suave); font-size: .92rem; }
+  footer b { color: var(--texto); display: block; margin-bottom: .3rem; }
+  .ejemplo { background: #fff3c9; border: 1px dashed #d9a62a; border-radius: .5rem; padding: .05rem .4rem; font-size: .78rem; color: #7a5a06; }
+
+  /* nota de la propuesta */
+  .banner-prop { background: #1f2a24; color: #fff; padding: .55rem 1rem; font-size: .88rem; text-align: center; }
+  .banner-prop b { color: #ffd98a; }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; } .hero-art { min-height: 300px; } .hero-txt { padding: 2rem 1.5rem 0; }
+    .servicios, .pasos { grid-template-columns: repeat(2, 1fr); } footer { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="banner-prop"><b>Propuesta de la pantalla de inicio (visitante).</b> Cambios: sin “Iniciar sesión” duplicado en la barra · perro nuevo saludando · banner alto · bloques de abajo. Los datos marcados <span class="ejemplo">ejemplo</span> hay que reemplazarlos por los reales.</div>
+
+<header class="nav">
+  <div class="logo">
+    <svg viewBox="0 0 64 64" width="22" height="22" fill="#3F6B52"><ellipse cx="32" cy="42" rx="14" ry="12"/><ellipse cx="14" cy="26" rx="6" ry="8" transform="rotate(-18 14 26)"/><ellipse cx="25" cy="14" rx="6" ry="8" transform="rotate(-6 25 14)"/><ellipse cx="39" cy="14" rx="6" ry="8" transform="rotate(6 39 14)"/><ellipse cx="50" cy="26" rx="6" ry="8" transform="rotate(18 50 26)"/></svg>
+  </div>
+  <b>Patitas Arriba</b>
+</header>
+
+<main>
+  <!-- ================= BANNER ================= -->
+  <section class="hero">
+    <div class="hero-txt">
+      <span class="chip">Clínica y estética veterinaria</span>
+      <h1>Bienvenido a <span>Patitas Arriba</span></h1>
+      <p>Citas, atenciones, recetas, inventario y caja de la clínica en un solo lugar.</p>
+      <a class="btn btn-mostaza" href="#login">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg>
+        Iniciar sesión
+      </a>
+      <div class="hero-note">Si eres cliente, entra para reservar y ver las citas de tus mascotas.</div>
+    </div>
+
+    <div class="hero-art">
+      <div class="paws" aria-hidden="true">
+        <svg style="left:2%;top:8%;width:92px;transform:rotate(-14deg)" viewBox="0 0 100 100"><ellipse cx="50" cy="66" rx="24" ry="20"/><ellipse cx="22" cy="40" rx="10" ry="13"/><ellipse cx="42" cy="26" rx="10" ry="13"/><ellipse cx="62" cy="26" rx="10" ry="13"/><ellipse cx="80" cy="40" rx="10" ry="13"/></svg>
+        <svg style="left:20%;top:38%;width:78px;transform:rotate(10deg)" viewBox="0 0 100 100"><ellipse cx="50" cy="66" rx="24" ry="20"/><ellipse cx="22" cy="40" rx="10" ry="13"/><ellipse cx="42" cy="26" rx="10" ry="13"/><ellipse cx="62" cy="26" rx="10" ry="13"/><ellipse cx="80" cy="40" rx="10" ry="13"/></svg>
+        <svg style="left:0%;top:64%;width:84px;transform:rotate(-8deg)" viewBox="0 0 100 100"><ellipse cx="50" cy="66" rx="24" ry="20"/><ellipse cx="22" cy="40" rx="10" ry="13"/><ellipse cx="42" cy="26" rx="10" ry="13"/><ellipse cx="62" cy="26" rx="10" ry="13"/><ellipse cx="80" cy="40" rx="10" ry="13"/></svg>
+      </div>
+
+      <!-- Perro estilo shiba, inspirado en la imagen de Stitch -->
+      <svg class="dog" viewBox="0 0 400 420" xmlns="http://www.w3.org/2000/svg" aria-label="Perrito saludando">
+        <g class="respira">
+          <path class="cola" d="M300 380 Q372 372 366 300" stroke="#E8A93A" stroke-width="34" fill="none" stroke-linecap="round"/>
+          <!-- cuerpo -->
+          <path d="M96 420 Q82 320 128 288 Q200 262 272 288 Q320 320 304 420Z" fill="#EBB04A"/>
+          <path d="M150 420 Q146 344 200 326 Q254 344 250 420Z" fill="#FBF0DA"/>
+          <!-- collar verde con cruz dorada -->
+          <path d="M120 292 Q200 330 280 292 L284 312 Q200 352 116 312Z" fill="#1f7a4d"/>
+          <path d="M120 292 Q200 330 280 292" stroke="#2fa36a" stroke-width="4" fill="none" opacity=".6"/>
+          <rect x="197" y="328" width="6" height="16" rx="2" fill="#f0c340"/>
+          <path d="M195 344H205V351H212V361H205V368H195V361H188V351H195Z" fill="#F2C230" stroke="#c99710" stroke-width="2" stroke-linejoin="round"/>
+          <!-- patita que saluda -->
+          <g class="brazo">
+            <path d="M104 400 Q70 370 78 316 Q84 292 104 300 Q122 308 118 336 Q116 366 134 400Z" fill="#EBB04A"/>
+            <ellipse cx="94" cy="306" rx="28" ry="30" fill="#F4C26A"/>
+            <ellipse cx="94" cy="318" rx="12" ry="10" fill="#D98B3A"/>
+            <circle cx="80" cy="298" r="5.2" fill="#D98B3A"/><circle cx="94" cy="291" r="5.2" fill="#D98B3A"/><circle cx="108" cy="298" r="5.2" fill="#D98B3A"/>
+          </g>
+          <!-- orejas -->
+          <path d="M104 186 Q92 96 124 44 Q178 70 214 150Z" fill="#D8573A"/>
+          <path d="M122 168 Q116 112 136 74 Q164 92 184 140Z" fill="#B93B22"/>
+          <path d="M296 186 Q308 96 276 44 Q222 70 186 150Z" fill="#D8573A"/>
+          <path d="M278 168 Q284 112 264 74 Q236 92 216 140Z" fill="#B93B22"/>
+          <!-- cabeza -->
+          <path d="M70 232 Q62 132 200 118 Q338 132 330 232 Q326 296 200 304 Q74 296 70 232Z" fill="#EBB04A"/>
+          <path d="M96 178 Q140 130 200 130 Q262 130 304 178 Q250 160 200 160 Q150 160 96 178Z" fill="#F4C26A" opacity=".55"/>
+          <!-- cejas claras -->
+          <ellipse cx="146" cy="170" rx="22" ry="10" fill="#FBF0DA" transform="rotate(-10 146 170)"/>
+          <ellipse cx="254" cy="170" rx="22" ry="10" fill="#FBF0DA" transform="rotate(10 254 170)"/>
+          <!-- hocico crema -->
+          <path d="M84 236 Q90 196 140 206 Q170 214 200 214 Q230 214 260 206 Q310 196 316 236 Q312 292 200 296 Q88 292 84 236Z" fill="#FBF0DA"/>
+          <path d="M120 276 Q200 300 280 276 Q250 296 200 296 Q150 296 120 276Z" fill="#EBD5B0" opacity=".7"/>
+          <!-- mejillas -->
+          <ellipse cx="116" cy="246" rx="24" ry="14" fill="#F5A3A6" opacity=".85"/>
+          <ellipse cx="284" cy="246" rx="24" ry="14" fill="#F5A3A6" opacity=".85"/>
+          <!-- ojos -->
+          <ellipse cx="142" cy="212" rx="30" ry="32" fill="#FFF8EC" stroke="#8a5a2b" stroke-width="3"/>
+          <ellipse cx="258" cy="212" rx="30" ry="32" fill="#FFF8EC" stroke="#8a5a2b" stroke-width="3"/>
+          <ellipse cx="146" cy="216" rx="22" ry="25" fill="#4a2a2e"/><ellipse cx="254" cy="216" rx="22" ry="25" fill="#4a2a2e"/>
+          <circle cx="140" cy="206" r="8" fill="#fff"/><circle cx="248" cy="206" r="8" fill="#fff"/>
+          <circle cx="156" cy="226" r="4" fill="#fff" opacity=".85"/><circle cx="264" cy="226" r="4" fill="#fff" opacity=".85"/>
+          <ellipse class="lid" cx="142" cy="212" rx="32" ry="34" fill="#EBB04A"/><ellipse class="lid" cx="258" cy="212" rx="32" ry="34" fill="#EBB04A"/>
+          <!-- nariz y boca -->
+          <path d="M184 250 Q200 242 216 250 Q214 268 200 272 Q186 268 184 250Z" fill="#6b2f3e"/>
+          <ellipse cx="194" cy="251" rx="6" ry="3" fill="#fff" opacity=".45"/>
+          <path d="M200 272 v10 M200 282 Q184 296 166 282 M200 282 Q216 296 234 282" stroke="#3a1f2a" stroke-width="5" fill="none" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ================= SERVICIOS ================= -->
+  <h2>Qué ofrecemos</h2>
+  <p class="sub">Los servicios de la clínica. Reserva el que necesites al iniciar sesión.</p>
+  <div class="servicios">
+    <div class="serv"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6 6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg></div><b>Consulta general</b><span>Chequeo y diagnóstico</span></div>
+    <div class="serv"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3a1 1 0 0 1-1.4 0L4.7 16.7a1 1 0 0 1 0-1.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/></svg></div><b>Vacunación</b><span>Antirrábica y quíntuple</span></div>
+    <div class="serv"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg></div><b>Baño y corte</b><span>Estética con cita previa</span></div>
+    <div class="serv"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/></svg></div><b>Esterilización</b><span>Procedimiento quirúrgico</span></div>
+    <div class="serv"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c4 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2-6 6-10z"/></svg></div><b>Limpieza dental</b><span>Cuidado de dientes y encías</span></div>
+    <div class="serv urg"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div><b>Atención de emergencia</b><span>Se atiende al llegar</span></div>
+    <div class="serv"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6v4H9z"/><path d="M5 6h14v16H5z"/><path d="M9 12h6M9 16h6"/></svg></div><b>Recetas médicas</b><span>Indicaciones claras para el tratamiento</span></div>
+    <div class="serv"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg></div><b>Productos</b><span>Alimentos, accesorios y medicinas</span></div>
+  </div>
+
+  <!-- ================= CÓMO FUNCIONA ================= -->
+  <h2>Cómo funciona</h2>
+  <p class="sub">Del primer paso a la boleta, todo queda registrado.</p>
+  <div class="pasos">
+    <div class="paso"><b>Reserva tu cita</b><span>Elige mascota, servicio, veterinario y horario.</span></div>
+    <div class="paso"><b>Aprobamos tu cita</b><span>La clínica confirma la reserva.</span></div>
+    <div class="paso"><b>Atendemos a tu mascota</b><span>El veterinario registra la atención y el diagnóstico.</span></div>
+    <div class="paso"><b>Receta y boleta</b><span>Recibes la receta y el cobro consolidado.</span></div>
+  </div>
+
+  <footer>
+    <div><b>Patitas Arriba</b>Clínica y estética veterinaria.<br>Sistema de gestión de citas, atenciones, recetas, inventario y caja.</div>
+    <div><b>Horario <span class="ejemplo">ejemplo</span></b>Lunes a sábado<br>9:00 a 18:00</div>
+    <div><b>Contacto <span class="ejemplo">ejemplo</span></b>Av. Ejemplo 123, Lima<br>(01) 555-0123</div>
+  </footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patitas Arriba - Muestra del front con paleta C</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- ===== 1) CSS de tu compañero, TAL CUAL (app.css propuesto) ===== -->
+<style id="css-compa">
+:root {
+    --pa-verde: #3F6B52;
+    --pa-verde-oscuro: #325642;
+    --pa-salvia: #E3ECDD;
+    --pa-salvia-oscuro: #D3E0CB;
+    --pa-mostaza: #F2B33D;
+    --pa-mostaza-oscuro: #E0A22B;
+    --pa-terracota: #B5483A;
+    --pa-terracota-oscuro: #983B2F;
+    --pa-texto: #1F2A24;
+    --pa-crema: #FAF6EF;
+}
+body { background-color: var(--pa-crema); color: var(--pa-texto); }
+.btn { border-radius: .6rem; font-weight: 500; }
+.btn-primary, .btn-success {
+    --bs-btn-bg: var(--pa-verde); --bs-btn-border-color: var(--pa-verde); --bs-btn-color: #fff;
+    --bs-btn-hover-bg: var(--pa-verde-oscuro); --bs-btn-hover-border-color: var(--pa-verde-oscuro);
+    --bs-btn-active-bg: var(--pa-verde-oscuro); --bs-btn-active-border-color: var(--pa-verde-oscuro);
+    --bs-btn-disabled-bg: var(--pa-verde); --bs-btn-disabled-border-color: var(--pa-verde);
+}
+.btn-warning {
+    --bs-btn-bg: var(--pa-mostaza); --bs-btn-border-color: var(--pa-mostaza); --bs-btn-color: var(--pa-texto);
+    --bs-btn-hover-bg: var(--pa-mostaza-oscuro); --bs-btn-hover-border-color: var(--pa-mostaza-oscuro); --bs-btn-hover-color: var(--pa-texto);
+    --bs-btn-active-bg: var(--pa-mostaza-oscuro); --bs-btn-active-color: var(--pa-texto);
+}
+.btn-secondary {
+    --bs-btn-bg: var(--pa-salvia); --bs-btn-border-color: var(--pa-salvia); --bs-btn-color: var(--pa-verde);
+    --bs-btn-hover-bg: var(--pa-salvia-oscuro); --bs-btn-hover-border-color: var(--pa-salvia-oscuro); --bs-btn-hover-color: var(--pa-verde-oscuro);
+    --bs-btn-active-bg: var(--pa-salvia-oscuro); --bs-btn-active-color: var(--pa-verde-oscuro);
+}
+.btn-outline-primary, .btn-outline-secondary, .btn-outline-success {
+    --bs-btn-color: var(--pa-verde); --bs-btn-border-color: var(--pa-verde);
+    --bs-btn-hover-bg: var(--pa-verde); --bs-btn-hover-border-color: var(--pa-verde); --bs-btn-hover-color: #fff;
+    --bs-btn-active-bg: var(--pa-verde); --bs-btn-active-color: #fff;
+}
+.btn-danger {
+    --bs-btn-bg: var(--pa-terracota); --bs-btn-border-color: var(--pa-terracota);
+    --bs-btn-hover-bg: var(--pa-terracota-oscuro); --bs-btn-hover-border-color: var(--pa-terracota-oscuro);
+    --bs-btn-active-bg: var(--pa-terracota-oscuro);
+}
+.btn-outline-danger {
+    --bs-btn-color: var(--pa-terracota); --bs-btn-border-color: var(--pa-terracota);
+    --bs-btn-hover-bg: var(--pa-terracota); --bs-btn-hover-border-color: var(--pa-terracota);
+    --bs-btn-active-bg: var(--pa-terracota);
+}
+</style>
+
+<!-- ===== 2) AJUSTES que propongo (se activan con el interruptor de arriba) ===== -->
+<style id="css-ajustes" media="not all">
+/* a) El resto de Bootstrap sigue en azul: barra de menú, enlaces, foco de los campos, alertas, paginador */
+:root {
+    --bs-primary: #3F6B52; --bs-primary-rgb: 63,107,82;
+    --bs-link-color: #3F6B52; --bs-link-color-rgb: 63,107,82;
+    --bs-link-hover-color: #325642; --bs-link-hover-color-rgb: 50,86,66;
+    --bs-focus-ring-color: rgba(63,107,82,.3);
+}
+.form-control:focus, .form-select:focus, .form-check-input:focus {
+    border-color: var(--pa-verde); box-shadow: 0 0 0 .25rem rgba(63,107,82,.22);
+}
+.form-check-input:checked { background-color: var(--pa-verde); border-color: var(--pa-verde); }
+.alert-info { --bs-alert-bg: var(--pa-salvia); --bs-alert-color: #24402f; --bs-alert-border-color: #c9d9be; }
+.page-link { color: var(--pa-verde); }
+.page-item.active .page-link { background-color: var(--pa-verde); border-color: var(--pa-verde); }
+.table { --bs-table-striped-bg: rgba(227,236,221,.55); --bs-table-hover-bg: rgba(227,236,221,.9); }
+/* b) Foco visible con teclado en todos los botones */
+.btn:focus-visible { outline: 3px solid var(--pa-texto); outline-offset: 2px; box-shadow: none; }
+.btn-warning:focus-visible { outline-color: var(--pa-texto); }
+/* c) Estado deshabilitado coherente (hoy solo lo define el principal) */
+.btn-warning:disabled, .btn-warning.disabled { --bs-btn-disabled-bg: var(--pa-mostaza); --bs-btn-disabled-border-color: var(--pa-mostaza); --bs-btn-disabled-color: var(--pa-texto); }
+.btn-secondary:disabled, .btn-secondary.disabled { --bs-btn-disabled-bg: var(--pa-salvia); --bs-btn-disabled-border-color: var(--pa-salvia); --bs-btn-disabled-color: var(--pa-verde); }
+.btn-danger:disabled, .btn-danger.disabled { --bs-btn-disabled-bg: var(--pa-terracota); --bs-btn-disabled-border-color: var(--pa-terracota); }
+.btn-outline-primary:disabled, .btn-outline-secondary:disabled, .btn-outline-success:disabled { --bs-btn-disabled-color: var(--pa-verde); --bs-btn-disabled-border-color: var(--pa-verde); }
+.btn-outline-danger:disabled { --bs-btn-disabled-color: var(--pa-terracota); --bs-btn-disabled-border-color: var(--pa-terracota); }
+/* d) Botón de icono en tablas */
+.btn-icon { display: inline-flex; align-items: center; gap: .35rem; }
+</style>
+
+<style>
+  /* Solo para esta muestra (no forma parte de app.css) */
+  .demo-top { position: sticky; top: 0; z-index: 50; background: #1f2a24; color: #fff; padding: .6rem 1rem; }
+  .demo-top a { color: #cfe0d4; text-decoration: none; font-size: .85rem; margin-right: .9rem; }
+  .demo-top a:hover { color: #fff; }
+  .sec { margin-top: 2.6rem; } .sec > h2 { font-size: 1.35rem; margin-bottom: .2rem; }
+  .sec > .lead2 { color: #5b6b62; font-size: .93rem; margin-bottom: 1rem; }
+  .sw { height: 64px; border-radius: .6rem; border: 1px solid rgba(0,0,0,.12); display: flex; align-items: flex-end; padding: .35rem .5rem; font-size: .74rem; }
+  .sw small { background: rgba(255,255,255,.85); border-radius: .3rem; padding: 0 .3rem; color: #1f2a24; }
+  .panel { background: #fff; border: 1px solid #e6dfd1; border-radius: .9rem; padding: 1.2rem; }
+  .screen-tag { display: inline-block; background: #1f2a24; color: #fff; border-radius: 99px; font-size: .72rem; padding: .1rem .7rem; margin-bottom: .6rem; }
+  .estado { display: inline-block; border-radius: 99px; padding: .15rem .65rem; font-size: .75rem; font-weight: 600; border: 1px solid transparent; }
+  .e-pend { background: #E3ECDD; color: #3F6B52; border-color: #bcd0b0; }
+  .e-apro { background: #3F6B52; color: #fff; }
+  .e-rech { background: #B5483A; color: #fff; }
+  .e-canc { background: #e6e2da; color: #4a4a44; }
+  .e-comp { background: #325642; color: #fff; }
+  .stock-bajo { color: #983B2F; font-weight: 700; }
+  .tbl-estados td { vertical-align: middle; } .tbl-estados th { font-size: .8rem; color: #5b6b62; }
+  .rule-ok::before { content: "✔ "; color: #3F6B52; } .rule-no::before { content: "✖ "; color: #B5483A; }
+  .hallazgo { border-left: 4px solid #F2B33D; background: #fff9ea; padding: .6rem .9rem; border-radius: .4rem; margin-bottom: .6rem; font-size: .92rem; }
+  .form-switch .form-check-input { cursor: pointer; }
+  .btn { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- Barra de la muestra -->
+<div class="demo-top d-flex flex-wrap align-items-center justify-content-between gap-2">
+  <div>
+    <strong>Muestra del front · Paleta C + botones</strong>
+    <span class="ms-3 d-none d-md-inline">
+      <a href="#paleta">Paleta</a><a href="#botones">Botones</a><a href="#menu">Menú</a><a href="#listado">Listado</a><a href="#formulario">Formulario</a><a href="#cita">Reservar cita</a><a href="#aprobar">Aprobar citas</a><a href="#reasignar">Reasignación</a><a href="#hallazgos">Hallazgos</a>
+    </span>
+  </div>
+  <label class="form-check form-switch m-0 d-flex align-items-center gap-2">
+    <input class="form-check-input" type="checkbox" id="swAjustes" style="width:2.6em;height:1.3em">
+    <span style="font-size:.88rem">Ver con los ajustes propuestos</span>
+    <span id="estadoAj" class="estado" style="background:#F2B33D;color:#1F2A24">CSS del compañero tal cual</span>
+  </label>
+</div>
+
+<div class="container pb-5">
+
+<!-- ================= PALETA ================= -->
+<section class="sec" id="paleta">
+  <h2>1. Paleta C (regla 60-30-10)</h2>
+  <p class="lead2">Fondo crema 60% · salvia y verde 30% · mostaza 10% (solo la acción principal de cada pantalla). Terracota queda para peligro.</p>
+  <div class="row g-2">
+    <div class="col-6 col-md-3"><div class="sw" style="background:#FAF6EF"><small>crema · 60% fondo · #FAF6EF</small></div></div>
+    <div class="col-6 col-md-3"><div class="sw" style="background:#E3ECDD"><small>salvia · #E3ECDD</small></div></div>
+    <div class="col-6 col-md-3"><div class="sw" style="background:#3F6B52"><small>verde · #3F6B52</small></div></div>
+    <div class="col-6 col-md-3"><div class="sw" style="background:#F2B33D"><small>mostaza · 10% · #F2B33D</small></div></div>
+    <div class="col-6 col-md-3"><div class="sw" style="background:#325642"><small>verde oscuro · #325642</small></div></div>
+    <div class="col-6 col-md-3"><div class="sw" style="background:#D3E0CB"><small>salvia oscuro · #D3E0CB</small></div></div>
+    <div class="col-6 col-md-3"><div class="sw" style="background:#B5483A"><small>terracota · #B5483A</small></div></div>
+    <div class="col-6 col-md-3"><div class="sw" style="background:#1F2A24"><small>texto · #1F2A24</small></div></div>
+  </div>
+</section>
+
+<!-- ================= BOTONES ================= -->
+<section class="sec" id="botones">
+  <h2>2. Tipos de botón y sus estados</h2>
+  <p class="lead2">Cada fila es un tipo de la tabla. “Presionado” usa la clase <code>.active</code> (es el mismo color que el hover). Prueba el interruptor de arriba y pasa el mouse o usa Tab.</p>
+  <div class="panel table-responsive">
+    <table class="table tbl-estados align-middle mb-0">
+      <thead><tr><th>Tipo (clase)</th><th>Normal</th><th>Presionado / hover</th><th>Deshabilitado</th><th>Con icono</th><th>Para qué acciones</th></tr></thead>
+      <tbody>
+        <tr><td><b>Principal</b><br><code>btn-primary</code></td>
+          <td><button class="btn btn-primary">Guardar</button></td><td><button class="btn btn-primary active">Guardar</button></td><td><button class="btn btn-primary" disabled>Guardar</button></td>
+          <td><button class="btn btn-primary btn-icon"><i data-i="save"></i>Guardar</button></td><td class="small">Guardar, Ingresar, Filtrar, Generar, Agregar, Aprobar</td></tr>
+        <tr><td><b>Destacado</b><br><code>btn-warning</code></td>
+          <td><button class="btn btn-warning">Reservar cita</button></td><td><button class="btn btn-warning active">Reservar cita</button></td><td><button class="btn btn-warning" disabled>Reservar cita</button></td>
+          <td><button class="btn btn-warning btn-icon"><i data-i="plus"></i>Nuevo cliente</button></td><td class="small">La acción estrella: Reservar cita, Nuevo/Registrar, Atender, Generar boleta</td></tr>
+        <tr><td><b>Secundario</b><br><code>btn-secondary</code></td>
+          <td><button class="btn btn-secondary">Limpiar</button></td><td><button class="btn btn-secondary active">Limpiar</button></td><td><button class="btn btn-secondary" disabled>Limpiar</button></td>
+          <td><button class="btn btn-secondary btn-icon"><i data-i="print"></i>Exportar PDF</button></td><td class="small">Ver, Limpiar, Historial clínico, Stock, Imprimir / Exportar</td></tr>
+        <tr><td><b>Contorno</b><br><code>btn-outline-primary</code></td>
+          <td><button class="btn btn-outline-primary">Cancelar</button></td><td><button class="btn btn-outline-primary active">Cancelar</button></td><td><button class="btn btn-outline-primary" disabled>Cancelar</button></td>
+          <td><button class="btn btn-outline-primary btn-icon"><i data-i="edit"></i>Editar</button></td><td class="small">Cancelar, Volver, Editar, Registrar receta</td></tr>
+        <tr><td><b>Peligro</b><br><code>btn-danger</code></td>
+          <td><button class="btn btn-danger">Eliminar</button></td><td><button class="btn btn-danger active">Eliminar</button></td><td><button class="btn btn-danger" disabled>Eliminar</button></td>
+          <td><button class="btn btn-danger btn-icon"><i data-i="trash"></i>Eliminar</button></td><td class="small">Eliminar, Anular boleta, Rechazar, Cancelar cita</td></tr>
+        <tr><td><b>Peligro suave</b><br><code>btn-outline-danger</code></td>
+          <td><button class="btn btn-outline-danger">Quitar</button></td><td><button class="btn btn-outline-danger active">Quitar</button></td><td><button class="btn btn-outline-danger" disabled>Quitar</button></td>
+          <td><button class="btn btn-outline-danger btn-icon"><i data-i="x"></i>Quitar</button></td><td class="small">Quitar (una línea de una tabla)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= MENÚ ================= -->
+<section class="sec" id="menu">
+  <h2>3. Barra de menú (hoy usa <code>bg-primary</code>)</h2>
+  <p class="lead2">Así se ve la barra real del front con el CSS del compañero. Cambia el interruptor para ver la diferencia.</p>
+  <nav class="navbar navbar-expand navbar-dark bg-primary px-3 rounded-3">
+    <a class="navbar-brand" href="#menu">Patitas Arriba</a>
+    <ul class="navbar-nav me-auto">
+      <li class="nav-item"><a class="nav-link dropdown-toggle" href="#menu">Clientes</a></li>
+      <li class="nav-item"><a class="nav-link dropdown-toggle" href="#menu">Citas</a></li>
+      <li class="nav-item"><a class="nav-link dropdown-toggle" href="#menu">Clínica</a></li>
+      <li class="nav-item"><a class="nav-link dropdown-toggle" href="#menu">Catálogos</a></li>
+      <li class="nav-item"><a class="nav-link dropdown-toggle" href="#menu">Inventario</a></li>
+      <li class="nav-item"><a class="nav-link dropdown-toggle" href="#menu">Personal</a></li>
+      <li class="nav-item"><a class="nav-link dropdown-toggle" href="#menu">Caja</a></li>
+      <li class="nav-item"><a class="nav-link dropdown-toggle" href="#menu">Reportes</a></li>
+    </ul>
+    <ul class="navbar-nav"><li class="nav-item"><a class="nav-link dropdown-toggle" href="#menu">Diego (Administrador)</a></li></ul>
+  </nav>
+</section>
+
+<!-- ================= LISTADO ================= -->
+<section class="sec" id="listado">
+  <h2>4. Pantalla de listado (ej. Inventario de artículos)</h2>
+  <p class="lead2">Tabla homogénea, botones chicos con icono en el orden Ver · Editar · Eliminar, y un único botón destacado (Nuevo).</p>
+  <div class="panel">
+    <span class="screen-tag">/articulos</span>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="h4 m-0">Inventario de artículos</h3>
+      <button class="btn btn-warning btn-icon"><i data-i="plus"></i>Nuevo artículo</button>
+    </div>
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <label class="text-nowrap">Nombre:</label>
+      <input class="form-control" placeholder="Ingrese el nombre...">
+      <button class="btn btn-primary btn-icon"><i data-i="search"></i>Filtrar</button>
+      <button class="btn btn-secondary">Limpiar</button>
+    </div>
+    <table class="table table-striped table-hover align-middle">
+      <thead><tr><th>Nombre</th><th>Categorías</th><th class="text-end">Precio (S/)</th><th class="text-end">Stock</th><th class="text-end">Stock mín.</th><th>Acciones</th></tr></thead>
+      <tbody>
+        <tr><td>Antipulgas Frontline</td><td>Medicamentos</td><td class="text-end">45.00</td><td class="text-end">18</td><td class="text-end">5</td>
+          <td class="text-nowrap"><button class="btn btn-secondary btn-sm btn-icon"><i data-i="eye"></i>Ver</button> <button class="btn btn-outline-primary btn-sm btn-icon"><i data-i="edit"></i>Editar</button> <button class="btn btn-danger btn-sm btn-icon"><i data-i="trash"></i>Eliminar</button></td></tr>
+        <tr><td>Alimento Premium 15 kg</td><td>Alimentos</td><td class="text-end">189.90</td><td class="text-end stock-bajo">3</td><td class="text-end">5</td>
+          <td class="text-nowrap"><button class="btn btn-secondary btn-sm btn-icon"><i data-i="eye"></i>Ver</button> <button class="btn btn-outline-primary btn-sm btn-icon"><i data-i="edit"></i>Editar</button> <button class="btn btn-danger btn-sm btn-icon"><i data-i="trash"></i>Eliminar</button></td></tr>
+        <tr><td>Collar ajustable M</td><td>Accesorios</td><td class="text-end">28.50</td><td class="text-end">40</td><td class="text-end">10</td>
+          <td class="text-nowrap"><button class="btn btn-secondary btn-sm btn-icon"><i data-i="eye"></i>Ver</button> <button class="btn btn-outline-primary btn-sm btn-icon"><i data-i="edit"></i>Editar</button> <button class="btn btn-danger btn-sm btn-icon"><i data-i="trash"></i>Eliminar</button></td></tr>
+        <tr><td>Vacuna antirrábica</td><td>Medicamentos</td><td class="text-end">35.00</td><td class="text-end">12</td><td class="text-end">4</td>
+          <td class="text-nowrap"><button class="btn btn-secondary btn-sm btn-icon"><i data-i="eye"></i>Ver</button> <button class="btn btn-outline-primary btn-sm btn-icon"><i data-i="edit"></i>Editar</button> <button class="btn btn-danger btn-sm btn-icon"><i data-i="trash"></i>Eliminar</button></td></tr>
+      </tbody>
+    </table>
+    <nav><ul class="pagination pagination-sm m-0"><li class="page-item disabled"><a class="page-link" href="#listado">«</a></li><li class="page-item active"><a class="page-link" href="#listado">1</a></li><li class="page-item"><a class="page-link" href="#listado">2</a></li><li class="page-item"><a class="page-link" href="#listado">»</a></li></ul></nav>
+  </div>
+</section>
+
+<!-- ================= FORMULARIO ================= -->
+<section class="sec" id="formulario">
+  <h2>5. Pantalla de formulario (ej. Registrar artículo)</h2>
+  <p class="lead2">Guardar (principal) a la izquierda y Cancelar (contorno) al lado. El error se muestra una sola vez, junto al campo.</p>
+  <div class="panel">
+    <span class="screen-tag">/articulos/nuevo</span>
+    <h3 class="h4 mb-3">Registrar artículo</h3>
+    <div class="alert alert-info">Los campos marcados con * son obligatorios.</div>
+    <div class="row g-3" style="max-width:760px">
+      <div class="col-md-6"><label class="form-label">Nombre *</label><input class="form-control is-invalid" value=""><div class="invalid-feedback d-block" style="color:#983B2F">El nombre es obligatorio.</div></div>
+      <div class="col-md-6"><label class="form-label">Categoría *</label><select class="form-select"><option>Seleccione…</option><option>Alimentos</option><option>Medicamentos</option></select></div>
+      <div class="col-md-4"><label class="form-label">Precio base (S/) *</label><input class="form-control" value="45.00"></div>
+      <div class="col-md-4"><label class="form-label">Stock actual</label><input class="form-control" value="18"></div>
+      <div class="col-md-4"><label class="form-label">Stock mínimo</label><input class="form-control" value="5"></div>
+      <div class="col-12 form-check ms-2"><input class="form-check-input" type="checkbox" id="chk" checked><label class="form-check-label" for="chk">Artículo activo</label></div>
+    </div>
+    <div class="mt-4 d-flex gap-2">
+      <button class="btn btn-primary btn-icon"><i data-i="save"></i>Guardar</button>
+      <button class="btn btn-outline-primary">Cancelar</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RESERVAR CITA ================= -->
+<section class="sec" id="cita">
+  <h2>6. Reservar cita (cliente)</h2>
+  <p class="lead2">Aquí sí hay una acción estrella: “Reservar cita” en mostaza, el único botón destacado de la pantalla.</p>
+  <div class="panel">
+    <span class="screen-tag">/reservar</span>
+    <h3 class="h4 mb-3">Reservar cita</h3>
+    <div class="row g-3" style="max-width:760px">
+      <div class="col-md-6"><label class="form-label">Mascota *</label><select class="form-select"><option>Seleccione la mascota</option><option>Firulais</option><option>Mishi</option></select></div>
+      <div class="col-md-6"><label class="form-label">Fecha y hora *</label><input class="form-control" type="datetime-local"></div>
+      <div class="col-md-6"><label class="form-label">Servicio *</label><select class="form-select"><option>Consulta general</option><option>Vacunación</option><option>Baño y corte</option></select></div>
+      <div class="col-md-6"><label class="form-label">Veterinario *</label><select class="form-select"><option>Dra. Paredes</option><option>Dr. Quispe</option></select></div>
+      <div class="col-12 form-check ms-2"><input class="form-check-input" type="checkbox" id="emerg"><label class="form-check-label" for="emerg">Es una emergencia</label></div>
+    </div>
+    <div class="mt-4 d-flex gap-2">
+      <button class="btn btn-warning btn-icon"><i data-i="cal"></i>Reservar cita</button>
+      <button class="btn btn-outline-primary">Volver</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= APROBAR ================= -->
+<section class="sec" id="aprobar">
+  <h2>7. Gestión de citas (aprobar / rechazar)</h2>
+  <p class="lead2">Aprobar (principal) y Rechazar (peligro) quedan juntos en la misma fila: por eso llevan icono además del color. Estados con chips de color.</p>
+  <div class="panel">
+    <span class="screen-tag">/citas</span>
+    <table class="table table-striped table-hover align-middle mb-0">
+      <thead><tr><th>Fecha</th><th>Mascota</th><th>Servicio</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+        <tr><td>12/11 09:00</td><td>Firulais</td><td>Consulta general</td><td><span class="estado e-pend">PENDIENTE</span></td>
+          <td class="text-nowrap"><button class="btn btn-primary btn-sm btn-icon"><i data-i="check"></i>Aprobar</button> <button class="btn btn-danger btn-sm btn-icon"><i data-i="x"></i>Rechazar</button></td></tr>
+        <tr><td>12/11 10:30</td><td>Mishi</td><td>Vacunación</td><td><span class="estado e-apro">APROBADO</span></td>
+          <td class="text-nowrap"><button class="btn btn-secondary btn-sm btn-icon"><i data-i="eye"></i>Ver</button> <button class="btn btn-outline-danger btn-sm btn-icon"><i data-i="x"></i>Cancelar cita</button></td></tr>
+        <tr><td>11/11 16:00</td><td>Rocky</td><td>Baño y corte</td><td><span class="estado e-comp">COMPLETADO</span></td>
+          <td><button class="btn btn-secondary btn-sm btn-icon"><i data-i="eye"></i>Ver</button></td></tr>
+        <tr><td>10/11 11:00</td><td>Luna</td><td>Consulta general</td><td><span class="estado e-rech">RECHAZADO</span></td>
+          <td><button class="btn btn-secondary btn-sm btn-icon"><i data-i="eye"></i>Ver</button></td></tr>
+        <tr><td>09/11 15:00</td><td>Toby</td><td>Vacunación</td><td><span class="estado e-canc">CANCELADO</span></td>
+          <td><button class="btn btn-secondary btn-sm btn-icon"><i data-i="eye"></i>Ver</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= REASIGNACIÓN ================= -->
+<section class="sec" id="reasignar">
+  <h2>8. Qué botones del front actual cambian de clase</h2>
+  <p class="lead2">Conteo real en los <code>.razor</code> de Mauricio. Con el CSS del compañero, <code>btn-success</code> se pinta igual que <code>btn-primary</code>, pero conviene reasignarlo para que la clase diga la verdad.</p>
+  <div class="panel table-responsive">
+    <table class="table align-middle mb-0">
+      <thead><tr><th>Clase actual</th><th>Usos</th><th>Dónde está hoy</th><th>Debería ser</th></tr></thead>
+      <tbody>
+        <tr><td><code>btn-success</code></td><td>19</td><td>“Nuevo/Nueva…” y “Registrar/Reservar cita” (la mayoría), Atender, Aprobar, Exportar PDF e Imprimir</td><td>Nuevo/Registrar/Reservar/Atender → <code>btn-warning</code> · Aprobar → <code>btn-primary</code> · Exportar/Imprimir → <code>btn-secondary</code></td></tr>
+        <tr><td><code>btn-primary</code> con texto “Editar”</td><td>6 aprox.</td><td>Columnas “Acciones” de las tablas (también Modificar reserva)</td><td><code>btn-outline-primary</code> con icono</td></tr>
+        <tr><td><code>btn-outline-success</code></td><td>2</td><td>“Stock” y “Registrar receta”</td><td>Stock → <code>btn-secondary</code> · Registrar receta → <code>btn-outline-primary</code></td></tr>
+        <tr><td><code>btn-outline-secondary</code></td><td>21</td><td>16 “Cancelar”, 2 “Historial clínico”, Cancelar cita, Volver</td><td>Cancelar/Volver → <code>btn-outline-primary</code> · Historial clínico → <code>btn-secondary</code> · Cancelar cita → <code>btn-outline-danger</code></td></tr>
+        <tr><td><code>btn-danger</code> / <code>btn-outline-danger</code></td><td>12 / 8</td><td>Eliminar, Anular boleta, Rechazar, Cancelar reserva</td><td>Se quedan; solo agregar icono</td></tr>
+        <tr><td><code>btn-primary</code> (Guardar, Filtrar, Ingresar…) y <code>btn-secondary</code> (Limpiar)</td><td>≈ 41 / 11</td><td>Formularios y filtros</td><td>Se quedan igual</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= HALLAZGOS ================= -->
+<section class="sec" id="hallazgos">
+  <h2>9. Cosas para decidir con tu compañero</h2>
+  <div class="hallazgo"><b>La barra de menú sigue azul.</b> El layout usa <code>bg-primary</code> y el CSS propuesto solo redefine las clases <code>.btn-*</code>: el menú, los enlaces, el foco de los campos, las alertas y el paginador siguen con el azul de Bootstrap. Con el interruptor activado, el bloque (a) lo corrige sobrescribiendo <code>--bs-primary</code>.</div>
+  <div class="hallazgo"><b>Solo el botón principal tiene estado “deshabilitado”.</b> Cuando se conecte la API, los botones se bloquearán mientras guardan; los demás tipos se verían con el estilo por defecto de Bootstrap. El bloque (c) lo unifica.</div>
+  <div class="hallazgo"><b>No hay foco visible con teclado.</b> Con Tab no se ve cuál botón está seleccionado. El bloque (b) agrega un contorno oscuro.</div>
+  <div class="hallazgo"><b>Principal (verde) y Peligro (terracota) se parecen en brillo</b> (relación 1,2:1). Para personas con daltonismo rojo-verde conviene que lleven siempre icono + texto, como en esta muestra.</div>
+  <div class="hallazgo"><b>Un solo destacado por pantalla:</b> en listados es “Nuevo…”; en formularios no hay mostaza (Guardar es principal); en Reservar cita lo es “Reservar cita”. Falta decidir qué pasa en pantallas con varias acciones fuertes (Atender, Generar boleta).</div>
+  <div class="hallazgo"><b>Chips de estado de cita</b> (Pendiente, Aprobado, etc.): no estaban en la propuesta; los puse con la paleta para que no compitan con el mostaza.</div>
+</section>
+
+</div>
+
+<script>
+// Iconos (SVG en línea) para los botones, sin librerías externas
+const IC = {
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  trash:'<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', x:'<path d="M18 6 6 18M6 6l12 12"/>', check:'<path d="M20 6 9 17l-5-5"/>',
+  save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  print:'<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/>',
+  cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'
+};
+document.querySelectorAll('i[data-i]').forEach(e => {
+  e.outerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[e.dataset.i]}</svg>`;
+});
+// Interruptor: CSS del compañero tal cual  <->  con los ajustes propuestos
+const sw = document.getElementById('swAjustes'), aj = document.getElementById('css-ajustes'), et = document.getElementById('estadoAj');
+sw.addEventListener('change', () => {
+  aj.media = sw.checked ? 'all' : 'not all';
+  et.textContent = sw.checked ? 'Con ajustes propuestos' : 'CSS del compañero tal cual';
+  et.style.background = sw.checked ? '#3F6B52' : '#F2B33D'; et.style.color = sw.checked ? '#fff' : '#1F2A24';
+});
+if (location.hash === '#ajustes') { sw.checked = true; sw.dispatchEvent(new Event('change')); }
+</script>
+</body>
+</html>

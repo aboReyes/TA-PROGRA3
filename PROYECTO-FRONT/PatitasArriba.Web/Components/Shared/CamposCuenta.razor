@@ -1,0 +1,30 @@
+@* Datos de acceso dentro del formulario de la persona (cliente, veterinario o administrador).
+   Solo se pide el CORREO: el administrador no escribe ni conoce la contraseña; la persona la elige con el enlace que
+   recibe por correo (RN-AC-07). Debe usarse dentro de un EditForm cuyo modelo sea la misma persona. *@
+<h5 class="mb-3">Cuenta de usuario</h5>
+<div class="row">
+    <div class="col-md-8 mb-3">
+        <label class="form-label">Correo electrónico</label>
+        @if (EsNueva) {
+            <InputText tabindex="@TabIndexInicial" type="email" class="form-control" placeholder="nombre@correo.com" autocomplete="off" @bind-Value="Persona.Correo" />
+            <div class="form-text">Le enviaremos un correo para que elija su contraseña. Usted no la conoce.</div>
+            <ValidationMessage For="() => Persona.Correo" />
+        } else {
+            <input class="form-control" type="email" value="@Persona.Correo" disabled />
+            <div class="form-text">El correo y la contraseña de la cuenta se gestionan en «Cuentas de usuario».</div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public PersonaViewModel Persona { get; set; } = default!;
+
+    // true al registrar (se escribe el correo); false al editar (solo se muestra)
+    [Parameter]
+    public bool EsNueva { get; set; }
+
+    // El campo usa tabindex desde este número
+    [Parameter]
+    public int TabIndexInicial { get; set; } = 1;
+}

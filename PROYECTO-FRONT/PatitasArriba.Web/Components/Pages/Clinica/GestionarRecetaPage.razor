@@ -1,0 +1,209 @@
+@page "/recetas/nueva/{IdAtencion:int}"
+@page "/recetas/editar/{Id:int}"
+@inject NavigationManager Nav;
+
+<PageTitle>Receta médica</PageTitle>
+
+<h3 class="mb-3">@(Id == null ? "Nueva receta médica" : $"Editar receta N.° {Id}")</h3>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3"><span class="text-muted small d-block">Mascota</span><strong>@ViewModel.NombreMascota</strong></div>
+            <div class="col-md-3"><span class="text-muted small d-block">Dueño</span>@ViewModel.NombreCliente</div>
+            <div class="col-md-3"><span class="text-muted small d-block">Diagnóstico</span>@ViewModel.Diagnostico</div>
+            <div class="col-md-3"><span class="text-muted small d-block">Veterinario</span>@ViewModel.NombreVeterinario</div>
+        </div>
+    </div>
+</div>
+
+<EditForm Model="ViewModel" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Fecha de emisión</label>
+            <InputDate tabindex="1" class="form-control" @bind-Value="ViewModel.FechaEmision" />
+            <ValidationMessage For="() => ViewModel.FechaEmision" />
+        </div>
+    </div>
+
+    <h5 class="mt-2">Medicamentos</h5>
+    <p class="form-text mt-0">Recetar no descuenta stock: el cliente compra lo recetado en caja (RN-RE-04).</p>
+    <div class="row g-2 mb-1 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small mb-1">Medicamento</label>
+            <select class="form-select" @bind="IdMedicamentoAgregar">
+                <option value="0">Seleccione un medicamento</option>
+                @foreach (ArticuloViewModel medicamento in Medicamentos) {
+                    <option value="@medicamento.Id">@medicamento.Nombre</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1">Dosis (cada toma)</label>
+            <input class="form-control" placeholder="Ej.: 1 tableta" maxlength="45" @bind="DosisAgregar" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1">Frecuencia</label>
+            <input class="form-control" placeholder="Ej.: cada 12 horas" maxlength="45" @bind="FrecuenciaAgregar" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1">Duración</label>
+            <div class="input-group">
+                <input type="number" min="1" class="form-control" @bind="DiasAgregar" />
+                <span class="input-group-text">días</span>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1">Cantidad total</label>
+            <div class="input-group">
+                <input type="number" min="1" class="form-control" @bind="CantidadAgregar" />
+                <span class="input-group-text">und.</span>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <button type="button" class="btn btn-secondary btn-icono w-100" title="Agregar medicamento" aria-label="Agregar medicamento" @onclick="() => AgregarMedicamento()">
+                <Icono Nombre="plus" />
+            </button>
+        </div>
+    </div>
+    <div class="form-text mb-3">La cantidad total es lo que el cliente debe comprar para todo el tratamiento (por ejemplo, 1 tableta cada 12 horas por 7 días = 14).</div>
+
+    @if (MensajeError != null) {
+        <div class="alert alert-warning">@MensajeError</div>
+    }
+
+    @if (ViewModel.Medicamentos.Count == 0) {
+        <div class="alert alert-info mb-1">Agregue al menos un medicamento.</div>
+    }
+    else {
+        <table class="table table-sm align-middle">
+            <thead>
+                <tr>
+                    <th>Medicamento</th>
+                    <th>Dosis</th>
+                    <th>Frecuencia</th>
+                    <th class="text-end">Duración</th>
+                    <th class="text-end">Cantidad</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (DetalleRecetaViewModel medicamento in ViewModel.Medicamentos) {
+                    <tr>
+                        <td>@medicamento.NombreArticulo</td>
+                        <td>@medicamento.Dosis</td>
+                        <td>@medicamento.Frecuencia</td>
+                        <td class="text-end">@medicamento.DuracionDias días</td>
+                        <td class="text-end">@medicamento.CantidadTotal</td>
+                        <td class="text-end">
+                            <button type="button" class="btn btn-outline-danger btn-icono" title="Quitar" aria-label="Quitar" @onclick="() => QuitarMedicamento(medicamento)">
+                                <Icono Nombre="x" />
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    <ValidationMessage For="() => ViewModel.Medicamentos" />
+
+    <div class="mb-3 mt-3">
+        <label class="form-label">Indicaciones generales</label>
+        <InputTextArea tabindex="2" class="form-control" rows="3" placeholder="Ej.: dar con comida; control en 7 días" @bind-Value="ViewModel.IndicacionesGenerales" />
+        <ValidationMessage For="() => ViewModel.IndicacionesGenerales" />
+    </div>
+
+    <div class="d-flex gap-2">
+        <button tabindex="3" type="submit" class="btn btn-primary btn-texto"><Icono Nombre="save" /><span>Guardar</span></button>
+        <a tabindex="4" class="btn btn-outline-primary" href="recetas">Cancelar</a>
+    </div>
+</EditForm>
+
+@code {
+    // Nueva: la receta se emite para una atención médica
+    [Parameter]
+    public int? IdAtencion { get; set; }
+
+    // Editar: receta ya registrada
+    [Parameter]
+    public int? Id { get; set; }
+
+    private RecetaViewModel ViewModel { get; set; } = new();
+    private List<ArticuloViewModel> Medicamentos { get; set; } = [];
+    private string? MensajeError { get; set; }
+
+    private int IdMedicamentoAgregar { get; set; }
+    private string DosisAgregar { get; set; } = "";
+    private string FrecuenciaAgregar { get; set; } = "";
+    private int DiasAgregar { get; set; } = 5;
+    private int CantidadAgregar { get; set; } = 1;
+
+    protected override void OnInitialized() {
+        Medicamentos = DatosEjemplo.Medicamentos();
+    }
+
+    protected override void OnParametersSet() {
+        if (Id != null) {
+            RecetaViewModel? receta = DatosEjemplo.Recetas().FirstOrDefault(r => r.Id == Id);
+            if (receta == null) {
+                Nav.NavigateTo("/recetas");
+                return;
+            }
+            ViewModel = receta;
+            return;
+        }
+
+        AtencionViewModel? atencion = DatosEjemplo.Atenciones().FirstOrDefault(a => a.Id == IdAtencion);
+        // RN-RE-02: no se emiten recetas en servicios estéticos
+        if (atencion == null || !atencion.EsServicioMedico) {
+            Nav.NavigateTo("/atenciones");
+            return;
+        }
+        ViewModel = new RecetaViewModel {
+            IdAtencion = atencion.Id,
+            NombreMascota = atencion.NombreMascota,
+            NombreCliente = atencion.NombreCliente,
+            NombreVeterinario = atencion.NombreVeterinario,
+            Diagnostico = string.Join(", ", atencion.Diagnosticos.Select(d => d.NombreEnfermedad)),
+            FechaEmision = DateOnly.FromDateTime(DateTime.Today)
+        };
+    }
+
+    // RN-RE-03: cada medicamento con artículo, dosis, frecuencia, duración y cantidad válidos
+    private void AgregarMedicamento() {
+        ArticuloViewModel? medicamento = Medicamentos.Find(m => m.Id == IdMedicamentoAgregar);
+        if (medicamento == null || string.IsNullOrWhiteSpace(DosisAgregar) || string.IsNullOrWhiteSpace(FrecuenciaAgregar)) {
+            MensajeError = "Seleccione el medicamento e indique la dosis y la frecuencia";
+            return;
+        }
+        if (DiasAgregar < 1 || CantidadAgregar < 1) {
+            MensajeError = "La duración y la cantidad total deben ser mayores a 0";
+            return;
+        }
+        ViewModel.Medicamentos.Add(new DetalleRecetaViewModel {
+            IdArticulo = medicamento.Id,
+            NombreArticulo = medicamento.Nombre,
+            Dosis = DosisAgregar.Trim(),
+            Frecuencia = FrecuenciaAgregar.Trim(),
+            DuracionDias = DiasAgregar,
+            CantidadTotal = CantidadAgregar
+        });
+        MensajeError = null;
+        IdMedicamentoAgregar = 0;
+        DosisAgregar = "";
+        FrecuenciaAgregar = "";
+        DiasAgregar = 5;
+        CantidadAgregar = 1;
+    }
+
+    private void QuitarMedicamento(DetalleRecetaViewModel medicamento) {
+        ViewModel.Medicamentos.Remove(medicamento);
+    }
+
+    // Sin backend: solo regresa al listado. Al enlazar: POST /recetas o PUT /recetas/{Id}
+    private void Guardar() {
+        Nav.NavigateTo("/recetas");
+    }
+}

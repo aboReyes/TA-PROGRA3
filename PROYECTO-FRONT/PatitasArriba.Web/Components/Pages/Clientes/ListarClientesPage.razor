@@ -1,0 +1,138 @@
+@page "/clientes"
+@inject NavigationManager Nav;
+@inject SesionDemo Sesion;
+
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+<PageTitle>Clientes</PageTitle>
+
+<div class="d-flex justify-content-between mb-3">
+    <h3 class="mb-3">Clientes</h3>
+    @* El veterinario solo consulta: no ve los botones para registrar, editar ni eliminar *@
+    @if (Sesion.EsAdministrador) {
+        <button tabindex="4" class="btn btn-warning btn-texto" @onclick="() => NuevoCliente()">
+            <Icono Nombre="plus" /><span>Nuevo cliente</span>
+        </button>
+    }
+</div>
+
+<div class="barra-filtros d-flex align-items-center gap-2 mb-3">
+    <label class="text-nowrap">DNI o nombre:</label>
+    <input tabindex="1" class="form-control" placeholder="Ingrese el DNI o el nombre..." @bind="Filtro" />
+    <button tabindex="2" class="btn btn-primary btn-texto" @onclick="() => Filtrar()">
+        <Icono Nombre="search" /><span>Filtrar</span>
+    </button>
+    <button tabindex="3" class="btn btn-secondary" @onclick="() => LimpiarFiltro()">Limpiar</button>
+</div>
+
+@if (MensajeExito != null) {
+    <div class="alert alert-success">@MensajeExito</div>
+}
+
+@if (!Clientes.Any()) {
+    <div class="alert alert-info">No se encontraron clientes.</div>
+}
+else {
+    <div class="row">
+        <div class="col-lg-7">
+            <QuickGrid Items="Clientes" Pagination="Paginacion" Class="table table-striped table-hover align-middle">
+                <PropertyColumn Title="DNI" Property="c => c.Dni" Sortable="true" />
+                <PropertyColumn Title="Nombre completo" Property="c => c.NombreCompleto" Sortable="true" />
+                <PropertyColumn Title="Teléfono" Property="c => c.Telefono" />
+                <TemplateColumn Title="Acciones" Align="Align.Center">
+                    <div class="acciones">
+                        <button class="btn btn-outline-primary btn-icono" title="Ver sus mascotas" aria-label="Ver sus mascotas" @onclick="() => SeleccionarCliente(context)">
+                            <Icono Nombre="eye" />
+                        </button>
+                        @if (Sesion.EsAdministrador) {
+                            <button class="btn btn-outline-primary btn-icono" title="Editar" aria-label="Editar" @onclick="() => EditarCliente(context.Id)">
+                                <Icono Nombre="edit" />
+                            </button>
+                            <button class="btn btn-outline-danger btn-icono" title="Eliminar" aria-label="Eliminar" @onclick="() => PedirEliminar(context)">
+                                <Icono Nombre="trash" />
+                            </button>
+                        }
+                    </div>
+                </TemplateColumn>
+            </QuickGrid>
+            <Paginador State="Paginacion" />
+        </div>
+        <div class="col-lg-5">
+            @if (ClienteSeleccionado == null) {
+                <div class="alert alert-info">Seleccione un cliente para ver sus datos y sus mascotas.</div>
+            } else {
+                <MascotasDelCliente Cliente="ClienteSeleccionado" Mascotas="MascotasSeleccionadas" PermitirEditar="Sesion.EsAdministrador" />
+            }
+        </div>
+    </div>
+}
+
+<ConfirmarDialogo Visible="ClienteAEliminar != null"
+                  Titulo="¿Eliminar al cliente?"
+                  Mensaje="@($"{ClienteAEliminar?.NombreCompleto}, sus mascotas y su cuenta de usuario se darán de baja. No se puede si sus mascotas tienen citas o si tiene boletas.")"
+                  OnConfirmar="EliminarCliente" OnCancelar="CancelarEliminacion" />
+
+@code {
+    private List<ClienteViewModel> Todos { get; set; } = [];
+    private IQueryable<ClienteViewModel> Clientes { get; set; } = Enumerable.Empty<ClienteViewModel>().AsQueryable();
+    private ClienteViewModel? ClienteSeleccionado { get; set; }
+    private List<MascotaViewModel> MascotasSeleccionadas { get; set; } = [];
+    private ClienteViewModel? ClienteAEliminar { get; set; }
+    private string? MensajeExito { get; set; }
+    private string Filtro { get; set; } = string.Empty;
+    private PaginationState Paginacion { get; } = new() { ItemsPerPage = 5 };
+
+    protected override void OnInitialized() {
+        Todos = DatosEjemplo.Clientes();
+        Filtrar();
+    }
+
+    private void Filtrar() {
+        string texto = Filtro.Trim();
+        Clientes = Todos
+            .Where(c => c.Dni.Contains(texto) || c.NombreCompleto.Contains(texto, StringComparison.OrdinalIgnoreCase))
+            .AsQueryable();
+    }
+
+    private void LimpiarFiltro() {
+        Filtro = string.Empty;
+        Filtrar();
+    }
+
+    // Maestro-detalle: al seleccionar un cliente se muestran sus mascotas a la derecha
+    private void SeleccionarCliente(ClienteViewModel cliente) {
+        ClienteSeleccionado = cliente;
+        MascotasSeleccionadas = DatosEjemplo.MascotasDeCliente(cliente.Id);
+    }
+
+    private void NuevoCliente() {
+        Nav.NavigateTo("/clientes/nuevo");
+    }
+
+    private void EditarCliente(int id) {
+        Nav.NavigateTo($"/clientes/editar/{id}");
+    }
+
+    private void PedirEliminar(ClienteViewModel cliente) {
+        ClienteAEliminar = cliente;
+    }
+
+    private void CancelarEliminacion() {
+        ClienteAEliminar = null;
+    }
+
+    // Sin backend: se quita de la lista. Al enlazar se llamará a DELETE /clientes/{id};
+    // si el backend lo rechaza (RN-CL-01), se mostrará su mensaje.
+    private void EliminarCliente() {
+        if (ClienteAEliminar == null) {
+            return;
+        }
+        Todos.Remove(ClienteAEliminar);
+        if (ClienteSeleccionado == ClienteAEliminar) {
+            ClienteSeleccionado = null;
+        }
+        MensajeExito = $"Se eliminó al cliente {ClienteAEliminar.NombreCompleto}.";
+        ClienteAEliminar = null;
+        Filtrar();
+    }
+}
