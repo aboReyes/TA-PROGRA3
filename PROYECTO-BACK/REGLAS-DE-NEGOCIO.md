@@ -38,7 +38,8 @@ Sistema de gestión para una clínica veterinaria de perros y gatos: clientes y 
 PENDIENTE ──┬──► RECHAZADO   (administrador)
             ├──► CANCELADO   (cliente o administrador)
             └──► APROBADO ───┬──► COMPLETADO (administrador, todo atendido)
-               (administrador)└──► CANCELADO  (cliente o administrador)
+               (administrador)├──► CANCELADO  (cliente o administrador)
+                              └──► PENDIENTE  (al modificarla, RN-CI-16)
 ```
 
 ---
@@ -144,6 +145,7 @@ PENDIENTE ──┬──► RECHAZADO   (administrador)
 | RN-HO-02 | La hora de inicio debe ser anterior a la hora de fin. |
 | RN-HO-03 | Un horario puede asignarse a veterinarios y administradores. En los veterinarios determina cuándo pueden recibir citas (RN-CI-05). |
 | RN-HO-04 | No se puede dar de baja un horario asignado a algún veterinario o administrador activo. |
+| RN-HO-05 | Un turno debe estar dentro del horario de atención de la clínica (**08:00 a 20:00**) y durar **entre 1 y 12 horas** (RF09). |
 
 ---
 
@@ -224,6 +226,7 @@ PENDIENTE ──┬──► RECHAZADO   (administrador)
 |---|---|
 | RN-CI-14 | Se pueden consultar las citas de un cliente (ordenadas por fecha) y las citas de un día (ordenadas por hora), opcionalmente solo las de un veterinario. El reporte de agenda diaria (RF13) se arma con estas últimas. |
 | RN-CI-15 | **[Rol]** El cliente registra, modifica y cancela las citas de sus mascotas, pero **no registra emergencias**: la cita de emergencia solo la registra el administrador (lo aplica el frontend; propuesta pendiente del JP). El administrador además las aprueba, rechaza y completa. El veterinario solo consulta y filtra su agenda diaria. |
+| RN-CI-16 | Si se modifica una cita **APROBADO** (cambia su fecha, hora o servicios), puede volver a **PENDIENTE** para que el administrador la revise de nuevo; se quita el administrador que la había aprobado. El cliente, al reprogramar una cita aprobada, siempre la deja PENDIENTE. |
 
 ---
 
