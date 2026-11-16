@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Patitas Arriba · RF nuevos y modificados y sus pantallas</title>
+<style>
+  @page { size: A4; margin: 11mm 12mm 11mm 12mm; }
+  :root { --verde:#3F6B52; --verde-o:#325642; --salvia:#E3ECDD; --mostaza:#F2B33D; --terracota:#B5483A; --texto:#1F2A24; --suave:#5b6b62; --linea:#d9d4c7; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: var(--texto); font-size: 8.9pt; line-height: 1.35; margin: 0; }
+  header { border-bottom: 3px solid var(--verde); padding-bottom: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: end; gap: 10px; }
+  header h1 { margin: 0; font-size: 16.5pt; color: var(--verde-o); line-height: 1.15; }
+  header p { margin: 2px 0 0; color: var(--suave); font-size: 8.6pt; }
+  header .sello { text-align: right; font-size: 8pt; color: var(--suave); white-space: nowrap; }
+  h2 { font-size: 10.8pt; color: var(--verde-o); margin: 11px 0 5px; border-left: 5px solid var(--mostaza); padding-left: 7px; }
+  /* Flujo de trabajo */
+  .flujo { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; align-items: stretch; margin: 4px 0 2px; }
+  .paso { position: relative; background: #f6f9f3; border: 1px solid var(--linea); border-radius: 8px; padding: 6px 7px 7px; margin-right: 11px; }
+  .paso:last-child { margin-right: 0; }
+  .paso:not(:last-child)::after { content: "➜"; position: absolute; right: -12px; top: 38%; font-size: 11pt; color: var(--verde); }
+  .paso .n { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: var(--verde); color: #fff; font-size: 7.8pt; font-weight: 700; margin-right: 4px; }
+  .paso b { font-size: 8.7pt; }
+  .paso p { margin: 3px 0 4px; font-size: 7.9pt; color: #3d4a42; }
+  .paso.nuevo { background: #fdf3d6; border-color: #ecd48a; }
+  .rf { display: inline-block; border-radius: 99px; padding: 0 6px; font-size: 7.4pt; font-weight: 700; background: var(--salvia); color: var(--verde-o); border: 1px solid #bcd0b0; margin: 0 2px 2px 0; }
+  .rf.nu { background: var(--mostaza); border-color: #d99a1c; color: var(--texto); }
+  .cifras { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: 8px 0 2px; }
+  .cifra { border: 1px solid var(--linea); border-radius: 8px; padding: 4px 6px; text-align: center; }
+  .cifra b { display: block; font-size: 13pt; color: var(--verde-o); line-height: 1.1; }
+  .cifra span { font-size: 7.6pt; color: var(--suave); }
+  /* Tabla */
+  table { width: 100%; border-collapse: collapse; font-size: 8.3pt; }
+  th { background: var(--verde); color: #fff; text-align: left; padding: 3.5px 5px; }
+  td { border-bottom: 1px solid var(--linea); padding: 3px 5px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f6f9f3; }
+  tr { break-inside: avoid; }
+  .tipo { display: inline-block; border-radius: 4px; padding: 0 5px; font-size: 7.4pt; font-weight: 800; letter-spacing: .03em; }
+  .t-n { background: var(--mostaza); color: var(--texto); }
+  .t-m { background: var(--salvia); color: var(--verde-o); border: 1px solid #bcd0b0; }
+  .jp { font-size: 7.8pt; font-weight: 700; color: #7a5a06; }
+  .jp.ok { color: var(--verde-o); }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 7.8pt; background: #eef2ea; padding: 0 3px; border-radius: 3px; }
+  /* Estado */
+  .tres { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .caja { border: 1px solid var(--linea); border-radius: 8px; padding: 6px 9px; }
+  .caja h3 { margin: 0 0 3px; font-size: 9.2pt; }
+  .caja ul { margin: 0; padding-left: 14px; }
+  .caja li { margin: 1.5px 0; }
+  .c-ok { border-top: 4px solid var(--verde); } .c-prueba { border-top: 4px solid var(--mostaza); } .c-pend { border-top: 4px solid var(--terracota); }
+  .solo-ui { border: 1px dashed #bcd0b0; background: #fbfdf9; border-radius: 8px; padding: 5px 9px; margin-top: 7px; }
+  footer { margin-top: 9px; border-top: 1px solid var(--linea); padding-top: 4px; color: var(--suave); font-size: 7.8pt; display: flex; justify-content: space-between; }
+  .salto { break-before: page; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Patitas Arriba · Requerimientos nuevos y modificados y las pantallas que los muestran</h1>
+    <p>Aporte de Diego López · Equipo Los Huérfanos · PROG3 · Del diseño al <code>main</code> del repositorio compartido</p>
+  </div>
+  <div class="sello"><b>Corte: 11/11/2026</b><br>main = PR #25</div>
+</header>
+
+<h2>1 · Cómo trabajé: el flujo, con los RF que toca cada etapa</h2>
+<div class="flujo">
+  <div class="paso"><b><span class="n">1</span>Acceso</b><p>Login por correo, registro con verificación y recuperación de contraseña (SQL, Java y front).</p><span class="rf nu">RF19</span><span class="rf nu">RF20</span><span class="rf">RF01</span><span class="rf">RF02</span></div>
+  <div class="paso"><b><span class="n">2</span>Administrador</b><p>Inicio, agenda, citas, inventario, boletas y Personal (veterinarios, administradores y horarios).</p><span class="rf">RF04</span><span class="rf">RF05</span><span class="rf">RF09</span><span class="rf">RF18</span></div>
+  <div class="paso"><b><span class="n">3</span>Cliente</b><p>Portal: mis mascotas con foto, reserva de cita en 3 pasos y mis citas.</p><span class="rf">RF03</span><span class="rf">RF10</span></div>
+  <div class="paso"><b><span class="n">4</span>Integración</b><p>Todo junto en <code>main</code> con Pull Requests (#22 a #25), sin conflictos y compilando.</p><span class="rf">20 RF</span></div>
+  <div class="paso"><b><span class="n">5</span>Conexión</b><p>Las 47 páginas llaman al REST con servicios, DTOs y login real (equipo).</p><span class="rf">47 páginas</span></div>
+  <div class="paso nuevo"><b><span class="n">6</span>Rediseño</b><p>Botones únicos, tarjetas, filtros y login limpio sobre los datos reales.</p><span class="rf nu">solo front</span></div>
+</div>
+<div class="cifras">
+  <div class="cifra"><b>2</b><span>RF nuevos</span></div>
+  <div class="cifra"><b>8</b><span>RF modificados</span></div>
+  <div class="cifra"><b>25 · 166</b><span>tablas · procedures</span></div>
+  <div class="cifra"><b>47</b><span>páginas conectadas</span></div>
+  <div class="cifra"><b>16</b><span>tests de servicios</span></div>
+  <div class="cifra"><b>3</b><span>Pull Requests míos</span></div>
+</div>
+
+<h2>2 · Tabla de requerimientos: nuevo / modificado y su pantalla</h2>
+<table>
+  <tr><th style="width:6%">RF</th><th style="width:8%">Tipo</th><th>Qué dice ahora el requerimiento</th><th style="width:25%">Pantallas</th><th style="width:15%">JP</th></tr>
+  <tr><td><b>RF19</b></td><td><span class="tipo t-n">NUEVO</span></td><td>El cliente se registra solo y su cuenta se crea al confirmar el enlace que recibe por correo.</td><td>Registro · Verificar correo</td><td class="jp">Por aprobar</td></tr>
+  <tr><td><b>RF20</b></td><td><span class="tipo t-n">NUEVO</span></td><td>Recuperar la contraseña con un enlace por correo, de un solo uso y con vencimiento.</td><td>Olvidé mi contraseña · Restablecer</td><td class="jp">Por aprobar</td></tr>
+  <tr><td><b>RF01</b></td><td><span class="tipo t-m">MODIF.</span></td><td>Ingreso con correo y contraseña; el rol se detecta según la cuenta; cierre de sesión y recuperación por correo.</td><td>Login</td><td class="jp">Por aprobar</td></tr>
+  <tr><td><b>RF02</b></td><td><span class="tipo t-m">MODIF.</span></td><td>El cliente puede registrarse por sí mismo; el administrador sigue registrando y consultando clientes.</td><td>Registro · Clientes</td><td class="jp">Por aprobar</td></tr>
+  <tr><td><b>RF03</b></td><td><span class="tipo t-m">MODIF.</span></td><td>La mascota tiene <b>foto opcional</b> y <b>peso opcional</b> si la registra el cliente; el cliente gestiona sus propias mascotas.</td><td>Mis mascotas · Mascotas</td><td class="jp">Por aprobar<br>RN-MA-02/06/07</td></tr>
+  <tr><td><b>RF04</b></td><td><span class="tipo t-m">MODIF.</span></td><td>El administrador crea al personal y su cuenta en un solo paso; la persona elige su contraseña con un enlace.</td><td>Veterinarios · Administradores</td><td class="jp">Por aprobar</td></tr>
+  <tr><td><b>RF05</b></td><td><span class="tipo t-m">MODIF.</span></td><td>Las cuentas del personal nacen con la persona; las de clientes, al registrarse; el administrador las consulta y modifica.</td><td>Cuentas de usuario</td><td class="jp">Por aprobar</td></tr>
+  <tr><td><b>RF09</b></td><td><span class="tipo t-m">MODIF.</span></td><td>El personal se asigna desde el horario; un horario sin veterinario no recibe citas; una persona no cruza turnos.</td><td>Horarios (semana y lista)</td><td class="jp">Por aprobar<br>regla de cruces</td></tr>
+  <tr><td><b>RF10</b></td><td><span class="tipo t-m">MODIF.</span></td><td>Reserva en 3 pasos con veterinario asignado automáticamente; <b>el cliente no registra emergencias</b> (solo la clínica).</td><td>Nueva reserva · Mis citas</td><td class="jp">Por aprobar<br>RN-CL-03, RN-CI-15</td></tr>
+  <tr><td><b>RF18</b></td><td><span class="tipo t-m">MODIF.</span></td><td>Nueva boleta en 3 pasos, modificar boleta y anular con confirmación; indicadores de cobro.</td><td>Boletas · Nueva boleta</td><td class="jp">Por confirmar</td></tr>
+</table>
+<div class="solo-ui"><b>Solo rediseño visual, sin cambio de texto del RF:</b> RF06 Diagnósticos · RF07 Servicios · RF08 Inventario y categorías · RF11 Citas e inicio del administrador · RF13 Agenda diaria · RF16 Historial clínico.</div>
+
+<h2 class="salto">3 · Dónde estamos hoy (sin adornos)</h2>
+<div class="tres">
+  <div class="caja c-ok"><h3>Hecho</h3><ul>
+    <li>Backend con código para <b>19 de los 20 RF</b> (falta RF12).</li>
+    <li>Base instalada con <b>un solo script</b> (<code>instalar-patitasarriba.sql</code>).</li>
+    <li>Front conectado al REST; el login ya valida contra la base.</li>
+    <li>Rediseño de pantallas en <code>main</code> (PR #25).</li>
+  </ul></div>
+  <div class="caja c-prueba"><h3>Probado</h3><ul>
+    <li>Compila (Java y .NET) y pasan los <b>16 tests</b> de servicios.</li>
+    <li>Lectura de <b>12 pantallas</b> (clientes, mascotas, servicios, inventario, personal, cuentas, boletas, historial…) en el navegador con datos reales de la base local.</li>
+    <li>Login de administrador, veterinario y cliente contra el REST.</li>
+  </ul></div>
+  <div class="caja c-pend"><h3>Pendiente</h3><ul>
+    <li><b>Aprobación del JP</b> de los RF nuevos y modificados.</li>
+    <li>Alta, edición y baja desde cada pantalla (hoy se probó la lectura).</li>
+    <li>RF12 Recordatorios por correo (no implementado).</li>
+    <li>Emergencia con datos mínimos y foto del personal (cambian la base y las reglas).</li>
+    <li>Velocidad contra AWS: falta un pool de conexiones.</li>
+  </ul></div>
+</div>
+
+<h2>4 · Qué cambió en cada capa</h2>
+<table>
+  <tr><th style="width:14%">Capa</th><th>Cambios</th></tr>
+  <tr><td><b>Base de datos</b></td><td>2 tablas nuevas (<code>registro_pendiente</code>, <code>token_recuperacion</code>) y la columna <code>mascota.foto</code>; peso opcional. Ahora son <b>25 tablas y 166 procedures</b>.</td></tr>
+  <tr><td><b>Backend (Java)</b></td><td>Registro con verificación y recuperación (hash de enlaces, vencimiento, correo SMTP por variables de entorno), alta de persona + cuenta en una transacción, foto y peso en modelo, DAO, BL, DTO y mapper.</td></tr>
+  <tr><td><b>Front (Blazor)</b></td><td>Pantallas de acceso, portal del cliente, administrador, Personal y rediseño; servicios y DTOs en C# que llaman al REST (con el equipo).</td></tr>
+  <tr><td><b>Integración</b></td><td>Pull Requests #22 (portal, Personal, foto), #24 (refactor de servicios de Naim con lo de Fernando) y #25 (rediseño); arreglos de compilación en la rama de servicios.</td></tr>
+</table>
+
+<h2>5 · Decisiones que necesito del JP</h2>
+<table>
+  <tr><th style="width:30%">Tema</th><th>Pregunta</th></tr>
+  <tr><td><b>Emergencia con datos mínimos</b></td><td>¿Se permite registrar una emergencia con la mascota y un teléfono, dejando el DNI del dueño para después (cliente provisional)? Hoy la base exige DNI y teléfono únicos.</td></tr>
+  <tr><td><b>Foto del personal</b></td><td>¿Se agrega una foto opcional a veterinarios y administradores, como la de la mascota? No está en RF04.</td></tr>
+  <tr><td><b>Reglas del cliente</b></td><td>¿Se aprueban que el cliente registre sus mascotas con peso opcional y que no registre emergencias (RN-MA-02, RN-MA-06, RN-CL-03, RN-CI-15)?</td></tr>
+  <tr><td><b>Cruces de turnos</b></td><td>¿Se aprueba que una persona no pueda tener dos turnos que se crucen el mismo día (RF09)?</td></tr>
+</table>
+
+<footer>
+  <span>Repositorio compartido: diestrah/Patitas-Arriba · rama <code>main</code></span>
+  <span>Detalle completo: Registro de cambios (entradas 1 a 25) y Estado del proyecto</span>
+</footer>
+
+</body>
+</html>

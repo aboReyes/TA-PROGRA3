@@ -1,10 +1,10 @@
 package patitasarriba.rest.mapper;
 
-import patitasarriba.bl.BLException;
-import patitasarriba.bl.ClienteBL;
-import patitasarriba.bl.NoEncontradoException;
-import patitasarriba.bl.ValidacionException;
-import patitasarriba.bl.impl.usuario.ClienteBLImpl;
+import patitasarriba.bl.excepciones.BLException;
+import patitasarriba.bl.usuario.ClienteBL;
+import patitasarriba.bl.excepciones.NoEncontradoException;
+import patitasarriba.bl.excepciones.ValidacionException;
+import patitasarriba.blimpl.usuario.ClienteBLImpl;
 import patitasarriba.modelo.mascota.Mascota;
 import patitasarriba.modelo.mascota.SexoMascota;
 import patitasarriba.modelo.mascota.TipoMascota;
@@ -33,6 +33,7 @@ public final class MascotaMapper {
         dto.setFechaNacimiento(mascota.getFechaNacimiento().toString());
         dto.setRaza(mascota.getRaza());
         dto.setTipoMascota(mascota.getTipoMascota().name());
+        dto.setFoto(mascota.getFoto());
         return dto;
     }
 
@@ -56,6 +57,10 @@ public final class MascotaMapper {
             throw new ValidacionException("No existe el cliente con id " + dto.getCliente().getId());
         }
 
+        // La columna fecha_nacimiento es NOT NULL: sin esto el error decía "Datos de la mascota invalidos: text"
+        if (dto.getFechaNacimiento() == null || dto.getFechaNacimiento().isBlank()) {
+            throw new ValidacionException("La fecha de nacimiento es obligatoria");
+        }
         Mascota mascota = new Mascota();
         try {
             mascota.setId(dto.getId());
@@ -67,6 +72,7 @@ public final class MascotaMapper {
             mascota.setFechaNacimiento(LocalDate.parse(dto.getFechaNacimiento()));
             mascota.setRaza(dto.getRaza());
             mascota.setTipoMascota(TipoMascota.valueOf(dto.getTipoMascota()));
+            mascota.setFoto(dto.getFoto());
         } catch (IllegalArgumentException | DateTimeParseException | NullPointerException e) {
             throw new ValidacionException("Datos de la mascota invalidos: " + e.getMessage());
         }

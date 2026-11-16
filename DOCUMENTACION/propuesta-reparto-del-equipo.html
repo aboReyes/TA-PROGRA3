@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Patitas Arriba · Reparto de temas por requerimiento</title>
+<style>
+  @page { size: A4; margin: 12mm 13mm 12mm 13mm; }
+  :root { --verde:#3F6B52; --verde-o:#325642; --salvia:#E3ECDD; --mostaza:#F2B33D; --terracota:#B5483A; --texto:#1F2A24; --suave:#5b6b62; --linea:#d9d4c7; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: var(--texto); font-size: 9.2pt; line-height: 1.38; margin: 0; }
+  header { border-bottom: 3px solid var(--verde); padding-bottom: 7px; margin-bottom: 9px; }
+  header h1 { margin: 0; font-size: 17.5pt; color: var(--verde-o); }
+  header p { margin: 3px 0 0; color: var(--suave); font-size: 9pt; }
+  h2 { font-size: 11.5pt; color: var(--verde-o); margin: 12px 0 6px; border-left: 5px solid var(--mostaza); padding-left: 8px; break-after: avoid; }
+  p { margin: 4px 0; }
+  .nota { background: #fff7e0; border: 1px solid #ecd48a; border-radius: 6px; padding: 6px 10px; font-size: 8.8pt; margin: 7px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 8.6pt; margin: 4px 0 6px; }
+  th { background: var(--verde); color: #fff; text-align: left; padding: 4px 6px; }
+  td { border-bottom: 1px solid var(--linea); padding: 4px 6px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f6f9f3; }
+  tr { break-inside: avoid; }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 8.1pt; background: #eef2ea; padding: 0 3px; border-radius: 3px; }
+  ul { margin: 2px 0; padding-left: 16px; }
+  li { margin: 1.5px 0; }
+  .rf { display: inline-block; border-radius: 99px; padding: 0 6px; font-size: 7.8pt; font-weight: 700; background: var(--salvia); color: var(--verde-o); border: 1px solid #bcd0b0; margin: 0 2px 2px 0; white-space: nowrap; }
+  .rf.nu { background: var(--mostaza); border-color: #d99a1c; color: var(--texto); }
+  .tipo { display: inline-block; border-radius: 4px; padding: 0 5px; font-size: 7.4pt; font-weight: 800; letter-spacing: .03em; white-space: nowrap; }
+  .t-n { background: var(--mostaza); color: var(--texto); } .t-m { background: var(--salvia); color: var(--verde-o); border: 1px solid #bcd0b0; } .t-s { background: #ece9e1; color: #4a4a44; }
+  .bloque { break-inside: avoid; margin-bottom: 9px; border: 1px solid var(--linea); border-radius: 9px; padding: 6px 10px 5px; }
+  .bloque h3 { margin: 0 0 3px; font-size: 10.4pt; color: var(--verde-o); }
+  .bloque h3 small { font-weight: 600; color: var(--suave); font-size: 8.5pt; }
+  .bloque table { margin: 3px 0 3px; }
+  .pend { font-size: 8.6pt; margin: 2px 0 1px; }
+  .pend b { color: var(--terracota); }
+  .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  footer { margin-top: 9px; border-top: 1px solid var(--linea); padding-top: 4px; color: var(--suave); font-size: 8pt; }
+  .salto { break-before: page; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Patitas Arriba · Reparto de temas por requerimiento</h1>
+  <p>Seis integrantes · todos exponen sobre requerimientos funcionales (RF) y justifican sus decisiones · Corte: 11/11/2026 (<code>main</code> = PR #25)</p>
+</header>
+
+<h2>1 · Idea del reparto</h2>
+<p>Los <b>20 requerimientos funcionales</b> se reparten entre los seis integrantes, de tres a cuatro cada uno, agrupados por tema. Cada integrante se hace cargo del backend, las pantallas y las pruebas de sus RF y, en la exposición, habla de ellos con la misma estructura: <i>qué cambió, por qué se decidió así y qué falta</i>. Una sola persona abre con los criterios que guiaron todos los cambios, para que la aplicación se entienda como un conjunto.</p>
+<div class="nota"><b>Los nombres se asignan entre ustedes.</b> Los frentes están numerados del 1 al 6; lo único que importa es que cada RF (RF01 a RF20) tenga dueño y que cada cambio se justifique.</div>
+
+<h2>2 · De dónde partimos</h2>
+<table>
+  <tr><th style="width:17%">Qué</th><th>Estado hoy</th></tr>
+  <tr><td><b>Backend</b></td><td>Código para 19 de los 20 RF (falta RF12). Base con 25 tablas y 166 procedures. Compila; el <code>Tester</code> no se ha corrido contra la base.</td></tr>
+  <tr><td><b>Front</b></td><td>47 páginas conectadas al REST, login real, servicio de Acceso y rediseño de pantallas, todo en <code>main</code>.</td></tr>
+  <tr><td><b>Probado</b></td><td>16 tests de servicios y la <b>lectura</b> de 12 pantallas con datos reales. <b>Falta probar alta, edición y baja</b> en cada módulo.</td></tr>
+  <tr><td><b>Riesgo</b></td><td>Contra la base de AWS el sistema es lento (una conexión nueva por consulta): <code>/citas</code> pasa de 100 s. Hay que resolverlo antes de la entrega.</td></tr>
+</table>
+
+<h2>3 · Reparto por requerimiento</h2>
+<table>
+  <tr><th style="width:11%">Integrante</th><th style="width:25%">Tema</th><th style="width:22%">Requerimientos</th><th>Qué abarca (backend y front)</th></tr>
+  <tr><td><b>1</b></td><td><b>Acceso y cuentas</b></td><td><span class="rf nu">RF19</span><span class="rf nu">RF20</span><span class="rf">RF01</span><span class="rf">RF05</span></td><td>Login, registro con verificación de correo, recuperación de contraseña y gestión de cuentas.</td></tr>
+  <tr><td><b>2</b></td><td><b>Clientes, mascotas y personal</b></td><td><span class="rf">RF02</span><span class="rf">RF03</span><span class="rf">RF04</span></td><td>Clientes, mascotas con foto y portal del cliente, veterinarios y administradores con su cuenta.</td></tr>
+  <tr><td><b>3</b></td><td><b>Horarios, reservas y recordatorios</b></td><td><span class="rf">RF09</span><span class="rf">RF10</span><span class="rf">RF11</span><span class="rf">RF12</span></td><td>Horarios y asignación de personal, reserva del cliente, gestión de citas y el aviso por correo 24 horas antes (hoy sin implementar).</td></tr>
+  <tr><td><b>4</b></td><td><b>Jornada del veterinario</b></td><td><span class="rf">RF13</span><span class="rf">RF14</span><span class="rf">RF15</span></td><td>Agenda diaria y su reporte, atenciones con diagnósticos e insumos, y recetas; pantallas del veterinario.</td></tr>
+  <tr><td><b>5</b></td><td><b>Diagnósticos, historial y reportes clínicos</b></td><td><span class="rf">RF06</span><span class="rf">RF16</span><span class="rf">RF17</span></td><td>Catálogo de diagnósticos, historial clínico de la mascota y reporte imprimible de la receta.</td></tr>
+  <tr><td><b>6</b></td><td><b>Servicios, inventario y facturación</b></td><td><span class="rf">RF07</span><span class="rf">RF08</span><span class="rf">RF18</span></td><td>Catálogo de servicios, artículos y categorías con stock, y boletas (nueva, modificar, anular, cobros pendientes).</td></tr>
+</table>
+<p><b>Tareas técnicas compartidas</b> (no se exponen; se reparten por afinidad con el tema):</p>
+<table>
+  <tr><th style="width:55%">Tarea</th><th style="width:17%">Integrante</th><th>Por qué ahí</th></tr>
+  <tr><td>Permisos por rol (<code>version-entrega</code>) y autenticación del REST</td><td>1</td><td>Es la continuación del acceso (RF01).</td></tr>
+  <tr><td>Pool de conexiones y consultas repetidas</td><td>6</td><td>Sus listas son las más pesadas y es el riesgo principal de la entrega.</td></tr>
+  <tr><td>Contrato <code>openapi</code>, README y guía de despliegue</td><td>5</td><td>Documenta lo que todos usan.</td></tr>
+  <tr><td>Correr el <code>Tester</code> y probar alta, edición y baja</td><td>Cada dueño</td><td>Cada uno prueba su propio módulo.</td></tr>
+</table>
+
+<h2 class="salto">4 · Apertura: los criterios detrás de todos los cambios</h2>
+<p>La presenta <b>una sola persona</b> (por ejemplo el integrante 6) en dos minutos, antes de que cada uno hable de sus RF. El alcance original de los RF se mantuvo siempre que fue posible; cada cambio se hizo por <b>una de cinco razones</b>, y cada integrante las usa para justificar los suyos:</p>
+<table>
+  <tr><th style="width:5%">#</th><th style="width:27%">Criterio</th><th>Qué significa en la aplicación</th></tr>
+  <tr><td>1</td><td><b>La realidad de los datos</b></td><td>La base impone reglas: una mascota necesita un cliente, un cliente necesita DNI y teléfono únicos y toda persona necesita una cuenta. Los RF se adaptaron a eso en lugar de inventar datos.</td></tr>
+  <tr><td>2</td><td><b>Seguridad de la información</b></td><td>El usuario no elige su rol, las contraseñas nunca viajan por correo, los enlaces se guardan como hash y las acciones graves piden confirmación.</td></tr>
+  <tr><td>3</td><td><b>Autonomía del cliente</b></td><td>Lo que el cliente puede hacer solo (registrarse, recuperar su contraseña, reservar, ver a sus mascotas) no debe depender del administrador.</td></tr>
+  <tr><td>4</td><td><b>Coherencia entre RF</b></td><td>Los RF se apoyan entre sí: la reserva depende de los horarios, la atención del inventario y la boleta de las atenciones. Un cambio en uno se refleja en los demás.</td></tr>
+  <tr><td>5</td><td><b>Todo queda registrado y se aprueba</b></td><td>Cada cambio está en el registro de cambios y los RF nuevos o modificados pasan por el JP.</td></tr>
+</table>
+
+<h2>5 · Cada integrante justifica sus requerimientos</h2>
+
+<div class="bloque">
+  <h3>Integrante 1 <small>· Acceso y cuentas</small></h3>
+  <table>
+    <tr><th style="width:8%">RF</th><th style="width:9%">Tipo</th><th style="width:30%">Qué cambió</th><th>Por qué</th></tr>
+    <tr><td><b>RF01</b></td><td><span class="tipo t-m">MODIF.</span></td><td>Se ingresa con <b>correo y contraseña</b>; el rol se detecta según la cuenta.</td><td>El usuario no debe elegir un rol (se evitan errores y suplantaciones) y el correo es único y ya es el canal de recuperación.</td></tr>
+    <tr><td><b>RF19</b></td><td><span class="tipo t-n">NUEVO</span></td><td>El cliente se <b>registra solo</b>; su cuenta se crea al confirmar el enlace que recibe por correo.</td><td>El cliente no debe depender del administrador para existir en el sistema; verificar el correo evita cuentas con correos ajenos.</td></tr>
+    <tr><td><b>RF20</b></td><td><span class="tipo t-n">NUEVO</span></td><td>Recuperar la contraseña con un enlace <b>de un solo uso y con vencimiento</b>.</td><td>Sin esto, una contraseña olvidada exige al administrador; el enlace evita enviar contraseñas por correo.</td></tr>
+    <tr><td><b>RF05</b></td><td><span class="tipo t-m">MODIF.</span></td><td>La cuenta del personal se crea <b>junto con la persona</b>; la de un cliente, al registrarse.</td><td>La base exige que toda persona tenga cuenta; hacerlo en una sola transacción evita cuentas huérfanas y el administrador nunca conoce la contraseña.</td></tr>
+  </table>
+  <p class="pend"><b>Por hacer:</b> probar login, registro y recuperación con correo real · probar la lista, edición y baja de cuentas · aprobación del JP.</p>
+</div>
+
+<div class="bloque">
+  <h3>Integrante 2 <small>· Clientes, mascotas y personal</small></h3>
+  <table>
+    <tr><th style="width:8%">RF</th><th style="width:9%">Tipo</th><th style="width:30%">Qué cambió</th><th>Por qué</th></tr>
+    <tr><td><b>RF02</b></td><td><span class="tipo t-m">MODIF.</span></td><td>Además del alta por el administrador, el cliente puede registrarse.</td><td>Es la consecuencia de RF19: ambos caminos crean al mismo cliente con su cuenta.</td></tr>
+    <tr><td><b>RF03</b></td><td><span class="tipo t-m">MODIF.</span></td><td><b>Foto opcional</b> y <b>peso opcional</b> si lo registra el cliente; el cliente gestiona sus mascotas (antes solo las consultaba).</td><td>El cliente conoce a su mascota, pero no sabe su peso exacto: lo mide la clínica. La foto se guarda como texto (hasta 200 KB) sin montar un almacenamiento aparte.</td></tr>
+    <tr><td><b>RF04</b></td><td><span class="tipo t-m">MODIF.</span></td><td>Alta del personal <b>con su cuenta en un solo paso</b>; la persona elige su contraseña con un enlace.</td><td>Misma razón que RF05. Además, la cuenta en sesión y el último administrador no se pueden eliminar (RN-AD-02): la clínica nunca debe quedar sin administrador.</td></tr>
+  </table>
+  <p class="pend"><b>Por hacer:</b> probar alta, edición y baja de clientes, mascotas y personal con cuenta · portal del cliente completo · aprobación del JP (reglas RN-MA).</p>
+</div>
+
+<div class="bloque">
+  <h3>Integrante 3 <small>· Horarios, reservas y recordatorios</small></h3>
+  <table>
+    <tr><th style="width:8%">RF</th><th style="width:9%">Tipo</th><th style="width:30%">Qué cambió</th><th>Por qué</th></tr>
+    <tr><td><b>RF09</b></td><td><span class="tipo t-m">MODIF.</span></td><td>El personal se asigna <b>desde el horario</b>; un horario sin veterinario no recibe citas; una persona <b>no cruza turnos</b>.</td><td>La reserva automática (RF10) depende de que los turnos sean coherentes: un cruce permitiría dos citas a la misma hora.</td></tr>
+    <tr><td><b>RF10</b></td><td><span class="tipo t-m">MODIF.</span></td><td>Reserva en <b>3 pasos</b> con <b>veterinario asignado automáticamente</b>; el cliente <b>no registra emergencias</b>.</td><td>El cliente no conoce la disponibilidad de cada veterinario: la asignación automática respeta los horarios y evita choques. Una emergencia es atención inmediata y se registra en la clínica.</td></tr>
+    <tr><td><b>RF11</b></td><td><span class="tipo t-s">SOLO UI</span></td><td>Inicio con citas por aprobar; filtros por mascota y estado.</td><td>Toda reserva nace <i>pendiente</i> y la clínica la confirma; el inicio pone eso primero.</td></tr>
+    <tr><td><b>RF12</b></td><td><span class="tipo t-s">PENDIENTE</span></td><td>Recordatorio por correo 24 h antes: <b>no implementado</b>.</td><td>Reduce inasistencias y puede reutilizar el envío de correo de RF19 y RF20 (prioridad Baja).</td></tr>
+  </table>
+  <p class="pend"><b>Por hacer:</b> probar asignar horarios, reservar, aprobar, rechazar y cancelar · implementar RF12 · aprobación del JP (cruces de turnos, RN-CL-03 y RN-CI-15).</p>
+</div>
+
+<div class="bloque">
+  <h3>Integrante 4 <small>· Jornada del veterinario</small></h3>
+  <table>
+    <tr><th style="width:8%">RF</th><th style="width:9%">Tipo</th><th style="width:30%">Qué cambió</th><th>Por qué</th></tr>
+    <tr><td><b>RF13</b></td><td><span class="tipo t-s">SOLO UI</span></td><td>Agenda diaria por veterinario y reporte imprimible.</td><td>Sirve para organizar la atención del día sin cambiar el alcance del requerimiento.</td></tr>
+    <tr><td><b>RF14</b></td><td><span class="tipo t-s">SOLO UI</span></td><td>Atención con diagnósticos y gravedad e insumos; los que se cobran aparte actualizan el stock.</td><td>Conecta la clínica con el inventario (RF08) y la caja (RF18): lo que se usa se descuenta y se cobra.</td></tr>
+    <tr><td><b>RF15</b></td><td><span class="tipo t-s">SOLO UI</span></td><td>Receta con medicamentos, dosis, frecuencia y duración, ligada a su atención.</td><td>Lo que se receta queda en el historial (RF16) y sale del inventario (RF08): por eso la receta nace de la atención, no suelta.</td></tr>
+  </table>
+  <p class="pend"><b>Por hacer:</b> probar agenda, atención, diagnóstico y receta de punta a punta · pantallas del veterinario al estilo del rediseño.</p>
+</div>
+
+<div class="bloque">
+  <h3>Integrante 5 <small>· Diagnósticos, historial y reportes clínicos</small></h3>
+  <table>
+    <tr><th style="width:8%">RF</th><th style="width:9%">Tipo</th><th style="width:30%">Qué cambió</th><th>Por qué</th></tr>
+    <tr><td><b>RF06</b></td><td><span class="tipo t-s">SOLO UI</span></td><td>Catálogo en lista por letra; el veterinario solo consulta.</td><td>Un diagnóstico usado en una atención no se elimina (RN-DI-02): lo decide el backend y se muestra su mensaje.</td></tr>
+    <tr><td><b>RF16</b></td><td><span class="tipo t-s">SOLO UI</span></td><td><b>Un solo flujo</b> de búsqueda (mascota, dueño o DNI) y atenciones en línea de tiempo.</td><td>Antes eran dos pantallas distintas para lo mismo y confundían; la línea de tiempo responde “qué se le hizo y cuándo”.</td></tr>
+    <tr><td><b>RF17</b></td><td><span class="tipo t-s">SOLO UI</span></td><td>Reporte de la receta, listo para imprimir.</td><td>La receta es el documento que se entrega al cliente: debe imprimirse limpio y completo.</td></tr>
+  </table>
+  <p class="pend"><b>Por hacer:</b> probar alta, edición y baja de diagnósticos · historial con mascotas con y sin atenciones · impresión del reporte de receta.</p>
+</div>
+
+<div class="bloque">
+  <h3>Integrante 6 <small>· Servicios, inventario y facturación</small></h3>
+  <table>
+    <tr><th style="width:8%">RF</th><th style="width:9%">Tipo</th><th style="width:30%">Qué cambió</th><th>Por qué</th></tr>
+    <tr><td><b>RF07</b></td><td><span class="tipo t-s">SOLO UI</span></td><td>Servicios por tipo; la <b>duración es opcional</b>.</td><td>Una emergencia no tiene duración fija: en la base queda vacía y el sistema lo respeta.</td></tr>
+    <tr><td><b>RF08</b></td><td><span class="tipo t-s">SOLO UI</span></td><td>Stock con − y +, con confirmación; categorías con cantidad de artículos.</td><td>Un artículo usado en atenciones, recetas o boletas no se elimina (RN-AR-05): el stock bajo se dice con una etiqueta, no con un color de fondo.</td></tr>
+    <tr><td><b>RF18</b></td><td><span class="tipo t-m">MODIF.</span></td><td><b>Nueva boleta en 3 pasos</b>, <b>modificar</b> boleta (antes no existía) y anular con confirmación.</td><td>El número lo asigna el backend para que no se repita aunque haya anuladas; anular es grave y poco frecuente, por eso pide confirmación; los cobros pendientes evitan servicios sin cobrar.</td></tr>
+  </table>
+  <p class="pend"><b>Por hacer:</b> probar alta, edición y baja de servicios, artículos y categorías, y todo el flujo de boletas.</p>
+</div>
+
+<h2>6 · Parejas de revisión, reglas y fechas</h2>
+<div class="dos">
+  <div>
+    <p><b>Parejas de revisión</b> (cada Pull Request lo revisa alguien distinto de su autor):</p>
+    <ul>
+      <li><b>1 y 2:</b> personas: cuentas, clientes y personal comparten el alta con cuenta.</li>
+      <li><b>3 y 4:</b> de la cita a la atención y la receta.</li>
+      <li><b>5 y 6:</b> lo que se registra en la clínica y lo que se cobra.</li>
+    </ul>
+    <p><b>Reglas de trabajo:</b></p>
+    <ul>
+      <li><code>main</code> es la única rama estable; cada tema en una <b>rama nueva desde <code>main</code></b> y Pull Request pequeño.</li>
+      <li><b>Una persona por pantalla.</b> Nunca <code>--force</code>. Los <code>db.properties</code> no se suben.</li>
+      <li>Cada uno prueba <b>alta, edición y baja</b> de sus RF antes de darlos por terminados.</li>
+    </ul>
+  </div>
+  <div>
+    <table>
+      <tr><th style="width:30%">Fecha</th><th>Hito (según el correo del coordinador)</th></tr>
+      <tr><td>11/11</td><td>Lab 11: 60 % de RF integrados.</td></tr>
+      <tr><td>12 a 17/11</td><td>Pruebas por módulo, pool de conexiones y RF12.</td></tr>
+      <tr><td>18/11</td><td>Lab 12: 90 % de RF integrados.</td></tr>
+      <tr><td>19 a 20/11</td><td>Informe, documentación y pruebas finales.</td></tr>
+      <tr><td>21/11</td><td>Entrega en PAIDEIA.</td></tr>
+      <tr><td>23 a 26/11</td><td>Exposiciones.</td></tr>
+    </table>
+    <p><b>Depende del JP:</b> aprobar los RF nuevos y modificados (RF19, RF20, RF01, RF02, RF03, RF04, RF05, RF09, RF10, RF18) y sus reglas, y decidir la emergencia con datos mínimos y la foto del personal.</p>
+  </div>
+</div>
+
+<footer>Documento de trabajo · Detalle del estado: Estado-del-proyecto.pdf · Detalle de cada cambio: Registro-de-cambios.pdf</footer>
+
+</body>
+</html>

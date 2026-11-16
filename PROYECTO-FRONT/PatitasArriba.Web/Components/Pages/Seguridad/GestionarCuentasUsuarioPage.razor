@@ -1,40 +1,50 @@
 @page "/cuentas-usuario/editar/{Id:int}"
+@attribute [Authorize(Policy = "CuentasUsuario")]
 @inject NavigationManager Nav;
+@inject ICuentaService CuentaService;
 
 <PageTitle>Cuentas de usuario</PageTitle>
 
 <div class="col-md-7">
     <h3 class="mb-3">Editar cuenta de usuario</h3>
 
+    @if (MensajeError != null) {
+        <div class="alert alert-danger">@MensajeError</div>
+    }
+
+    @if (Cargando) {
+        <p class="text-muted">Cargando cuenta...</p>
+    } else {
     <EditForm Model="ViewModel" OnValidSubmit="Guardar">
         <DataAnnotationsValidator />
 
         <div class="mb-3">
             <label class="form-label">Pertenece a</label>
-            <input class="form-control" value="@($"{ViewModel.NombrePersona} ({TextoEnum.De(ViewModel.Rol)})")" disabled />
+            <input class="form-control" value="@Propietario" disabled />
         </div>
         <div class="mb-3">
             <label class="form-label">Nombre de usuario</label>
-            <InputText tabindex="1" class="form-control" @bind-Value="ViewModel.NombreUsuario" />
+            <PaInputText tabindex="1" class="form-control" @bind-Value="ViewModel.NombreUsuario" />
             <ValidationMessage For="() => ViewModel.NombreUsuario" />
         </div>
         <div class="mb-3">
             <label class="form-label">Correo electrónico</label>
-            <InputText tabindex="2" type="email" class="form-control" @bind-Value="ViewModel.Correo" />
+            <PaInputText tabindex="2" type="email" class="form-control" @bind-Value="ViewModel.Correo" />
             <ValidationMessage For="() => ViewModel.Correo" />
         </div>
         <div class="mb-3">
             <label class="form-label">Nueva contraseña</label>
-            <InputText tabindex="3" type="password" class="form-control" autocomplete="new-password" @bind-Value="ViewModel.Password" />
+            <PaInputText tabindex="3" type="password" class="form-control" autocomplete="new-password" @bind-Value="ViewModel.Password" />
             <div class="form-text">Déjela vacía para mantener la contraseña actual.</div>
             <ValidationMessage For="() => ViewModel.Password" />
         </div>
 
         <div class="d-flex gap-2">
-            <button tabindex="4" type="submit" class="btn btn-primary btn-texto"><Icono Nombre="save" /><span>Guardar</span></button>
+            <button tabindex="4" type="submit" class="btn btn-primary btn-texto" disabled="@Guardando"><Icono Nombre="save" /><span>@(Guardando ? "Guardando..." : "Guardar")</span></button>
             <a tabindex="5" class="btn btn-outline-primary" href="cuentas-usuario">Cancelar</a>
         </div>
     </EditForm>
+    }
 </div>
 
 @code {
@@ -43,18 +53,45 @@
     public int Id { get; set; }
 
     private CuentaUsuarioViewModel ViewModel { get; set; } = new();
+    private string? MensajeError { get; set; }
+    private bool Cargando { get; set; } = true;
+    private bool Guardando { get; set; }
 
-    protected override void OnParametersSet() {
-        CuentaUsuarioViewModel? cuenta = DatosEjemplo.CuentasUsuario().FirstOrDefault(c => c.Id == Id);
-        if (cuenta == null) {
-            Nav.NavigateTo("/cuentas-usuario");
-            return;
+    private string Propietario => ViewModel.Rol == null
+        ? "Sin asignar"
+        : $"{ViewModel.NombrePersona} ({TextoEnum.De(ViewModel.Rol)})";
+
+    // GET /cuentas/{Id} (el servicio también averigua a quién pertenece); si no existe se vuelve al listado
+    protected override async Task OnParametersSetAsync() {
+        MensajeError = null;
+        Cargando = true;
+        if (!RendererInfo.IsInteractive) return;
+        try {
+            CuentaUsuarioViewModel? cuenta = await CuentaService.FindById(Id);
+            if (cuenta == null) {
+                Nav.NavigateTo("/cuentas-usuario");
+                return;
+            }
+            ViewModel = cuenta;
+        } catch (Exception ex) when (ErrorServicio.EsDeServicio(ex)) {
+            MensajeError = ErrorServicio.Desde(ex);
+        } finally {
+            Cargando = false;
         }
-        ViewModel = cuenta;
     }
 
-    // Sin backend: solo regresa al listado. Al enlazar: PUT /cuentas/{Id}
-    private void Guardar() {
-        Nav.NavigateTo("/cuentas-usuario");
+    // PUT /cuentas/{Id}. Si la contraseña va vacía, el backend conserva la actual
+    private async Task Guardar() {
+        if (Guardando) return;
+        MensajeError = null;
+        Guardando = true;
+        try {
+            await CuentaService.Update(ViewModel);
+            Nav.NavigateTo("/cuentas-usuario");
+        } catch (Exception ex) when (ErrorServicio.EsDeServicio(ex)) {
+            MensajeError = ErrorServicio.Desde(ex);
+        } finally {
+            Guardando = false;
+        }
     }
 }

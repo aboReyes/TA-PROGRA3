@@ -1,28 +1,70 @@
 @page "/mis-mascotas"
+@attribute [Authorize(Policy = "MisMascotas")]
 @inject SesionDemo Sesion;
+@inject IMascotaService MascotaService;
+@inject ICitaService CitaService;
 
 <PageTitle>Mis mascotas</PageTitle>
 
-<h3 class="mb-3">Mis mascotas</h3>
+<div class="d-flex justify-content-between mb-3">
+    <h3 class="mb-3">Mis mascotas</h3>
+    <a class="btn btn-warning btn-texto" href="mis-mascotas/nueva">
+        <Icono Nombre="plus" /><span>Agregar mascota</span>
+    </a>
+</div>
 
-@if (Mascotas.Count == 0) {
-    <div class="alert alert-info">Todavía no tiene mascotas registradas.</div>
+@if (MensajeError != null) {
+    <div class="alert alert-danger">@MensajeError</div>
 }
-else {
-    <div class="row g-3">
-        @foreach (MascotaViewModel mascota in Mascotas) {
-            <div class="col-md-4">
-                <TarjetaMascota Mascota="mascota" />
-            </div>
-        }
+
+@if (Cargando) {
+    <p class="text-muted">Cargando sus mascotas...</p>
+} else {
+@if (Mascotas.Count == 0 && MensajeError == null) {
+    <div class="alert alert-info">Aún no tiene mascotas registradas. Agregue la primera para poder reservar una cita.</div>
+}
+
+<div class="row g-3">
+    @foreach (MascotaViewModel mascota in Mascotas) {
+        <div class="col-md-6 col-xl-4">
+            <TarjetaMascotaPortal Mascota="mascota" Citas="Citas" />
+        </div>
+    }
+    <div class="col-md-6 col-xl-4">
+        <a class="mascota-agregar" href="mis-mascotas/nueva">
+            <span class="mascota-agregar-mas">+</span>
+            <span>Agregar mascota</span>
+        </a>
     </div>
+</div>
+
+<p class="text-muted small mt-3">Para dar de baja una mascota, comuníquese con la clínica.</p>
 }
 
 @code {
-    // Mascotas del cliente que inició sesión (al enlazar: GET /mascotas?cliente={id})
     private List<MascotaViewModel> Mascotas { get; set; } = [];
+    private List<CitaViewModel> Citas { get; set; } = [];
+    private string? MensajeError { get; set; }
+    private bool Cargando { get; set; } = true;
 
-    protected override void OnInitialized() {
-        Mascotas = DatosEjemplo.MascotasDeCliente(Sesion.IdPersona);
+    // Mascotas y citas del cliente que inició sesión: GET /mascotas?cliente={id} y GET /citas?cliente={id}.
+    // Las citas sirven para mostrar en cada tarjeta la última visita y la próxima cita.
+    protected override async Task OnInitializedAsync() {
+        if (!RendererInfo.IsInteractive) return;
+        if (Sesion.Rol != RolUsuario.CLIENTE) {
+            MensajeError = "Inicie sesión con una cuenta de cliente para ver sus mascotas.";
+            Cargando = false;
+            return;
+        }
+        try {
+            Task<List<MascotaViewModel>> mascotas = MascotaService.FindByCliente(Sesion.IdPersona);
+            Task<List<CitaViewModel>> citas = CitaService.FindByCliente(Sesion.IdPersona);
+            Mascotas = await mascotas;
+            Citas = await citas;
+        } catch (Exception ex) when (ErrorServicio.EsDeServicio(ex)) {
+            MensajeError = ErrorServicio.Desde(ex);
+        } finally {
+            Cargando = false;
+        }
     }
 }

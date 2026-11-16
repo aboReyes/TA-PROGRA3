@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototipo Personal · Patitas Arriba</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Mismos colores y estilos que la aplicación (app.css, paleta C) */
+:root{--verde:#3F6B52;--verde-o:#325642;--salvia:#E3ECDD;--salvia-o:#D3E0CB;--mostaza:#F2B33D;--mostaza-o:#E0A22B;--terracota:#B5483A;--terracota-o:#983B2F;--texto:#1F2A24;--crema:#FAF6EF;--linea:#ece3d2;--suave:#6b7a70}
+*{box-sizing:border-box}
+body{margin:0;background:var(--crema);color:var(--texto);font-family:Nunito,"Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1.45}
+h1,h2,h3,h4,h5{margin:0}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--verde);font-weight:700}
+.container{max-width:1320px;margin:0 auto;padding:1.5rem 1rem 4rem}
+svg{flex:none}
+
+/* Barra superior */
+.barra{background:linear-gradient(90deg,#325642 0%,#3F6B52 60%,#4a7a5e 100%);box-shadow:0 6px 18px rgba(31,42,36,.18);padding:.55rem 1rem;position:sticky;top:0;z-index:30}
+.barra-in{max-width:1320px;margin:0 auto;display:flex;align-items:center;gap:.3rem;flex-wrap:wrap}
+.marca{display:flex;align-items:center;gap:.55rem;font-weight:800;color:#fff;margin-right:.8rem;font-size:1.1rem}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--mostaza);color:var(--verde-o);display:grid;place-items:center}
+.nl{position:relative}
+.nl>button{display:flex;align-items:center;gap:.4rem;background:none;border:0;color:rgba(255,255,255,.88);font-weight:700;border-radius:.7rem;padding:.45rem .7rem}
+.nl>button:hover,.nl.abierto>button,.nl.activo>button{color:#fff;background:rgba(255,255,255,.14)}
+.menu{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border-radius:.9rem;padding:.4rem;box-shadow:0 14px 34px rgba(31,42,36,.16);min-width:15rem;display:none}
+.nl.abierto .menu{display:block}
+.menu button{display:flex;align-items:center;gap:.55rem;width:100%;text-align:left;background:none;border:0;border-radius:.6rem;padding:.45rem .7rem;font-weight:600}
+.menu button:hover{background:var(--salvia)}
+.menu button.on{background:var(--verde);color:#fff}
+.menu button.off{opacity:.5;cursor:not-allowed}
+.menu svg{color:var(--verde);width:16px;height:16px}.menu button.on svg{color:#fff}
+.usuario{margin-left:auto;display:flex;align-items:center;gap:.55rem;color:#fff}
+.avatar-b{width:34px;height:34px;border-radius:50%;background:var(--salvia);color:var(--verde-o);display:grid;place-items:center;font-weight:800;font-size:.85rem}
+.usuario small{display:block;opacity:.75;font-size:.75rem;line-height:1}
+.notas-btn{background:var(--mostaza);color:var(--texto);border:0;border-radius:.6rem;padding:.4rem .8rem;font-weight:800;margin-left:.6rem}
+
+/* Aviso de prototipo */
+.aviso{background:#fff7e0;border:1px solid #ecd48a;border-radius:.9rem;padding:.55rem .9rem;font-size:.9rem;display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;justify-content:space-between;margin-bottom:1.2rem}
+.aviso select{border:1px solid #ddd5c6;border-radius:.6rem;padding:.2rem .5rem;background:#fff}
+
+/* Botones (paleta C) */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;border:1px solid transparent;border-radius:.6rem;padding:.375rem .85rem;font-weight:600;white-space:nowrap;text-decoration:none;line-height:1.5}
+.btn:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--texto);outline-offset:2px}
+.btn-p{background:var(--verde);border-color:var(--verde);color:#fff;box-shadow:0 3px 10px rgba(31,42,36,.10)}.btn-p:hover{background:var(--verde-o)}
+.btn-y{background:var(--mostaza);border-color:var(--mostaza);color:var(--texto);box-shadow:0 3px 10px rgba(31,42,36,.10)}.btn-y:hover{background:var(--mostaza-o);color:#fff}
+.btn-s{background:var(--salvia);border-color:#c6d6bb;color:var(--verde-o)}.btn-s:hover{background:var(--salvia-o)}
+.btn-o{background:transparent;border-color:var(--verde);color:var(--verde)}.btn-o:hover{background:var(--verde);color:#fff}
+.btn-d{background:transparent;border-color:var(--terracota);color:var(--terracota)}.btn-d:hover:not(:disabled){background:var(--terracota);color:#fff}
+.btn-ds{background:var(--terracota);border-color:var(--terracota);color:#fff}.btn-ds:hover{background:var(--terracota-o)}
+.btn-i{width:2rem;height:2rem;padding:0}
+.btn-i svg{width:16px;height:16px}
+.btn-bloq{width:2rem;height:2rem;padding:0;border:1px dashed #c5c0b5;color:#9c988e;background:transparent;border-radius:.6rem;cursor:not-allowed;opacity:.7;display:inline-flex;align-items:center;justify-content:center}
+.btn-bloq svg{width:16px;height:16px}
+
+/* Encabezado de pantalla */
+.cab{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+.cab h3{font-size:1.75rem;font-weight:800;letter-spacing:-.01em}
+.cab p{margin:.2rem 0 0;color:var(--suave)}
+
+/* Tarjetas de resumen */
+.indicadores{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem;margin-bottom:1.2rem}
+.indicador{background:#fff;border:1px solid var(--linea);border-radius:1.1rem;padding:1rem 1.2rem;box-shadow:0 6px 18px rgba(31,42,36,.06);display:flex;flex-direction:column;gap:.15rem}
+.indicador .ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:.4rem}
+.indicador .ico svg{width:20px;height:20px}
+.ind-verde .ico{background:#e3ecdd;color:var(--verde)}.ind-mostaza .ico{background:#fdf0d2;color:#a8741a}.ind-terracota .ico{background:#f6e4e0;color:var(--terracota-o)}.ind-salvia .ico{background:#eef4ea;color:var(--verde-o)}
+.indicador b{font-size:1.5rem;line-height:1.15;font-weight:800}
+.indicador span.t{color:var(--suave);font-weight:600;font-size:.9rem}
+
+/* Barra de filtros */
+.filtros{background:#fff;border:1px solid var(--linea);border-radius:1rem;padding:.6rem .7rem;box-shadow:0 4px 14px rgba(31,42,36,.04);display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-bottom:1rem}
+.filtros label{font-weight:700;color:#3d4a42;white-space:nowrap}
+.filtros input[type=search]{flex:1 1 220px;border:1px solid #ddd5c6;border-radius:.7rem;padding:.4rem .75rem;background:#fff}
+.filtros input:focus{border-color:var(--verde);box-shadow:0 0 0 .25rem rgba(63,107,82,.22);outline:0}
+.seg{display:inline-flex;border:1px solid #ddd5c6;border-radius:.7rem;overflow:hidden;margin-left:auto}
+.seg button{border:0;background:#fff;padding:.35rem .8rem;font-weight:700;display:inline-flex;align-items:center;gap:.35rem}
+.seg button.on{background:var(--verde);color:#fff}
+.seg svg{width:16px;height:16px}
+
+/* Tarjetas de personal */
+.grilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1rem}
+.card{background:#fff;border:1px solid #e6dfd1;border-radius:1rem;box-shadow:0 6px 18px rgba(31,42,36,.06)}
+.persona{display:flex;flex-direction:column;gap:.7rem;padding:1.1rem 1.2rem;border-top:4px solid var(--verde)}
+.persona.yo{border-top-color:var(--mostaza)}
+.enc{display:flex;gap:.8rem;align-items:center}
+.avatar{width:56px;height:56px;border-radius:50%;background:var(--salvia);color:var(--verde-o);border:3px solid var(--salvia-o);display:grid;place-items:center;font-weight:800;font-size:1.3rem;flex:none}
+.persona h5{font-size:1.1rem;font-weight:800;line-height:1.2}
+.etq{display:inline-flex;align-items:center;gap:.3rem;border-radius:99px;padding:.12rem .65rem;font-size:.75rem;font-weight:700;border:1px solid transparent;white-space:nowrap}
+.etq svg{width:12px;height:12px}
+.e-verde{background:var(--salvia);color:var(--verde);border-color:#bcd0b0}
+.e-solido{background:var(--verde);color:#fff}
+.e-mostaza{background:#fdf0d2;color:#7a5410;border-color:#f0d9a0}
+.e-rojo{background:#f6e4e0;color:var(--terracota-o);border-color:#e3b9b1}
+.e-gris{background:#ece9e1;color:#4a4a44}
+.datos{display:grid;gap:.25rem;font-size:.9rem}
+.datos div{display:flex;align-items:center;gap:.5rem;color:#3d4a42}
+.datos svg{width:15px;height:15px;color:var(--verde)}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.chip{background:#f4efe6;border-radius:.6rem;padding:.15rem .55rem;font-size:.8rem;font-weight:700}
+.barra-prog{height:8px;border-radius:99px;background:#ece3d2;overflow:hidden}
+.barra-prog i{display:block;height:100%;border-radius:99px;background:var(--verde)}
+.prog-t{display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:#3d4a42;margin-bottom:.25rem}
+.pie{display:flex;justify-content:space-between;align-items:center;gap:.5rem;border-top:1px dashed var(--linea);padding-top:.7rem;margin-top:auto}
+.pie .acc{display:flex;gap:.35rem}
+
+/* Tablas */
+.tabla-wrap{background:#fff;border:1px solid var(--linea);border-radius:1rem;overflow:auto;box-shadow:0 6px 18px rgba(31,42,36,.06)}
+table{width:100%;border-collapse:separate;border-spacing:0}
+th{background:#f4efe6;color:#3d4a42;font-weight:800;font-size:.9rem;text-align:left;padding:.75rem .8rem;border-bottom:1px solid #e6dfd1;white-space:nowrap}
+td{padding:.6rem .8rem;border-bottom:1px solid #f0eadf;vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(odd) td{background:rgba(227,236,221,.35)}
+.acc-celda{display:flex;gap:.35rem}
+.nota{color:var(--suave);font-size:.9rem;display:flex;gap:.4rem;align-items:center;margin:.7rem .2rem}
+.nota svg{width:16px;height:16px;flex:none}
+.pers{display:inline-flex;align-items:center;gap:.35rem;border-radius:.6rem;padding:.15rem .6rem;font-size:.82rem;font-weight:700;margin:.1rem .2rem .1rem 0}
+.pers svg{width:13px;height:13px}
+.p-vet{background:#e3ecdd;color:var(--verde-o)}.p-adm{background:#f1ece0;color:#5b5646}
+
+/* Cuadrante semanal */
+.cuad{background:#fff;border:1px solid var(--linea);border-radius:1rem;box-shadow:0 6px 18px rgba(31,42,36,.06);overflow-x:auto}
+.cuad-grid{display:grid;grid-template-columns:56px repeat(7,minmax(150px,1fr));min-width:1100px}
+.cuad-cab{padding:.6rem .7rem;font-weight:800;background:#faf4e8;border-bottom:1px solid var(--linea);border-left:1px solid var(--linea)}
+.cuad-cab small{display:block;color:var(--suave);font-weight:600}
+.cuad-cab.hoy{background:#fdf0d2}
+.cuad-horas{position:relative}
+.cuad-hora{position:absolute;right:.45rem;font-size:.75rem;font-weight:700;color:var(--suave);transform:translateY(-50%)}
+.cuad-col{position:relative;border-left:1px solid var(--linea);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--h) - 1px),#f0eadf calc(var(--h) - 1px),#f0eadf var(--h))}
+.cuad-col.cerrado{background-color:#faf8f3}
+.cuad-vacio{position:absolute;left:0;right:0;top:50%;text-align:center;color:#b5b0a4;font-weight:700;font-size:.85rem;transform:translateY(-50%)}
+.bloque{position:absolute;left:5px;right:5px;border-radius:.8rem;padding:.4rem .55rem;text-align:left;border:1px solid transparent;overflow:hidden;font-size:.8rem;line-height:1.25;box-shadow:0 2px 6px rgba(31,42,36,.12)}
+.bloque b{display:block;font-size:.88rem}
+.bl-ok{background:var(--salvia);border-color:#bcd0b0;color:#24402f}
+.bl-adm{background:#f1ece0;border-color:#ddd5c6;color:#5b5646}
+.bl-falta{background:#fdf0d2;border:2px dashed #c9922e;color:#7a5410}
+.bloque .pp{display:flex;align-items:center;gap:.25rem;margin-top:.1rem}
+.bloque .pp svg{width:12px;height:12px}
+.leyenda{display:flex;flex-wrap:wrap;gap:1.2rem;font-weight:700;font-size:.88rem;margin:.8rem .2rem}
+.leyenda i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:.35rem}
+
+/* Notas de diseño */
+.est-ad{background:var(--verde);color:#fff}.est-adapt{background:var(--mostaza);color:var(--texto)}.est-desc{background:#ece9e1;color:#4a4a44}
+.resumen-req{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1.2rem}
+.resumen-req .card{padding:1rem 1.2rem}
+.resumen-req h5{font-weight:800;margin-bottom:.4rem}
+.resumen-req ul{margin:0;padding-left:1.1rem}
+
+/* Ventanas y avisos */
+.ov{position:fixed;inset:0;background:rgba(10,20,14,.5);display:grid;place-items:center;padding:1rem;z-index:60}
+.md{background:#fff;border-radius:1rem;padding:1.3rem 1.4rem;max-width:480px;width:100%;display:flex;flex-direction:column;gap:.9rem;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.md h4{font-size:1.2rem;font-weight:800}
+.md p{margin:0;color:#4a574f}
+.md .f{display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap}
+.campo label{display:block;font-weight:700;margin-bottom:.25rem}
+.campo input,.campo select{width:100%;border:1px solid #ddd5c6;border-radius:.7rem;padding:.4rem .7rem;background:#fff}
+.campo input.invalido,.campo select.invalido{border-color:var(--terracota);background:#fdf3f1}
+.campo:has(.invalido) label{color:var(--terracota-o)}
+.campo .err{color:var(--terracota-o);font-size:.875rem;margin-top:.2rem}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;z-index:80}
+.toast{background:var(--verde-o);color:#fff;padding:.6rem 1.1rem;border-radius:.8rem;font-weight:700;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+@media print{.barra,.aviso,.cab .btn,.filtros,.acc-celda,.pie .acc,#toast{display:none!important}.container{padding:0}}
+</style>
+</head>
+<body>
+<nav class="barra" id="barra"></nav>
+<main class="container" id="app"></main>
+<div id="capa"></div>
+<div id="toast"></div>
+
+<script>
+(function () {
+'use strict';
+
+/* ---------------------------------------------------------------------------------------------
+   Datos de ejemplo: son los mismos de la aplicación (DatosEjemplo.cs). Nada de esto es un dato nuevo:
+   veterinario, administrador, horario y quién está asignado a cada horario ya existen en el sistema.
+   --------------------------------------------------------------------------------------------- */
+var DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+var CORTO = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+var ORDEN = [1, 2, 3, 4, 5, 6, 0];
+
+var VETS = [
+  { id: 1, n: 'Carla Vega Soto', dni: '40125896', tel: '987 112 233', col: 'CMVP-04521', mail: 'carla.vega@patasarriba.pe', hoy: { p: 3, a: 1 } },
+  { id: 2, n: 'Miguel Ángel Castro Ruiz', dni: '42563187', tel: '965 443 322', col: 'CMVP-03987', mail: 'miguel.castro@patasarriba.pe', hoy: { p: 1, a: 1 } },
+  { id: 3, n: 'Patricia León Flores', dni: '47896541', tel: '954 778 899', col: 'CMVP-05210', mail: 'patricia.leon@patasarriba.pe', hoy: { p: 0, a: 0 } }
+];
+var ADMS = [
+  { id: 1, n: 'Diego López Reyes', dni: '72145638', tel: '999 111 222', mail: 'diego.lopez@patasarriba.pe', yo: true },
+  { id: 2, n: 'Gabriela Ríos Campos', dni: '71236547', tel: '988 333 444', mail: 'gabriela.rios@patasarriba.pe' }
+];
+var HORS = [
+  { id: 1, d: 1, i: '08:00', f: '14:00', v: [1], a: [1] },
+  { id: 2, d: 1, i: '14:00', f: '20:00', v: [2], a: [2] },
+  { id: 3, d: 2, i: '08:00', f: '14:00', v: [3], a: [1] },
+  { id: 4, d: 3, i: '08:00', f: '14:00', v: [1, 2], a: [] },
+  { id: 5, d: 6, i: '09:00', f: '13:00', v: [3], a: [2] }
+];
+
+var S = { vista: 'vet', vetVista: 'tarjetas', horVista: 'lista', fv: '', fa: '', menu: false, modal: null, sim: '', errH: {}, formH: null, nid: 6 };
+
+/* ------------------------------ utilidades ------------------------------ */
+var $ = function (s) { return document.querySelector(s); };
+function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function mins(hhmm) { var p = hhmm.split(':'); return (+p[0]) * 60 + (+p[1]); }
+function hhmm(m) { var h = Math.floor(m / 60), mm = m % 60; return (h < 10 ? '0' : '') + h + ':' + (mm < 10 ? '0' : '') + mm; }
+function iniciales(n) { var p = n.split(' '); return (p[0][0] + (p[1] ? p[1][0] : '')).toUpperCase(); }
+function vet(id) { return VETS.filter(function (v) { return v.id === id; })[0]; }
+function adm(id) { return ADMS.filter(function (a) { return a.id === id; })[0]; }
+function horasDe(h) { return (mins(h.f) - mins(h.i)) / 60; }
+function ordenados() { return HORS.slice().sort(function (a, b) { return ORDEN.indexOf(a.d) - ORDEN.indexOf(b.d) || mins(a.i) - mins(b.i); }); }
+function toast(t) { var e = $('#toast'); e.innerHTML = '<div class="toast" role="status">' + esc(t) + '</div>'; clearTimeout(toast.t); toast.t = setTimeout(function () { e.innerHTML = ''; }, 3600); }
+
+var IC = {
+  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  trash: '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  cal: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6M18 14.3c1.8.8 3 2.6 3 5.7"/>',
+  phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+  lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  steto: '<path d="M5 3v6a5 5 0 0 0 10 0V3"/><path d="M10 14v2a4 4 0 0 0 8 0v-3"/><circle cx="18" cy="11" r="2"/>',
+  id: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.5-1.5 1.7-2 3-2s2.5.5 3 2M15 10h3M15 14h3"/>',
+  print: '<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="9" rx="2"/><path d="M6 14h12v7H6z"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  chev: '<path d="M6 9l6 6 6-6"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  alert: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
+  paw: '<ellipse cx="12" cy="16" rx="4.5" ry="3.8"/><ellipse cx="5.8" cy="10.5" rx="1.8" ry="2.4"/><ellipse cx="9.4" cy="6.2" rx="1.8" ry="2.4"/><ellipse cx="14.6" cy="6.2" rx="1.8" ry="2.4"/><ellipse cx="18.2" cy="10.5" rx="1.8" ry="2.4"/>'
+};
+function ic(n, z) { z = z || 18; return '<svg aria-hidden="true" width="' + z + '" height="' + z + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + IC[n] + '</svg>'; }
+
+/* ------------------------- "ahora" para el estado de turno ------------------------- */
+function ahora() {
+  if (S.sim) { var p = S.sim.split('|'); return { d: +p[0], m: +p[1] }; }
+  var x = new Date();
+  return { d: x.getDay(), m: x.getHours() * 60 + x.getMinutes() };
+}
+// El veterinario está en turno si algún horario suyo cubre el día y la hora de ahora (RN-HO-03)
+function enTurno(idVet) {
+  var n = ahora();
+  return HORS.filter(function (h) { return h.d === n.d && h.v.indexOf(idVet) >= 0 && mins(h.i) <= n.m && n.m < mins(h.f); })[0] || null;
+}
+function textoDia(offset, dia, inicio) {
+  return (offset === 0 ? 'Hoy' : offset === 1 ? 'Mañana' : DIAS[dia]) + ' ' + inicio;
+}
+function proximoTurno(idVet) {
+  var n = ahora();
+  for (var off = 0; off <= 7; off++) {
+    var dia = (n.d + off) % 7;
+    var l = HORS.filter(function (h) { return h.d === dia && h.v.indexOf(idVet) >= 0 && (off > 0 || mins(h.i) > n.m); })
+      .sort(function (a, b) { return mins(a.i) - mins(b.i); });
+    if (l.length) { return { off: off, dia: dia, h: l[0] }; }
+  }
+  return null;
+}
+// Próximo cambio de turno de toda la clínica: la siguiente hora de inicio o de fin
+function proximoRelevo() {
+  var n = ahora(), mejor = null;
+  for (var off = 0; off <= 7 && !mejor; off++) {
+    var dia = (n.d + off) % 7, cand = [];
+    HORS.filter(function (h) { return h.d === dia; }).forEach(function (h) { cand.push(mins(h.i)); cand.push(mins(h.f)); });
+    cand = cand.filter(function (m) { return off > 0 || m > n.m; }).sort(function (a, b) { return a - b; });
+    if (cand.length) { mejor = { off: off, dia: dia, m: cand[0] }; }
+  }
+  return mejor ? textoDia(mejor.off, mejor.dia, hhmm(mejor.m)) : '—';
+}
+function cobertura(h) {
+  if (h.v.length) { return { t: 'Con veterinario', c: 'e-verde' }; }
+  if (h.a.length) { return { t: 'Solo administración', c: 'e-mostaza' }; }
+  return { t: 'Sin personal', c: 'e-rojo' };
+}
+
+/* ------------------------------ barra superior ------------------------------ */
+function barra() {
+  var grupos = ['Clientes', 'Citas', 'Catálogos', 'Inventario'];
+  var item = function (v, txt, icono) { return '<button type="button" class="' + (S.vista === v ? 'on' : '') + '" data-a="ir" data-v="' + v + '">' + ic(icono, 16) + txt + '</button>'; };
+  $('#barra').innerHTML = '<div class="barra-in"><span class="marca"><span class="logo">' + ic('paw', 20) + '</span>Patitas Arriba</span>'
+    + grupos.map(function (g) { return '<div class="nl"><button type="button" data-a="inerte">' + g + ic('chev', 12) + '</button></div>'; }).join('')
+    + '<div class="nl ' + (S.menu ? 'abierto ' : '') + (['vet', 'adm', 'hor'].indexOf(S.vista) >= 0 ? 'activo' : '') + '"><button type="button" data-a="menu" aria-haspopup="true" aria-expanded="' + S.menu + '">' + ic('user', 17) + 'Personal' + ic('chev', 12) + '</button>'
+    + '<div class="menu" role="menu">' + item('vet', 'Veterinarios', 'steto') + item('adm', 'Administradores', 'user') + item('hor', 'Horarios de atención', 'clock')
+    + '<button type="button" class="off" data-a="inerte">' + ic('lock', 16) + 'Cuentas de usuario (sin cambios)</button></div></div>'
+    + '<div class="nl"><button type="button" data-a="inerte">Caja' + ic('chev', 12) + '</button></div><div class="nl"><button type="button" data-a="inerte">Reportes' + ic('chev', 12) + '</button></div>'
+    + '<button type="button" class="notas-btn" data-a="ir" data-v="req">Notas del diseño</button>'
+    + '<div class="usuario"><span class="avatar-b">DL</span><span>Diego López<small>Administrador</small></span></div></div>';
+}
+
+/* --------------------------------- Veterinarios --------------------------------- */
+function vetFiltrados() {
+  var q = S.fv.toLowerCase().trim();
+  return VETS.filter(function (v) { return !q || v.n.toLowerCase().indexOf(q) >= 0 || v.dni.indexOf(q) >= 0 || v.col.toLowerCase().indexOf(q) >= 0; });
+}
+function horariosDe(id, tipo) {
+  return ordenados().filter(function (h) { return (tipo === 'v' ? h.v : h.a).indexOf(id) >= 0; });
+}
+function chipsHorarios(id, tipo) {
+  var l = horariosDe(id, tipo);
+  if (!l.length) { return '<span class="chip" style="background:#fdf0d2;color:#7a5410">Sin horarios asignados</span>'; }
+  return l.map(function (h) { return '<span class="chip">' + CORTO[h.d] + ' ' + h.i + '–' + h.f + '</span>'; }).join('');
+}
+function estadoTurno(v) {
+  var t = enTurno(v.id);
+  if (t) { return '<span class="etq e-solido">' + ic('check', 12) + 'En turno ahora · hasta ' + t.f + '</span>'; }
+  var p = proximoTurno(v.id);
+  return p ? '<span class="etq e-gris">' + ic('clock', 12) + 'Próximo: ' + textoDia(p.off, p.dia, p.h.i) + '</span>' : '<span class="etq e-mostaza">Sin horarios</span>';
+}
+function accionesPersona(tipo, p) {
+  var bloq = tipo === 'a' && (p.yo || ADMS.length === 1);
+  var motivo = p.yo ? 'No puedes eliminar tu propia cuenta' : 'Siempre debe existir al menos un administrador (RN-AD-02)';
+  return '<span class="acc"><button type="button" class="btn btn-o btn-i" title="Editar" aria-label="Editar a ' + esc(p.n) + '" data-a="toast" data-t="Abre el formulario de edición que ya existe en la aplicación">' + ic('edit') + '</button>'
+    + (bloq ? '<span class="btn-bloq" title="' + esc(motivo) + '" aria-label="' + esc(motivo) + '">' + ic('lock') + '</span>'
+            : '<button type="button" class="btn btn-d btn-i" title="Eliminar" aria-label="Eliminar a ' + esc(p.n) + '" data-a="del" data-t="' + tipo + '" data-id="' + p.id + '">' + ic('trash') + '</button>') + '</span>';
+}
+function tarjetaVet(v) {
+  var pct = v.hoy.p ? Math.round(100 * v.hoy.a / v.hoy.p) : 0;
+  return '<article class="card persona"><div class="enc"><span class="avatar">' + iniciales(v.n) + '</span><div><h5>' + esc(v.n) + '</h5><div style="margin-top:.3rem">' + estadoTurno(v) + '</div></div></div>'
+    + '<div class="chips"><span class="etq e-verde">' + ic('id', 12) + v.col + '</span><span class="etq e-gris">DNI ' + v.dni + '</span></div>'
+    + '<div class="datos"><div>' + ic('phone') + v.tel + '</div><div>' + ic('mail') + esc(v.mail) + '</div></div>'
+    + '<div><div class="chips">' + chipsHorarios(v.id, 'v') + '</div></div>'
+    + '<div><div class="prog-t"><span>Servicios de hoy</span><span>' + (v.hoy.p ? v.hoy.a + ' de ' + v.hoy.p + ' atendidos' : 'Sin servicios') + '</span></div><div class="barra-prog" role="img" aria-label="' + pct + '% atendido"><i style="width:' + pct + '%"></i></div></div>'
+    + '<div class="pie"><a href="#vet" data-a="toast" data-t="Abre la Agenda diaria filtrada por ' + esc(v.n) + ' (ya existe)">Ver citas asignadas ' + ic('arrow', 14) + '</a>' + accionesPersona('v', v) + '</div></article>';
+}
+function vVet() {
+  var l = vetFiltrados(), n = ahora(), ahoraT = VETS.filter(function (v) { return enTurno(v.id); });
+  var p = VETS.reduce(function (t, v) { return t + v.hoy.p; }, 0), a = VETS.reduce(function (t, v) { return t + v.hoy.a; }, 0);
+  var cuerpo;
+  if (!l.length) { cuerpo = '<div class="card" style="padding:1rem;background:#e3ecdd">No se encontraron veterinarios.</div>'; }
+  else if (S.vetVista === 'tarjetas') { cuerpo = '<div class="grilla">' + l.map(tarjetaVet).join('') + '</div>'; }
+  else {
+    cuerpo = '<div class="tabla-wrap"><table><thead><tr><th>DNI</th><th>Nombre completo</th><th>Colegiatura</th><th>Teléfono</th><th>Horarios</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>'
+      + l.map(function (v) { return '<tr><td>' + v.dni + '</td><td><b>' + esc(v.n) + '</b></td><td>' + v.col + '</td><td>' + v.tel + '</td><td><div class="chips">' + chipsHorarios(v.id, 'v') + '</div></td><td>' + estadoTurno(v) + '</td><td>' + accionesPersona('v', v) + '</td></tr>'; }).join('')
+      + '</tbody></table></div>';
+  }
+  return '<div class="cab"><div><h3>Veterinarios</h3><p>Equipo médico: colegiatura, horarios asignados y estado de turno.</p></div><button type="button" class="btn btn-y" data-a="toast" data-t="Abre el formulario de nuevo veterinario (ya existe en la aplicación)">' + ic('plus') + 'Nuevo veterinario</button></div>'
+    + '<div class="indicadores">'
+    + '<div class="indicador ind-verde"><span class="ico">' + ic('steto') + '</span><b>' + VETS.length + '</b><span class="t">Veterinarios registrados</span></div>'
+    + '<div class="indicador ind-mostaza"><span class="ico">' + ic('clock') + '</span><b>' + (ahoraT.length ? ahoraT.length + ' en turno' : 'Ninguno en turno') + '</b><span class="t">' + (ahoraT.length ? esc(ahoraT.map(function (v) { return v.n.split(' ')[0]; }).join(', ')) : 'Fuera de los horarios asignados') + '</span></div>'
+    + '<div class="indicador ind-salvia"><span class="ico">' + ic('cal') + '</span><b>' + proximoRelevo() + '</b><span class="t">Próximo cambio de turno</span></div>'
+    + '<div class="indicador ind-terracota"><span class="ico">' + ic('paw') + '</span><b>' + p + ' servicios hoy</b><span class="t">' + a + ' atendidos · ' + (p - a) + ' pendientes</span></div></div>'
+    + '<div class="filtros"><label for="fv">DNI, nombre o colegiatura:</label><input type="search" id="fv" data-enter="fvet" placeholder="Ingrese el texto a buscar..." value="' + esc(S.fv) + '">'
+    + '<button type="button" class="btn btn-p" data-a="fvet">' + ic('search', 16) + 'Filtrar</button><button type="button" class="btn btn-s" data-a="lvet">Limpiar</button>'
+    + '<span class="seg" role="group" aria-label="Vista"><button type="button" class="' + (S.vetVista === 'tarjetas' ? 'on' : '') + '" data-a="vv" data-v="tarjetas">' + ic('grid', 16) + 'Tarjetas</button><button type="button" class="' + (S.vetVista === 'tabla' ? 'on' : '') + '" data-a="vv" data-v="tabla">' + ic('list', 16) + 'Tabla</button></span></div>'
+    + cuerpo
+    + '<div class="nota">' + ic('info') + 'Los horarios se asignan desde la ficha de cada veterinario. Un veterinario con citas asignadas no se puede eliminar (RN-VE-03).</div>';
+}
+
+/* ------------------------------- Administradores ------------------------------- */
+function vAdm() {
+  var q = S.fa.toLowerCase().trim();
+  var l = ADMS.filter(function (x) { return !q || x.n.toLowerCase().indexOf(q) >= 0 || x.dni.indexOf(q) >= 0; });
+  var tarjetas = l.map(function (x) {
+    return '<article class="card persona ' + (x.yo ? 'yo' : '') + '"><div class="enc"><span class="avatar">' + iniciales(x.n) + '</span><div><h5>' + esc(x.n) + '</h5><div style="margin-top:.3rem">'
+      + (x.yo ? '<span class="etq e-solido">Tú (sesión activa)</span>' : '<span class="etq e-verde">Administrador</span>') + '</div></div></div>'
+      + '<div class="chips"><span class="etq e-gris">DNI ' + x.dni + '</span></div>'
+      + '<div class="datos"><div>' + ic('phone') + x.tel + '</div><div>' + ic('mail') + esc(x.mail) + '</div></div>'
+      + '<div><div class="chips">' + chipsHorarios(x.id, 'a') + '</div></div>'
+      + '<div class="pie"><span class="chip" style="background:none;color:var(--suave)">Aprueba y rechaza citas</span>' + accionesPersona('a', x) + '</div></article>';
+  }).join('');
+  return '<div class="cab"><div><h3>Administradores</h3><p>Quienes gestionan la clínica: aprueban citas, cobran y administran al personal.</p></div><button type="button" class="btn btn-y" data-a="toast" data-t="Abre el formulario de nuevo administrador (ya existe en la aplicación)">' + ic('plus') + 'Nuevo administrador</button></div>'
+    + '<div class="indicadores"><div class="indicador ind-verde"><span class="ico">' + ic('users') + '</span><b>' + ADMS.length + '</b><span class="t">Administradores activos</span></div>'
+    + '<div class="indicador ind-mostaza"><span class="ico">' + ic('lock') + '</span><b>Al menos 1</b><span class="t">Siempre debe quedar uno (RN-AD-02)</span></div></div>'
+    + '<div class="filtros"><label for="fa">DNI o nombre:</label><input type="search" id="fa" data-enter="fadm" placeholder="Ingrese el DNI o el nombre..." value="' + esc(S.fa) + '"><button type="button" class="btn btn-p" data-a="fadm">' + ic('search', 16) + 'Filtrar</button><button type="button" class="btn btn-s" data-a="ladm">Limpiar</button></div>'
+    + (l.length ? '<div class="grilla">' + tarjetas + '</div>' : '<div class="card" style="padding:1rem;background:#e3ecdd">No se encontraron administradores.</div>')
+    + '<div class="nota">' + ic('info') + 'Tu propia cuenta no se puede eliminar. El candado explica el motivo al pasar el mouse.</div>';
+}
+
+/* --------------------------------- Horarios --------------------------------- */
+function personal(h) {
+  return h.v.map(function (id) { return '<span class="pers p-vet">' + ic('steto', 13) + esc(vet(id).n) + '</span>'; }).join('')
+    + h.a.map(function (id) { return '<span class="pers p-adm">' + ic('user', 13) + esc(adm(id).n) + '</span>'; }).join('')
+    || '<span class="pers" style="background:#f6e4e0;color:var(--terracota-o)">Nadie asignado</span>';
+}
+function accionesHorario(h) {
+  var asignados = h.v.length + h.a.length;
+  return '<span class="acc-celda"><button type="button" class="btn btn-o btn-i" title="Editar" aria-label="Editar horario" data-a="eh" data-id="' + h.id + '">' + ic('edit') + '</button>'
+    + '<button type="button" class="btn btn-d btn-i" title="Eliminar" aria-label="Eliminar horario" data-a="dh" data-id="' + h.id + '">' + ic('trash') + '</button></span>';
+}
+function listaHorarios() {
+  return '<div class="tabla-wrap"><table><thead><tr><th>Día</th><th>Horario</th><th>Personal asignado</th><th>Cobertura</th><th>Acciones</th></tr></thead><tbody>'
+    + ordenados().map(function (h) {
+      var c = cobertura(h);
+      return '<tr><td><b>' + DIAS[h.d] + '</b></td><td><b>' + h.i + ' – ' + h.f + '</b><div style="color:var(--suave);font-size:.82rem">' + horasDe(h) + ' horas</div></td><td>' + personal(h) + '</td><td><span class="etq ' + c.c + '">' + c.t + '</span></td><td>' + accionesHorario(h) + '</td></tr>';
+    }).join('') + '</tbody></table></div>';
+}
+function cuadrante() {
+  var ini = 8 * 60, fin = 20 * 60;
+  HORS.forEach(function (h) { ini = Math.min(ini, Math.floor(mins(h.i) / 60) * 60); fin = Math.max(fin, Math.ceil(mins(h.f) / 60) * 60); });
+  var PX = 44, alto = (fin - ini) / 60 * PX, n = ahora();
+  var horas = '';
+  for (var m = ini; m < fin; m += 60) { horas += '<div class="cuad-hora" style="top:' + ((m - ini) / 60 * PX) + 'px">' + hhmm(m) + '</div>'; }
+  var cab = '<div class="cuad-cab" style="border-left:0"></div>' + ORDEN.map(function (d) {
+    var k = HORS.filter(function (h) { return h.d === d; }).length;
+    return '<div class="cuad-cab ' + (d === n.d ? 'hoy' : '') + '">' + DIAS[d] + '<small>' + (k ? k + ' turno' + (k > 1 ? 's' : '') : 'Sin horario') + '</small></div>';
+  }).join('');
+  var cols = ORDEN.map(function (d) {
+    var bl = HORS.filter(function (h) { return h.d === d; }).map(function (h) {
+      var c = h.v.length ? 'bl-ok' : h.a.length ? 'bl-adm' : 'bl-falta', t = (mins(h.i) - ini) / 60 * PX + 1, a = Math.max((mins(h.f) - mins(h.i)) / 60 * PX - 3, 40);
+      return '<button type="button" class="bloque ' + c + '" style="top:' + t + 'px;height:' + a + 'px" data-a="eh" data-id="' + h.id + '" aria-label="Editar horario del ' + DIAS[h.d] + ' ' + h.i + ' a ' + h.f + '"><b>' + h.i + ' – ' + h.f + '</b>'
+        + h.v.map(function (id) { return '<span class="pp">' + ic('steto', 12) + esc(vet(id).n.split(' ').slice(0, 2).join(' ')) + '</span>'; }).join('')
+        + h.a.map(function (id) { return '<span class="pp">' + ic('user', 12) + esc(adm(id).n.split(' ').slice(0, 2).join(' ')) + '</span>'; }).join('')
+        + (!h.v.length && !h.a.length ? '<span class="pp">Sin personal</span>' : '') + '</button>';
+    }).join('');
+    var hay = HORS.some(function (h) { return h.d === d; });
+    return '<div class="cuad-col ' + (hay ? '' : 'cerrado') + '" style="--h:' + PX + 'px;height:' + alto + 'px">' + bl + (hay ? '' : '<div class="cuad-vacio">Sin horario</div>') + '</div>';
+  }).join('');
+  return '<div class="cuad"><div class="cuad-grid"><div style="display:contents">' + cab + '</div><div class="cuad-horas" style="height:' + alto + 'px">' + horas + '</div>' + cols + '</div></div>'
+    + '<div class="leyenda"><span><i style="background:var(--salvia);border:1px solid #bcd0b0"></i>Con veterinario</span><span><i style="background:#f1ece0;border:1px solid #ddd5c6"></i>Solo administración</span><span><i style="background:#fdf0d2;border:2px dashed #c9922e"></i>Sin veterinario ni personal</span></div>';
+}
+function vHor() {
+  var o = ordenados(), horas = o.reduce(function (t, h) { return t + horasDe(h); }, 0);
+  var dias = ORDEN.filter(function (d) { return HORS.some(function (h) { return h.d === d; }); });
+  var sinVet = HORS.filter(function (h) { return !h.v.length; }).length;
+  return '<div class="cab"><div><h3>Horarios de atención</h3><p>Franjas semanales de la clínica y el personal asignado a cada una. Se repiten todas las semanas.</p></div>'
+    + '<div style="display:flex;gap:.5rem;flex-wrap:wrap"><button type="button" class="btn btn-s" data-a="imprimir">' + ic('print', 16) + 'Imprimir / exportar PDF</button><button type="button" class="btn btn-y" data-a="nh">' + ic('plus') + 'Nuevo horario</button></div></div>'
+    + '<div class="indicadores"><div class="indicador ind-verde"><span class="ico">' + ic('clock') + '</span><b>' + HORS.length + ' franjas</b><span class="t">Horarios activos</span></div>'
+    + '<div class="indicador ind-salvia"><span class="ico">' + ic('cal') + '</span><b>' + (dias.length ? DIAS[dias[0]] + ' a ' + DIAS[dias[dias.length - 1]] : '—') + '</b><span class="t">Días de atención</span></div>'
+    + '<div class="indicador ind-mostaza"><span class="ico">' + ic('steto') + '</span><b>' + horas + ' horas</b><span class="t">Atención por semana</span></div>'
+    + '<div class="indicador ' + (sinVet ? 'ind-terracota' : 'ind-verde') + '"><span class="ico">' + ic(sinVet ? 'alert' : 'check') + '</span><b>' + (sinVet ? sinVet + ' sin veterinario' : 'Todo cubierto') + '</b><span class="t">Una franja sin veterinario no recibe citas (RN-CI-05)</span></div></div>'
+    + '<div class="filtros"><span class="seg" style="margin-left:0" role="group" aria-label="Vista"><button type="button" class="' + (S.horVista === 'lista' ? 'on' : '') + '" data-a="hv" data-v="lista">' + ic('list', 16) + 'Listado de horarios</button><button type="button" class="' + (S.horVista === 'cuadrante' ? 'on' : '') + '" data-a="hv" data-v="cuadrante">' + ic('grid', 16) + 'Cuadrante semanal</button></span></div>'
+    + (S.horVista === 'lista' ? listaHorarios() : cuadrante())
+    + '<div class="nota">' + ic('info') + 'El personal se asigna a cada horario desde la ficha del veterinario o del administrador (RN-HO-03). Un horario asignado a alguien no se puede eliminar (RN-HO-04).</div>';
+}
+
+/* ------------------------------ Notas del diseño ------------------------------ */
+function vReq() {
+  var fila = function (e, el, hecho, motivo) {
+    var c = e === 'Adoptado' ? 'est-ad' : e === 'Adaptado' ? 'est-adapt' : 'est-desc';
+    return '<tr><td><b>' + el + '</b></td><td><span class="etq ' + c + '">' + e + '</span></td><td>' + hecho + '</td><td>' + motivo + '</td></tr>';
+  };
+  var filas = [
+    ['Adoptado', 'Tarjetas por persona (vista de tarjetas)', 'Se usan junto a la tabla actual: el equipo elige con “Tarjetas | Tabla”.', 'RF04. Mismos datos que hoy: DNI, nombre, teléfono, colegiatura y horarios.'],
+    ['Adoptado', '“En turno ahora” y “Próximo relevo”', 'Se calculan con los horarios asignados y la hora actual.', 'RN-HO-03. No necesita datos nuevos.'],
+    ['Adoptado', 'Chips de horarios y “Ver citas asignadas”', 'Igual que la propuesta. “Ver citas asignadas” abre la Agenda diaria filtrada por el veterinario.', 'RF09 y RF11. La Agenda diaria ya existe.'],
+    ['Adoptado', 'Candado en el administrador y “Tú (sesión activa)”', 'La cuenta propia no se puede eliminar; tampoco el último administrador.', 'RN-AD-02 y regla ya existente de no eliminar la propia cuenta.'],
+    ['Adoptado', 'Listado de horarios y cuadrante semanal', 'Las dos propuestas quedan como dos vistas del mismo módulo.', 'RF09. Un solo lugar para crear, editar y eliminar horarios.'],
+    ['Adaptado', 'Avatar con foto del personal', 'Se muestran las iniciales.', 'El personal no tiene foto en el modelo. Si se quiere, es el mismo cambio que ya se hizo para la mascota (columna, DAO, BL, DTO) y pasa por el JP.'],
+    ['Adaptado', '“Citas agendadas hoy: 18 (14 caninos / 4 felinos)” y “Carga del día”', 'Se muestran los servicios de hoy por veterinario: atendidos y pendientes.', 'RF11 y RF13. Sale de la agenda que ya existe.'],
+    ['Adaptado', 'Cuadrante con fechas (24–29 de marzo) y flechas de semana', 'Cuadrante por día de la semana, sin fechas ni navegación.', 'RN-HO-01: un horario define un día de la semana, no una fecha; se repite cada semana.'],
+    ['Adaptado', 'Etiquetas “Completo”, “Doble médico”, “Espacio disponible”', 'Se reemplazan por la cobertura calculada: con veterinario, solo administración o sin personal.', 'Se deriva de las asignaciones; una franja sin veterinario no recibe citas (RN-CI-05).'],
+    ['Adaptado', 'Botón “Asignar personal” en cada horario', 'Se explica que el personal se asigna desde su ficha.', 'RN-HO-03. Así lo hace el backend (el veterinario trae sus horarios).'],
+    ['Adaptado', '“Descargar PDF”', 'Imprimir / exportar PDF desde el navegador.', 'Igual que el resto de reportes de la aplicación.'],
+    ['Adaptado', 'Validación al guardar un horario', 'La hora de inicio debe ser anterior a la de fin; el error sale al salir del campo.', 'RN-HO-02 y estándar de formularios.'],
+    ['Descartado', 'Barra lateral “Clínica y gestión”', 'Se mantiene la barra superior de la aplicación.', 'Consistencia con todas las pantallas.'],
+    ['Descartado', 'Logo, “Abierto”, buscador global y campana de notificaciones', 'No se incluyen.', 'No hay requerimiento; el logo del boceto estaba roto.'],
+    ['Descartado', 'Especialidad (Cirugía, Traumatología, Dermatología…) y su filtro', 'No se incluye.', 'El modelo no tiene especialidad. Sería un campo nuevo (SQL, DAO, BL, REST) y un cambio de RF04.'],
+    ['Descartado', '“100% colegiatura válida” y “Validación CMVP Perú”', 'Solo se muestra el número de colegiatura.', 'Consultar el padrón oficial es una integración externa fuera de alcance. RN-VE-01 solo exige número único.'],
+    ['Descartado', '“Guardia activa”, “Urgencias y reemplazos”, “Quirófano”, “Doble médico”', 'No se incluyen.', 'No existe la guardia ni los tipos de turno. Requeriría requerimientos nuevos.'],
+    ['Descartado', '“Master Admin”, roles operativos y “Estado de cobertura” del administrador, auditoría y bitácora', 'No se incluyen.', 'Hay un solo rol de administrador (RN-AD-04) y no existe bitácora.'],
+    ['Descartado', '“Sincronizar agenda”, “Vista Día”, “Hoy”', 'No se incluyen.', 'Sin requerimiento; los horarios no dependen de la fecha.'],
+    ['Descartado', 'Título “Dra.” / “Dr.”', 'Solo el nombre completo.', 'El modelo no guarda el género.']
+  ].map(function (f) { return fila(f[0], f[1], f[2], f[3]); }).join('');
+  return '<div class="cab"><div><h3>Notas del diseño</h3><p>Qué se tomó de las propuestas, cómo se adaptó y qué se dejó fuera, según nuestros requerimientos.</p></div></div>'
+    + '<div class="resumen-req"><div class="card"><h5>Sin cambios en el backend</h5><p style="margin:0">Todo sale de datos que ya existen: veterinario, administrador, horario, sus asignaciones y la agenda. No cambian SQL, DAO, BL ni REST: es solo front.</p></div>'
+    + '<div class="card"><h5>Requerimientos que cubre</h5><ul><li><b>RF04</b> Veterinarios y administradores</li><li><b>RF05</b> Cuenta con correo (formularios existentes)</li><li><b>RF09</b> Horarios del personal</li><li><b>RF11 / RF13</b> Agenda de hoy por veterinario</li></ul></div>'
+    + '<div class="card"><h5>Reglas que respeta</h5><ul><li>RN-VE-01, RN-VE-03</li><li>RN-AD-02, RN-AD-04</li><li>RN-HO-01 a RN-HO-04</li><li>RN-CI-05 (horario del veterinario)</li></ul></div></div>'
+    + '<div class="tabla-wrap"><table><thead><tr><th style="width:24%">Elemento de la propuesta</th><th>Decisión</th><th style="width:30%">Qué se hizo</th><th style="width:34%">Motivo</th></tr></thead><tbody>' + filas + '</tbody></table></div>'
+    + '<div class="nota">' + ic('info') + 'Si el equipo quiere algo de lo descartado (por ejemplo especialidad o guardia), se trata como requerimiento nuevo y necesita la aprobación del JP.</div>';
+}
+
+/* ----------------------------------- ventanas ----------------------------------- */
+function shell(titulo, cuerpo, pie) { return '<div class="ov" data-a="fondo"><div class="md" role="dialog" aria-modal="true" aria-label="' + esc(titulo) + '"><h4>' + esc(titulo) + '</h4>' + cuerpo + '<div class="f">' + pie + '</div></div></div>'; }
+function modalHorario() {
+  var f = S.formH, e = S.errH, nuevo = !f.id;
+  var op = DIAS.map(function (d, i) { return '<option value="' + i + '"' + (+f.d === i ? ' selected' : '') + '>' + d + '</option>'; });
+  var ordenDias = ORDEN.map(function (i) { return op[i]; }).join('');
+  var campo = function (id, et, html, err, clave) { return '<div class="campo"><label for="' + id + '">' + et + '</label>' + html + '<div class="err" id="err-' + (clave || id) + '" role="alert">' + (err || '') + '</div></div>'; };
+  return shell(nuevo ? 'Nuevo horario' : 'Editar horario',
+    campo('h-d', 'Día de la semana', '<select id="h-d" data-in="d">' + ordenDias + '</select>')
+    + '<div class="dos">' + campo('h-i', 'Hora de inicio', '<input type="time" id="h-i" data-in="i" value="' + f.i + '"' + (e.i ? ' class="invalido"' : '') + '>', e.i, 'i')
+    + campo('h-f', 'Hora de fin', '<input type="time" id="h-f" data-in="f" value="' + f.f + '"' + (e.f ? ' class="invalido"' : '') + '>', e.f, 'f') + '</div>'
+    + '<div class="err" id="err-g" style="color:var(--terracota-o);font-size:.875rem" role="alert">' + (e.g || '') + '</div>'
+    + '<p style="font-size:.9rem">El personal se asigna desde la ficha del veterinario o del administrador.</p>',
+    '<button type="button" class="btn btn-o" data-a="x">Cancelar</button><button type="button" class="btn btn-p" data-a="gh">' + ic('check', 16) + 'Guardar</button>');
+}
+function validarH(campo) {
+  var f = S.formH, e = S.errH;
+  if (!campo || campo === 'i') { e.i = f.i ? '' : 'Indique la hora de inicio'; }
+  if (!campo || campo === 'f') { e.f = f.f ? '' : 'Indique la hora de fin'; }
+  e.g = '';
+  if (f.i && f.f && mins(f.i) >= mins(f.f)) { e.g = 'La hora de inicio debe ser anterior a la hora de fin (RN-HO-02)'; }
+  return !(e.i || e.f || e.g);
+}
+// Actualiza solo los mensajes de error: volver a dibujar la ventana al salir de un campo anularía el clic en "Guardar"
+function pintarErrH() {
+  var e = S.errH;
+  [['i', 'h-i'], ['f', 'h-f']].forEach(function (p) {
+    var inp = document.getElementById(p[1]), er = document.getElementById('err-' + p[0]);
+    if (inp) { inp.classList.toggle('invalido', !!e[p[0]]); }
+    if (er) { er.textContent = e[p[0]] || ''; }
+  });
+  var g = document.getElementById('err-g');
+  if (g) { g.textContent = e.g || ''; }
+}
+function modalHTML() {
+  var m = S.modal; if (!m) { return ''; }
+  if (m.k === 'horario') { return modalHorario(); }
+  if (m.k === 'delh') {
+    var h = HORS.filter(function (x) { return x.id === m.id; })[0], n = h.v.length + h.a.length;
+    if (n) { return shell('No se puede eliminar el horario', '<p>El horario del <b>' + DIAS[h.d] + ' ' + h.i + '–' + h.f + '</b> está asignado a ' + n + ' persona' + (n > 1 ? 's' : '') + ' (RN-HO-04). Quite primero el horario de su ficha.</p>', '<button type="button" class="btn btn-p" data-a="x">Entendido</button>'); }
+    return shell('¿Eliminar el horario?', '<p>El horario del <b>' + DIAS[h.d] + ' ' + h.i + '–' + h.f + '</b> dejará de existir.</p>', '<button type="button" class="btn btn-o" data-a="x">Cancelar</button><button type="button" class="btn btn-ds" data-a="delhok" data-id="' + h.id + '">' + ic('trash', 16) + 'Sí, eliminar</button>');
+  }
+  if (m.k === 'delp') {
+    var p = (m.t === 'v' ? vet(m.id) : adm(m.id));
+    return shell(m.t === 'v' ? '¿Eliminar al veterinario?' : '¿Eliminar al administrador?', '<p><b>' + esc(p.n) + '</b> y su cuenta de usuario se darán de baja.' + (m.t === 'v' ? ' No se puede si está asignado a alguna cita (RN-VE-03).' : ' Siempre debe quedar al menos un administrador (RN-AD-02).') + '</p>',
+      '<button type="button" class="btn btn-o" data-a="x">Cancelar</button><button type="button" class="btn btn-ds" data-a="delpok" data-t="' + m.t + '" data-id="' + m.id + '">' + ic('trash', 16) + 'Sí, eliminar</button>');
+  }
+  return '';
+}
+
+/* ----------------------------------- render ----------------------------------- */
+function render() {
+  barra();
+  var v = S.vista === 'vet' ? vVet() : S.vista === 'adm' ? vAdm() : S.vista === 'hor' ? vHor() : vReq();
+  var sim = '<div class="aviso"><span><b>Prototipo con datos de ejemplo</b> · mismo diseño y reglas de la aplicación. Nada se guarda en el sistema.</span>'
+    + '<label>Hora de la demo: <select id="sim" data-ch="sim">' + [['', 'Hora actual'], ['1|600', 'Lunes 10:00'], ['1|900', 'Lunes 15:00'], ['2|600', 'Martes 10:00'], ['3|660', 'Miércoles 11:00'], ['6|600', 'Sábado 10:00'], ['0|600', 'Domingo 10:00']].map(function (o) { return '<option value="' + o[0] + '"' + (S.sim === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label></div>';
+  $('#app').innerHTML = (S.vista === 'req' ? '' : sim) + v;
+  $('#capa').innerHTML = modalHTML();
+  try { history.replaceState(null, '', '#' + S.vista); } catch (x) { /* sin historial */ }
+}
+
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest('[data-a]');
+  if (!b) { if (S.menu) { S.menu = false; render(); } return; }
+  var a = b.dataset.a, id = +b.dataset.id;
+  if (a === 'fondo') { if (ev.target === b) { S.modal = null; render(); } return; }
+  if (a !== 'menu' && S.menu) { S.menu = false; }
+  switch (a) {
+    case 'menu': S.menu = !S.menu; render(); break;
+    case 'ir': S.vista = b.dataset.v; S.menu = false; window.scrollTo(0, 0); render(); break;
+    case 'inerte': toast('Esta opción del menú no forma parte del prototipo.'); render(); break;
+    case 'toast': ev.preventDefault(); toast(b.dataset.t); break;
+    case 'fvet': S.fv = $('#fv').value; render(); break;
+    case 'lvet': S.fv = ''; render(); break;
+    case 'fadm': S.fa = $('#fa').value; render(); break;
+    case 'ladm': S.fa = ''; render(); break;
+    case 'vv': S.vetVista = b.dataset.v; render(); break;
+    case 'hv': S.horVista = b.dataset.v; render(); break;
+    case 'imprimir': window.print(); break;
+    case 'del': S.modal = { k: 'delp', t: b.dataset.t, id: id }; render(); break;
+    case 'delpok':
+      if (b.dataset.t === 'a') { ADMS = ADMS.filter(function (x) { return x.id !== id; }); HORS.forEach(function (h) { h.a = h.a.filter(function (x) { return x !== id; }); }); toast('Se eliminó al administrador (demostración).'); }
+      else { S.modal = null; render(); toast('Demostración: el backend rechazaría esto porque el veterinario tiene citas asignadas (RN-VE-03).'); break; }
+      S.modal = null; render(); break;
+    case 'nh': S.formH = { id: 0, d: 1, i: '', f: '' }; S.errH = {}; S.modal = { k: 'horario' }; render(); break;
+    case 'eh': var h = HORS.filter(function (x) { return x.id === id; })[0]; S.formH = { id: h.id, d: h.d, i: h.i, f: h.f }; S.errH = {}; S.modal = { k: 'horario' }; render(); break;
+    case 'gh':
+      if (!validarH()) { pintarErrH(); break; }
+      if (S.formH.id) { var e = HORS.filter(function (x) { return x.id === S.formH.id; })[0]; e.d = +S.formH.d; e.i = S.formH.i; e.f = S.formH.f; toast('Horario actualizado.'); }
+      else { HORS.push({ id: S.nid++, d: +S.formH.d, i: S.formH.i, f: S.formH.f, v: [], a: [] }); toast('Horario creado. Asigne personal desde su ficha.'); }
+      S.modal = null; render(); break;
+    case 'dh': S.modal = { k: 'delh', id: id }; render(); break;
+    case 'delhok': HORS = HORS.filter(function (x) { return x.id !== id; }); S.modal = null; render(); toast('Horario eliminado (demostración).'); break;
+    case 'x': S.modal = null; render(); break;
+  }
+});
+// Validación al salir del campo, como en el resto de la aplicación
+document.addEventListener('focusout', function (ev) {
+  var t = ev.target;
+  if (S.modal && S.modal.k === 'horario' && t.dataset && t.dataset.in) {
+    S.formH[t.dataset.in] = t.value;
+    if (t.dataset.in === 'i' || t.dataset.in === 'f') { validarH(t.dataset.in); pintarErrH(); }
+  }
+});
+document.addEventListener('change', function (ev) {
+  var t = ev.target;
+  if (t.dataset && t.dataset.ch === 'sim') { S.sim = t.value; render(); }
+  if (S.modal && S.modal.k === 'horario' && t.dataset && t.dataset.in === 'd') { S.formH.d = t.value; }
+});
+document.addEventListener('keydown', function (ev) {
+  if (ev.key === 'Escape') { if (S.modal) { S.modal = null; render(); } else if (S.menu) { S.menu = false; render(); } }
+  if (ev.key === 'Enter' && ev.target.dataset && ev.target.dataset.enter) {
+    ev.preventDefault();
+    if (ev.target.dataset.enter === 'fvet') { S.fv = ev.target.value; } else { S.fa = ev.target.value; }
+    render();
+  }
+});
+
+var h = (location.hash || '').slice(1);
+if (['vet', 'adm', 'hor', 'req'].indexOf(h) >= 0) { S.vista = h; }
+render();
+})();
+</script>
+</body>
+</html>

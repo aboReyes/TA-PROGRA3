@@ -1,22 +1,34 @@
 package ejecucion;
 
-import patitasarriba.bl.*;
-import patitasarriba.bl.impl.atencion.AtencionBLImpl;
-import patitasarriba.bl.impl.atencion.DiagnosticoBLImpl;
-import patitasarriba.bl.impl.boleta.BoletaBLImpl;
-import patitasarriba.bl.impl.cita.CitaBLImpl;
-import patitasarriba.bl.impl.horario.HorarioBLImpl;
-import patitasarriba.bl.impl.mascota.MascotaBLImpl;
-import patitasarriba.bl.impl.producto.ArticuloBLImpl;
-import patitasarriba.bl.impl.producto.CategoriaBLImpl;
-import patitasarriba.bl.impl.producto.ServicioBLImpl;
-import patitasarriba.bl.impl.receta.RecetaBLImpl;
-import patitasarriba.bl.correo.CorreoService;
-import patitasarriba.bl.impl.usuario.AccesoBLImpl;
-import patitasarriba.bl.impl.usuario.AdministradorBLImpl;
-import patitasarriba.bl.impl.usuario.ClienteBLImpl;
-import patitasarriba.bl.impl.usuario.CuentaBLImpl;
-import patitasarriba.bl.impl.usuario.VeterinarioBLImpl;
+import patitasarriba.bl.atencion.AtencionBL;
+import patitasarriba.bl.atencion.DiagnosticoBL;
+import patitasarriba.bl.boleta.BoletaBL;
+import patitasarriba.bl.cita.CitaBL;
+import patitasarriba.bl.horario.HorarioBL;
+import patitasarriba.bl.excepciones.BLException;
+import patitasarriba.bl.excepciones.NoEncontradoException;
+import patitasarriba.blimpl.atencion.AtencionBLImpl;
+import patitasarriba.blimpl.atencion.DiagnosticoBLImpl;
+import patitasarriba.blimpl.boleta.BoletaBLImpl;
+import patitasarriba.blimpl.cita.CitaBLImpl;
+import patitasarriba.blimpl.horario.HorarioBLImpl;
+import patitasarriba.blimpl.mascota.MascotaBLImpl;
+import patitasarriba.blimpl.producto.ArticuloBLImpl;
+import patitasarriba.blimpl.producto.CategoriaBLImpl;
+import patitasarriba.blimpl.producto.ServicioBLImpl;
+import patitasarriba.blimpl.receta.RecetaBLImpl;
+import patitasarriba.blimpl.correo.CorreoService;
+import patitasarriba.blimpl.usuario.AccesoBLImpl;
+import patitasarriba.blimpl.usuario.AdministradorBLImpl;
+import patitasarriba.blimpl.usuario.ClienteBLImpl;
+import patitasarriba.blimpl.usuario.CuentaBLImpl;
+import patitasarriba.blimpl.usuario.VeterinarioBLImpl;
+import patitasarriba.bl.mascota.MascotaBL;
+import patitasarriba.bl.producto.ArticuloBL;
+import patitasarriba.bl.producto.CategoriaBL;
+import patitasarriba.bl.producto.ServicioBL;
+import patitasarriba.bl.receta.RecetaBL;
+import patitasarriba.bl.usuario.*;
 import patitasarriba.modelo.atencion.*;
 import patitasarriba.modelo.boleta.*;
 import patitasarriba.modelo.cita.*;
@@ -243,6 +255,18 @@ public class Tester {
         campo("telefono", telefonoAnterior + " -> " + clienteBL.findById(cliente.getId()).getTelefono());
         campo("peso", pesoAnterior + " kg -> " + mascotaBL.findById(mascota.getId()).getPeso() + " kg");
 
+        // Foto opcional (portal del cliente): se guarda como texto base64 y se lee igual
+        String foto = "data:image/jpeg;base64,/9j/4AAQSkZJRg==";
+        mascota.setFoto(foto);
+        mascotaBL.update(mascota);
+        campo("foto", mascotaBL.findById(mascota.getId()).getFoto() == null ? "sin foto" : "guardada");
+        verificar("la foto se guarda y se lee igual", foto.equals(mascotaBL.findById(mascota.getId()).getFoto()));
+        // El peso es opcional: 0 significa que no se registró (RN-MA-02)
+        Mascota sinPeso = nuevaMascota(cliente, "Sinpeso", 0);
+        mascotaBL.insert(sinPeso);
+        verificar("una mascota sin peso (0) se acepta", mascotaBL.findById(sinPeso.getId()).getPeso() == 0);
+        mascotaBL.delete(sinPeso.getId());
+
         listarMascotas(mascotaBL.findAll());
 
         // Reglas de negocio: se usa otra cuenta para que solo falle el dato que se quiere probar
@@ -263,7 +287,11 @@ public class Tester {
             clienteBL.insert(invalido);
         });
         Cliente dueno = cliente;
-        regla("Mascota con peso 0", () -> mascotaBL.insert(nuevaMascota(dueno, "Sinpeso", 0)));
+        regla("Mascota con foto que no es una imagen", () -> {
+            Mascota conFotoMala = nuevaMascota(dueno, "Fotomala", 5.0);
+            conFotoMala.setFoto("no es una imagen");
+            mascotaBL.insert(conFotoMala);
+        });
         regla("Eliminar la cuenta de un cliente activo", () -> cuentaBL.delete(cuenta.getId()));
         mostrarReglas();
 

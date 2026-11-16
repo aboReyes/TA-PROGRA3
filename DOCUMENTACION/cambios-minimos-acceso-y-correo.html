@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Patitas Arriba · Cambios mínimos sobre develop: acceso, correo y DAO</title>
+<style>
+  @page { size: A4; margin: 12mm 13mm 12mm 13mm; }
+  :root { --verde:#3F6B52; --verde-o:#325642; --salvia:#E3ECDD; --mostaza:#F2B33D; --terracota:#B5483A; --texto:#1F2A24; --suave:#5b6b62; --linea:#d9d4c7; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: var(--texto); font-size: 9.1pt; line-height: 1.4; margin: 0; }
+  header { border-bottom: 3px solid var(--verde); padding-bottom: 7px; margin-bottom: 9px; }
+  header h1 { margin: 0; font-size: 16.5pt; color: var(--verde-o); }
+  header p { margin: 3px 0 0; color: var(--suave); font-size: 9pt; }
+  h2 { font-size: 11.2pt; color: var(--verde-o); margin: 12px 0 5px; border-left: 5px solid var(--mostaza); padding-left: 8px; break-after: avoid; }
+  h3 { font-size: 9.8pt; margin: 8px 0 2px; color: var(--verde-o); break-after: avoid; }
+  p { margin: 3px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin: 4px 0 6px; }
+  th { background: var(--verde); color: #fff; text-align: left; padding: 3.5px 6px; }
+  td { border-bottom: 1px solid var(--linea); padding: 3.5px 6px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f6f9f3; }
+  tr { break-inside: avoid; }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 8pt; background: #eef2ea; padding: 0 3px; border-radius: 3px; }
+  pre { font-family: Consolas, "Courier New", monospace; font-size: 7.7pt; background: #f4f7f1; border: 1px solid var(--linea); border-radius: 6px; padding: 5px 8px; margin: 4px 0 6px; white-space: pre-wrap; break-inside: avoid; line-height: 1.32; }
+  .nota { background: #fff7e0; border: 1px solid #ecd48a; border-radius: 6px; padding: 5px 10px; font-size: 8.7pt; margin: 6px 0; break-inside: avoid; }
+  .aviso { background: #fbe9e5; border: 1px solid #e3b4aa; border-radius: 6px; padding: 5px 10px; font-size: 8.7pt; margin: 6px 0; break-inside: avoid; }
+  ul, ol { margin: 2px 0; padding-left: 17px; }
+  li { margin: 1.5px 0; }
+  .nuevo { background: var(--mostaza); color: var(--texto); border-radius: 4px; padding: 0 5px; font-size: 7.4pt; font-weight: 800; }
+  .salto { break-before: page; }
+  footer { margin-top: 9px; border-top: 1px solid var(--linea); padding-top: 4px; color: var(--suave); font-size: 8pt; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Cambios mínimos sobre <code>develop</code>: acceso, correo y DAO</h1>
+  <p>Patitas Arriba · Corte: 16/11/2026 · Base: <code>develop</code> (main + Leonardo + refactor de Naim) · 7 archivos · todos probados en local</p>
+</header>
+
+<h2>1 · Resumen</h2>
+<p>Sobre <code>develop</code> se hicieron cambios <b>pequeños y aislados</b> que arreglan cuatro cosas: el build roto del módulo de persistencia, el envío real de correos desde GlassFish, avisos de validación del login y enlaces duplicados en las pantallas de acceso. No se tocó ninguna regla de negocio ni la base de datos.</p>
+<table>
+  <tr><th style="width:5%">#</th><th style="width:36%">Archivo</th><th style="width:14%">Tipo</th><th>Para qué</th></tr>
+  <tr><td>1</td><td><code>persistencia/…/dao/TransaccionDAO.java</code></td><td><span class="nuevo">NUEVO</span></td><td>Interfaz de escritura con conexión explícita. El test <code>DAORefactorChecks</code> la usa.</td></tr>
+  <tr><td>2</td><td><code>persistencia/…/daoimpl/TransaccionDAOImpl.java</code></td><td><span class="nuevo">NUEVO</span></td><td>Implementación base sobre <code>BaseDAOImpl</code>. Hace que <code>mvn package</code> compile sin saltar tests.</td></tr>
+  <tr><td>3</td><td><code>negocio/…/blimpl/correo/CorreoSmtp.java</code></td><td>Modificado</td><td>Permite enviar correos reales con Gmail desde GlassFish (certificados).</td></tr>
+  <tr><td>4</td><td><code>Web/…/Seguridad/LoginPage.razor</code></td><td>Modificado</td><td>El aviso “La contraseña es obligatoria” desaparece al teclear.</td></tr>
+  <tr><td>5</td><td><code>Web/…/Seguridad/OlvideContrasenaPage.razor</code></td><td>Modificado</td><td>Quita 2 enlaces “Volver a iniciar sesión” duplicados.</td></tr>
+  <tr><td>6</td><td><code>Web/…/Seguridad/RegistroPage.razor</code></td><td>Modificado</td><td>Quita 2 enlaces duplicados.</td></tr>
+  <tr><td>7</td><td><code>Web/wwwroot/app.css</code></td><td>Modificado</td><td>Los botones de método de pago pasan a otra fila si no caben.</td></tr>
+</table>
+
+<h2>2 · Back (Java)</h2>
+
+<h3>2.1 Build de persistencia: faltaban <code>TransaccionDAO</code> y <code>TransaccionDAOImpl</code></h3>
+<p><b>Síntoma:</b> <code>mvn package</code> falla con <code>cannot find symbol class TransaccionDAOImpl</code> en <code>DAORefactorChecks.java</code> (línea 343).<br>
+<b>Causa:</b> el <code>README</code> de persistencia y el test usan esas dos clases, pero no están en ningún commit de <code>develop</code>. Patrón tomado del repo del profesor (2025-2, sesión 23: <code>PersistibleTransaccional</code> + <code>TransaccionalBaseDAO</code>).<br>
+<b>Dónde:</b> <code>Avances/patitasarriba-persistencia/src/main/java/patitasarriba/</code></p>
+<pre>// dao/TransaccionDAO.java
+package patitasarriba.dao;
+import java.sql.Connection;
+import java.sql.SQLException;
+public interface TransaccionDAO&lt;T, ID&gt; extends DAO&lt;T, ID&gt; {
+    void crear(T modelo, Connection conn) throws SQLException;
+    void actualizar(T modelo, Connection conn) throws SQLException;
+    void eliminar(ID id, Connection conn) throws SQLException;
+}
+
+// daoimpl/TransaccionDAOImpl.java
+package patitasarriba.daoimpl;
+public abstract class TransaccionDAOImpl&lt;T extends Registro&gt; extends BaseDAOImpl&lt;T&gt; implements TransaccionDAO&lt;T, Integer&gt; {
+    @Override public void crear(T modelo, Connection conn) throws SQLException { ejecutarComandoInsertar(conn, modelo); }
+    @Override public void actualizar(T modelo, Connection conn) throws SQLException { ejecutarComandoActualizar(conn, modelo); }
+    @Override public void eliminar(Integer id, Connection conn) throws SQLException { ejecutarComandoEliminar(conn, id); }
+}</pre>
+<p><b>Resultado:</b> <code>mvn package</code> sin saltar tests y <code>DAORefactorChecks</code> imprime <code>DAO checks passed: 10</code>. Si el autor ya tiene sus propias versiones sin subir, usar las suyas.</p>
+
+<h3>2.2 Envío de correo real: GlassFish no confía en el certificado de Gmail</h3>
+<p><b>Síntoma:</b> el registro muestra “No se pudo enviar el correo”.<br>
+<b>Causa:</b> <code>SSLHandshakeException: PKIX path building failed</code>. El truststore del dominio (<code>domains/domain1/config/cacerts.p12</code>) trae solo 2 certificados y no incluye GlobalSign, raíz de la cadena de Gmail. Desde una JVM normal la misma conexión funciona.<br>
+<b>Corrección</b> en <code>Avances/patitasarriba-negocio/src/main/java/patitasarriba/blimpl/correo/CorreoSmtp.java</code>: usar los certificados del JDK. Una línea cambia en <code>enviar</code> y se agrega un método:</p>
+<pre>- try (SSLSocket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket(host, puerto)) {
++ try (SSLSocket socket = (SSLSocket) fabricaConfianza().createSocket(host, puerto)) {
+
++ static SSLSocketFactory fabricaConfianza() {
++     try {
++         File cacerts = new File(System.getProperty("java.home"), "lib/security/cacerts");
++         KeyStore raices = KeyStore.getInstance(cacerts, "changeit".toCharArray());
++         TrustManagerFactory confianza = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
++         confianza.init(raices);
++         SSLContext contexto = SSLContext.getInstance("TLS");
++         contexto.init(null, confianza.getTrustManagers(), null);
++         return contexto.getSocketFactory();
++     } catch (Exception e) {
++         return (SSLSocketFactory) SSLSocketFactory.getDefault();   // como antes si no se pueden leer
++     }
++ }</pre>
+<p>Imports nuevos: <code>javax.net.ssl.SSLContext</code>, <code>javax.net.ssl.TrustManagerFactory</code>, <code>java.io.File</code>, <code>java.security.KeyStore</code>. También se reemplazó el comentario “no se probó contra un servidor real”.</p>
+
+<h2>3 · Front (Blazor)</h2>
+<p>Carpeta: <code>Avances-dotnet/PatitasArriba.Web/</code></p>
+
+<h3>3.1 <code>Components/Pages/Seguridad/LoginPage.razor</code>: el aviso queda pegado mientras se escribe</h3>
+<p><b>Síntoma:</b> tras dejar la contraseña vacía, “La contraseña es obligatoria” sigue visible aunque ya se esté escribiendo (hasta salir del campo). El login sí funciona.<br>
+<b>Corrección:</b> en los dos <code>InputText</code> (<code>correo</code> y <code>clave</code>) se agrega un <code>@oninput</code> que actualiza el modelo y revalida <b>solo si ya había un aviso</b>:</p>
+<pre>&lt;InputText id="clave" ... @bind-Value="ViewModel.Password"
+           @oninput="e =&gt; AlEscribir(nameof(LoginViewModel.Password), e)" @onblur="..." /&gt;
+
+private void AlEscribir(string campo, ChangeEventArgs e) {
+    string texto = e.Value?.ToString() ?? "";
+    if (campo == nameof(LoginViewModel.Correo)) ViewModel.Correo = texto; else ViewModel.Password = texto;
+    FieldIdentifier campoActual = new FieldIdentifier(ViewModel, campo);
+    if (Contexto.GetValidationMessages(campoActual).Any()) Contexto.NotifyFieldChanged(campoActual);
+}</pre>
+<div class="aviso"><b>No usar</b> <code>@bind-Value:event="oninput"</code> en <code>InputText</code> ni en los <code>PaInput*</code>. Tira el circuito de Blazor con <code>ChangeEventArgs cannot be converted to System.String</code> y el formulario se envía como POST nativo (“The POST request does not specify which form is being submitted…”). Es la “pantalla negra” de Nuevo artículo que ya corrigió Leonardo.</div>
+
+<h3>3.2 <code>OlvideContrasenaPage.razor</code> y <code>RegistroPage.razor</code>: enlaces duplicados</h3>
+<p><code>AccesoMarco</code> ya dibuja el pie “← Volver al inicio de sesión”. Se eliminaron los <code>&lt;p class="login-registro"&gt;</code> propios de cada página: 2 en Olvidé contraseña (estado enviado y formulario) y 2 en Registro (“Volver a iniciar sesión” y “¿Ya tienes una cuenta?”).</p>
+
+<h3>3.3 <code>wwwroot/app.css</code>: métodos de pago cortados</h3>
+<pre>- .seg-pago { flex-wrap: nowrap; flex: none; }
++ .seg-pago { flex-wrap: wrap; }</pre>
+
+<h2>4 · Activar el correo real (sin guardar credenciales en el repo)</h2>
+<p>El código lee <b>variables de entorno del proceso de GlassFish</b>. Si falta alguna de las tres primeras, el correo se imprime en el log (modo consola).</p>
+<table>
+  <tr><th style="width:30%">Variable</th><th>Valor</th></tr>
+  <tr><td><code>PATITAS_SMTP_HOST</code></td><td><code>smtp.gmail.com</code> (fijo)</td></tr>
+  <tr><td><code>PATITAS_SMTP_USUARIO</code></td><td>el Gmail que envía</td></tr>
+  <tr><td><code>PATITAS_SMTP_CLAVE</code></td><td>contraseña de aplicación de 16 letras, sin espacios (requiere verificación en 2 pasos; se crea en <code>myaccount.google.com/apppasswords</code>)</td></tr>
+  <tr><td><code>PATITAS_URL_FRONT</code> (opcional)</td><td>por defecto <code>http://localhost:5118</code></td></tr>
+</table>
+<pre>[Environment]::SetEnvironmentVariable("PATITAS_SMTP_HOST","smtp.gmail.com","User")
+[Environment]::SetEnvironmentVariable("PATITAS_SMTP_USUARIO","TU_CORREO@gmail.com","User")
+[Environment]::SetEnvironmentVariable("PATITAS_SMTP_CLAVE","LA_CLAVE_SIN_ESPACIOS","User")</pre>
+<p>Después: <b>cerrar IntelliJ por completo, abrirlo y reiniciar GlassFish</b> (las variables se leen al arrancar). Cada persona configura las suyas; la clave no se sube ni se pega en grupos.</p>
+
+<h2>5 · Cómo comprobar que funciona</h2>
+<ol>
+  <li><b>Build:</b> <code>cd Avances; mvn -q package</code> sin errores, y <code>DAORefactorChecks</code> = <code>DAO checks passed: 10</code>.</li>
+  <li><b>Login:</b> con los campos vacíos pulsar Ingresar (aparecen avisos) y escribir: el aviso desaparece al teclear. Contraseña mala → “Correo o contraseña incorrectos”.</li>
+  <li><b>Enlaces:</b> <code>/registro</code> y <code>/olvide-contrasena</code> muestran un solo “← Volver al inicio de sesión”.</li>
+  <li><b>Correo:</b> <code>/registro</code> con un correo real distinto del remitente → llega “Confirma tu correo - Patitas Arriba” (revisar Spam) → abrir el enlace <b>en la misma PC que corre el front</b> → “¡Tu cuenta quedó activa!”.</li>
+</ol>
+
+<h2>6 · Problemas conocidos (no corregidos)</h2>
+<table>
+  <tr><th style="width:30%">Qué</th><th>Detalle</th></tr>
+  <tr><td>Enlace del correo con <code>localhost</code></td><td>Abre solo en la PC que corre el front. Desde un celular necesita <code>PATITAS_URL_FRONT=http://IP_DE_LA_PC:5118</code>, el front con <code>--urls http://0.0.0.0:5118</code> y el puerto abierto en el Firewall.</td></tr>
+  <tr><td>Teléfono o DNI de un cliente dado de baja</td><td>La validación ignora a los clientes con <code>activo=0</code> pero el <code>UNIQUE</code> de MySQL no. El registro avisa “Revisa tu correo” y al confirmar falla con “No se pudo completar el registro” (<code>Duplicate entry … telefono_UNIQUE</code>). Propuesta: validar contra todos los registros y dar un mensaje claro.</td></tr>
+  <tr><td>Número de boleta</td><td>Se asigna fuera de la transacción: dos emisiones simultáneas podrían chocar. Propuesta: asignarlo dentro de la transacción.</td></tr>
+  <tr><td>Solo puerto 465</td><td><code>CorreoSmtp</code> usa TLS implícito; Outlook/Hotmail (587, STARTTLS) no funcionan.</td></tr>
+</table>
+
+<h2>7 · Cómo aplicarlo</h2>
+<p>Copiar los 7 archivos a sus rutas en el repo (mismos nombres), compilar y probar con la lista de la sección 5. Son cambios locales sin commitear: se suben por la rama que acuerde el equipo.</p>
+
+<footer>Patitas Arriba · Equipo Los Huérfanos · Documento de trabajo</footer>
+</body>
+</html>

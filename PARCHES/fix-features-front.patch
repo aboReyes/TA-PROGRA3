@@ -1,0 +1,498 @@
+diff --git a/Avances-dotnet/PatitasArriba.Tests/RestServicesTests.cs b/Avances-dotnet/PatitasArriba.Tests/RestServicesTests.cs
+index cfa728e..848f36e 100644
+--- a/Avances-dotnet/PatitasArriba.Tests/RestServicesTests.cs
++++ b/Avances-dotnet/PatitasArriba.Tests/RestServicesTests.cs
+@@ -7,7 +7,7 @@ using System.Text.Json;
+ using Microsoft.Extensions.Configuration;
+ using Microsoft.Extensions.DependencyInjection;
+ using PatitasArriba.Web.Servicios;
+-using PatitasArriba.Web.Servicios.Reste;
++using PatitasArriba.Web.Servicios.Rest;
+ using PatitasArriba.Web.ViewModels;
+ 
+ namespace PatitasArriba.Tests;
+@@ -104,15 +104,22 @@ public class RestServicesTests {
+         api.Respond = (method, path, body) => {
+             Assert.That(method, Is.EqualTo("POST"));
+             Assert.That(path, Does.EndWith("/login"));
+-            Assert.That(Read<Dictionary<string, string>>(body)["nombreUsuario"], Is.EqualTo("ana"));
++            Assert.That(Read<Dictionary<string, string>>(body)["correo"], Is.EqualTo("ana@example.com"));
+             return (200, "{\"id\":10,\"idPersona\":7,\"nombreUsuario\":\"ana\",\"rol\":\"CLIENTE\",\"nombres\":\"Ana\"}");
+         };
+-        var session = await services.GetRequiredService<ICuentaService>().Login("ana", "secret");
++        var session = await services.GetRequiredService<ICuentaService>().Login("ana@example.com", "secret");
+         Assert.That(session.Id, Is.EqualTo(10));
+         Assert.That(session.IdPersona, Is.EqualTo(7));
+         Assert.That(session.Rol, Is.EqualTo(RolUsuario.CLIENTE));
+     }
+ 
++    [Test]
++    public async Task ServiceWithoutDurationReadsAsNull() {
++        api.Respond = (_, _, _) => (200, "[{\"id\":8,\"nombre\":\"Atención de emergencia\",\"precioBase\":150,\"tipo\":\"EMERGENCIA\",\"duracionEstimada\":null}]");
++        var servicios = await services.GetRequiredService<IServicioService>().FindAll();
++        Assert.That(servicios.Single().DuracionEstimada, Is.Null);
++    }
++
+     [Test]
+     public async Task DateFilterOmitsOptionalVetAndAllImplementationsResolve() {
+         api.Respond = (_, path, _) => {
+@@ -175,24 +182,30 @@ public class RestServicesTests {
+     }
+ 
+     [Test]
+-    public async Task PersonRetryReusesAccountWhenPersonValidationFails() {
+-        var accountsCreated = 0;
+-        api.Respond = (method, path, body) => {
+-            if (path.EndsWith("/cuentas") && method == "POST") {
+-                accountsCreated++;
+-                return (201, "{\"id\":20}");
+-            }
+-            if (path.EndsWith("/cuentas/20")) return (200, body);
+-            var dto = Read<PatitasArriba.Web.DTOs.ClienteDTO>(body);
+-            Assert.That(dto.Cuenta!.Id, Is.EqualTo(20));
+-            return (400, "{\"error\":\"DNI inválido\"}");
++    public async Task PersonInsertCreatesTheAccountWithOnlyTheEmail() {
++        string? method = null, path = null;
++        PatitasArriba.Web.DTOs.ClienteDTO? sent = null;
++        api.Respond = (m, p, body) => {
++            method = m;
++            path = p;
++            sent = Read<PatitasArriba.Web.DTOs.ClienteDTO>(body);
++            return (201, "{\"id\":5,\"cuenta\":{\"id\":20,\"correo\":\"ana@example.com\"}}");
+         };
+-        var client = new ClienteViewModel { NombreUsuario = "ana", Correo = "ana@example.com", Password = "secret" };
+-        var service = services.GetRequiredService<IClienteService>();
+-        Assert.ThrowsAsync<HttpRequestException>(async () => await service.Insert(client));
+-        Assert.That(client.IdCuenta, Is.EqualTo(20));
+-        Assert.ThrowsAsync<HttpRequestException>(async () => await service.Insert(client));
+-        Assert.That(accountsCreated, Is.EqualTo(1));
++        var client = new ClienteViewModel { Correo = "ana@example.com", Dni = "12345678", Nombres = "Ana" };
++        await services.GetRequiredService<IClienteService>().Insert(client);
++        Assert.That(method, Is.EqualTo("POST"));
++        Assert.That(path, Does.EndWith("/clientes/con-cuenta"));
++        Assert.That(sent!.Cuenta!.Correo, Is.EqualTo("ana@example.com"));
++        Assert.That(sent.Cuenta.Password, Is.Null);
++        Assert.That(client.Id, Is.EqualTo(5));
++    }
++
++    [Test]
++    public async Task PersonInsertPropagatesTheValidationError() {
++        api.Respond = (_, _, _) => (400, "{\"error\":\"DNI inválido\"}");
++        var client = new ClienteViewModel { Correo = "ana@example.com" };
++        Assert.ThrowsAsync<HttpRequestException>(
++            async () => await services.GetRequiredService<IClienteService>().Insert(client));
+         await Task.CompletedTask;
+     }
+ 
+diff --git a/Avances-dotnet/PatitasArriba.Web/DTOs/ServicioDTO.cs b/Avances-dotnet/PatitasArriba.Web/DTOs/ServicioDTO.cs
+index b5af59f..e1285d3 100644
+--- a/Avances-dotnet/PatitasArriba.Web/DTOs/ServicioDTO.cs
++++ b/Avances-dotnet/PatitasArriba.Web/DTOs/ServicioDTO.cs
+@@ -7,6 +7,6 @@ public class ServicioDTO {
+     public double PrecioBase { get; set; }
+     public string? Descripcion { get; set; }
+     public string? Tipo { get; set; }
+-    public int DuracionEstimada { get; set; }
++    public int? DuracionEstimada { get; set; }
+ }
+ 
+diff --git a/Avances-dotnet/PatitasArriba.Web/Program.cs b/Avances-dotnet/PatitasArriba.Web/Program.cs
+index a3b33ba..1018442 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Program.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Program.cs
+@@ -1,4 +1,4 @@
+-using PatitasArriba.Web.Servicios.Reste;
++using PatitasArriba.Web.Servicios.Rest;
+ using PatitasArriba.Web.Components;
+ using PatitasArriba.Web.Seguridad;
+ 
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/ICuentaService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/ICuentaService.cs
+index 95082b1..e0ba378 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/ICuentaService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/ICuentaService.cs
+@@ -4,6 +4,6 @@ namespace PatitasArriba.Web.Servicios;
+ 
+ public interface ICuentaService : IRegistroService<CuentaUsuarioViewModel>{
+     Task<CuentaUsuarioViewModel> FindByNombreUsuario(string NombreUsuario);
+-    Task<SesionViewModel> Login(String NombreUsuario, String Password);
++    Task<SesionViewModel> Login(string correo, string password);
+ }
+ 
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/AdministradorRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/AdministradorRestService.cs
+index 5bb1e86..6a97058 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/AdministradorRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/AdministradorRestService.cs
+@@ -2,7 +2,7 @@ using System.Net;
+ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class AdministradorRestService : RegistroRestService<AdministradorViewModel, AdministradorDTO>, IAdministradorService {
+     public AdministradorRestService(IConfiguration configuration) : base(configuration, "administradores") { }
+@@ -14,16 +14,7 @@ public class AdministradorRestService : RegistroRestService<AdministradorViewMod
+         try { return await FindOne("dni", valor); }
+         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound) { return null; }
+     }
+-    // Java requiere una cuenta existente; conservamos el id para no duplicarla si se reintenta.
+-    // Son dos solicitudes HTTP: Java no ofrece una transacción conjunta cuenta + persona.
+-    protected override async Task BeforeSave(AdministradorViewModel modelo) {
+-        var cuenta = new CuentaDTO { Id = modelo.IdCuenta, NombreUsuario = modelo.NombreUsuario,
+-            Correo = modelo.Correo, Password = modelo.Password };
+-        if (modelo.IdCuenta == 0) {
+-            var creada = await HttpUtils.DoPost<CuentaDTO, CuentaDTO>($"{BaseUrl}/cuentas", cuenta);
+-            modelo.IdCuenta = creada.Id;
+-        } else {
+-            await HttpUtils.DoPut<CuentaDTO, CuentaDTO>($"{BaseUrl}/cuentas/{modelo.IdCuenta}", cuenta);
+-        }
+-    }
++    // El administrador solo escribe el correo: Java crea la persona y su cuenta en una sola transacción (RN-AC-07)
++    // y la persona elige su contraseña con el enlace que recibe por correo. Al modificar solo viaja el id de la cuenta.
++    protected override string InsertUrl => $"{RecursoUrl}/con-cuenta";
+ }
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/ArticuloRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/ArticuloRestService.cs
+index b27eb8e..ec87a04 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/ArticuloRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/ArticuloRestService.cs
+@@ -3,7 +3,7 @@ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ using PatitasArriba.Web.Servicios.Rest;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class ArticuloRestService : RegistroRestService<ArticuloViewModel, ArticuloDTO>, IArticuloService {
+     public ArticuloRestService(IConfiguration configuration) : base(configuration, "articulos") { }
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/AtencionRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/AtencionRestService.cs
+index 6f6643d..060ae3f 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/AtencionRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/AtencionRestService.cs
+@@ -2,7 +2,7 @@ using System.Net;
+ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class AtencionRestService : RegistroRestService<AtencionViewModel, AtencionDTO>, IAtencionService {
+     public AtencionRestService(IConfiguration configuration) : base(configuration, "atenciones") { }
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/BoletaRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/BoletaRestService.cs
+index 15e4d71..014e728 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/BoletaRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/BoletaRestService.cs
+@@ -3,7 +3,7 @@ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ using PatitasArriba.Web.Servicios.Rest;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class BoletaRestService : RegistroRestService<BoletaViewModel, BoletaDTO>, IBoletaService {
+     public BoletaRestService(IConfiguration configuration) : base(configuration, "boletas") { }
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/CategoriaRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/CategoriaRestService.cs
+index a130995..bea152b 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/CategoriaRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/CategoriaRestService.cs
+@@ -3,7 +3,7 @@ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ using PatitasArriba.Web.Servicios.Rest;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class CategoriaRestService : RegistroRestService<CategoriaViewModel, CategoriaDTO>, ICategoriaService {
+     public CategoriaRestService(IConfiguration configuration) : base(configuration, "categorias") { }
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/CitaRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/CitaRestService.cs
+index 051ad68..b962166 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/CitaRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/CitaRestService.cs
+@@ -3,7 +3,7 @@ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ using PatitasArriba.Web.Servicios.Rest;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class CitaRestService : RegistroRestService<CitaViewModel, CitaDTO>, ICitaService {
+     public CitaRestService(IConfiguration configuration) : base(configuration, "citas") { }
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/ClienteRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/ClienteRestService.cs
+index c891384..8d0390d 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/ClienteRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/ClienteRestService.cs
+@@ -2,7 +2,7 @@ using System.Net;
+ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class ClienteRestService : RegistroRestService<ClienteViewModel, ClienteDTO>, IClienteService {
+     public ClienteRestService(IConfiguration configuration) : base(configuration, "clientes") { }
+@@ -11,16 +11,7 @@ public class ClienteRestService : RegistroRestService<ClienteViewModel, ClienteD
+     protected override int GetId(ClienteViewModel modelo) => modelo.Id;
+     protected override void SetId(ClienteViewModel modelo, ClienteDTO dto) => modelo.Id = dto.Id;
+     public Task<ClienteViewModel> FindByDni(string valor) => FindOne("dni", valor);
+-    // Java requiere una cuenta existente; conservamos el id para no duplicarla si se reintenta.
+-    // Son dos solicitudes HTTP: Java no ofrece una transacción conjunta cuenta + persona.
+-    protected override async Task BeforeSave(ClienteViewModel modelo) {
+-        var cuenta = new CuentaDTO { Id = modelo.IdCuenta, NombreUsuario = modelo.NombreUsuario,
+-            Correo = modelo.Correo, Password = modelo.Password };
+-        if (modelo.IdCuenta == 0) {
+-            var creada = await HttpUtils.DoPost<CuentaDTO, CuentaDTO>($"{BaseUrl}/cuentas", cuenta);
+-            modelo.IdCuenta = creada.Id;
+-        } else {
+-            await HttpUtils.DoPut<CuentaDTO, CuentaDTO>($"{BaseUrl}/cuentas/{modelo.IdCuenta}", cuenta);
+-        }
+-    }
++    // El administrador solo escribe el correo: Java crea la persona y su cuenta en una sola transacción (RN-AC-07)
++    // y la persona elige su contraseña con el enlace que recibe por correo. Al modificar solo viaja el id de la cuenta.
++    protected override string InsertUrl => $"{RecursoUrl}/con-cuenta";
+ }
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/CuentaRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/CuentaRestService.cs
+index a526bc1..60edd4a 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/CuentaRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/CuentaRestService.cs
+@@ -2,7 +2,7 @@ using System.Net;
+ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class CuentaRestService : RegistroRestService<CuentaUsuarioViewModel, CuentaDTO>, ICuentaService {
+     public CuentaRestService(IConfiguration configuration) : base(configuration, "cuentas") { }
+@@ -29,8 +29,8 @@ public class CuentaRestService : RegistroRestService<CuentaUsuarioViewModel, Cue
+         }
+         return Task.FromResult(modelo);
+     }
+-    public async Task<SesionViewModel> Login(string nombreUsuario, string password) {
+-        var dto = await HttpUtils.DoPost<object, SesionDTO>($"{BaseUrl}/login", new { nombreUsuario, password });
++    public async Task<SesionViewModel> Login(string correo, string password) {
++        var dto = await HttpUtils.DoPost<object, SesionDTO>($"{BaseUrl}/login", new { correo, password });
+         return new SesionViewModel {
+             Id = dto.Id, IdPersona = dto.IdPersona, NombreUsuario = dto.NombreUsuario ?? "",
+             Rol = RestMapper.EnumValue<RolUsuario>(dto.Rol), Nombres = dto.Nombres ?? "",
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/DiagnosticoRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/DiagnosticoRestService.cs
+index 3ad5440..69f8ecf 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/DiagnosticoRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/DiagnosticoRestService.cs
+@@ -3,7 +3,7 @@ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ using PatitasArriba.Web.Servicios.Rest;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class DiagnosticoRestService : RegistroRestService<DiagnosticoViewModel, DiagnosticoDTO>, IDiagnosticoService {
+     public DiagnosticoRestService(IConfiguration configuration) : base(configuration, "diagnosticos") { }
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/HorarioRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/HorarioRestService.cs
+index e84fd7b..6f49ab2 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/HorarioRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/HorarioRestService.cs
+@@ -3,7 +3,7 @@ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ using PatitasArriba.Web.Servicios.Rest;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class HorarioRestService : RegistroRestService<HorarioViewModel, HorarioDTO>, IHorarioService {
+     public HorarioRestService(IConfiguration configuration) : base(configuration, "horarios") { }
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/HttpUtils.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/HttpUtils.cs
+index ecc43ea..8f71e45 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/HttpUtils.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/HttpUtils.cs
+@@ -1,6 +1,6 @@
+ using System.Text.Json;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public static class HttpUtils {
+     private static readonly HttpClient http = new();
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/MascotaRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/MascotaRestService.cs
+index 8664f98..353c8ed 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/MascotaRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/MascotaRestService.cs
+@@ -3,7 +3,7 @@ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ using PatitasArriba.Web.Servicios.Rest;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class MascotaRestService : RegistroRestService<MascotaViewModel, MascotaDTO>, IMascotaService {
+     public MascotaRestService(IConfiguration configuration) : base(configuration, "mascotas") { }
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RecetaRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RecetaRestService.cs
+index ff44e3f..ca9c338 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RecetaRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RecetaRestService.cs
+@@ -2,7 +2,7 @@ using System.Net;
+ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class RecetaRestService : RegistroRestService<RecetaViewModel, RecetaDTO>, IRecetaService {
+     public RecetaRestService(IConfiguration configuration) : base(configuration, "recetas") { }
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RegistroRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RegistroRestService.cs
+index cec1dcb..39b654b 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RegistroRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RegistroRestService.cs
+@@ -1,6 +1,6 @@
+ using System.Net;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public abstract class RegistroRestService<TModel, TDto> : IRegistroService<TModel>
+     where TModel : class where TDto : class {
+@@ -21,6 +21,7 @@ public abstract class RegistroRestService<TModel, TDto> : IRegistroService<TMode
+     protected virtual Task<TModel> ConvertAsync(TDto dto) => Task.FromResult(ToViewModel(dto));
+     protected virtual Task PrepareRead() => Task.CompletedTask;
+     protected virtual Task BeforeSave(TModel modelo) => Task.CompletedTask;
++    protected virtual string InsertUrl => RecursoUrl;
+ 
+     public virtual Task<List<TModel>> FindAll() => FindList(RecursoUrl);
+     protected async Task<List<TModel>> FindList(string url) {
+@@ -45,7 +46,7 @@ public abstract class RegistroRestService<TModel, TDto> : IRegistroService<TMode
+     }
+     public virtual async Task Insert(TModel modelo) {
+         await BeforeSave(modelo);
+-        var resultado = await HttpUtils.DoPost<TDto, TDto>(RecursoUrl, ToDto(modelo));
++        var resultado = await HttpUtils.DoPost<TDto, TDto>(InsertUrl, ToDto(modelo));
+         SetId(modelo, resultado);
+     }
+     public virtual async Task Update(TModel modelo) {
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RestMapper.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RestMapper.cs
+index db6b9bd..d3a6863 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RestMapper.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RestMapper.cs
+@@ -2,7 +2,7 @@ using System.Globalization;
+ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ internal static class RestMapper {
+     internal static T EnumValue<T>(string? value) where T : struct, Enum =>
+@@ -56,7 +56,7 @@ internal static class RestMapper {
+         Nombre = m.Nombre,
+         Descripcion = m.Descripcion,
+         Tipo = m.TipoServicio.ToString(),
+-        DuracionEstimada = m.DuracionEstimada ?? 0
++        DuracionEstimada = m.DuracionEstimada
+     };
+ 
+     internal static ArticuloViewModel ToViewModel(ArticuloDTO d) => new() {
+@@ -104,7 +104,7 @@ internal static class RestMapper {
+     };
+     internal static ClienteDTO ToDto(ClienteViewModel m) => new() {
+         Id = m.Id,
+-        Cuenta = new CuentaDTO { Id = m.IdCuenta },
++        Cuenta = new CuentaDTO { Id = m.IdCuenta, Correo = m.Correo },
+         Dni = m.Dni,
+         Nombres = m.Nombres,
+         ApellidoPaterno = m.ApellidoPaterno,
+@@ -126,7 +126,7 @@ internal static class RestMapper {
+     };
+     internal static AdministradorDTO ToDto(AdministradorViewModel m) => new() {
+         Id = m.Id,
+-        Cuenta = new CuentaDTO { Id = m.IdCuenta },
++        Cuenta = new CuentaDTO { Id = m.IdCuenta, Correo = m.Correo },
+         Dni = m.Dni,
+         Nombres = m.Nombres,
+         ApellidoPaterno = m.ApellidoPaterno,
+@@ -150,7 +150,7 @@ internal static class RestMapper {
+     };
+     internal static VeterinarioDTO ToDto(VeterinarioViewModel m) => new() {
+         Id = m.Id,
+-        Cuenta = new CuentaDTO { Id = m.IdCuenta },
++        Cuenta = new CuentaDTO { Id = m.IdCuenta, Correo = m.Correo },
+         Dni = m.Dni,
+         Nombres = m.Nombres,
+         ApellidoPaterno = m.ApellidoPaterno,
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RestServicesExtensions.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RestServicesExtensions.cs
+index e30cccd..2f9bfd7 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RestServicesExtensions.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/RestServicesExtensions.cs
+@@ -1,4 +1,4 @@
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public static class RestServicesExtensions {
+     public static IServiceCollection AddPatitasRestServices(this IServiceCollection services) {
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/ServicioRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/ServicioRestService.cs
+index 292316a..c8a294f 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/ServicioRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/ServicioRestService.cs
+@@ -3,7 +3,7 @@ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ using PatitasArriba.Web.Servicios.Rest;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class ServicioRestService : RegistroRestService<ServicioViewModel, ServicioDTO>, IServicioService {
+     public ServicioRestService(IConfiguration configuration) : base(configuration, "servicios") { }
+diff --git a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/VeterinarioRestService.cs b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/VeterinarioRestService.cs
+index e1f9df8..a205bbb 100644
+--- a/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/VeterinarioRestService.cs
++++ b/Avances-dotnet/PatitasArriba.Web/Servicios/Rest/VeterinarioRestService.cs
+@@ -2,7 +2,7 @@ using System.Net;
+ using PatitasArriba.Web.DTOs;
+ using PatitasArriba.Web.ViewModels;
+ 
+-namespace PatitasArriba.Web.Servicios.Reste;
++namespace PatitasArriba.Web.Servicios.Rest;
+ 
+ public class VeterinarioRestService : RegistroRestService<VeterinarioViewModel, VeterinarioDTO>, IVeterinarioService {
+     public VeterinarioRestService(IConfiguration configuration) : base(configuration, "veterinarios") { }
+@@ -11,16 +11,7 @@ public class VeterinarioRestService : RegistroRestService<VeterinarioViewModel,
+     protected override int GetId(VeterinarioViewModel modelo) => modelo.Id;
+     protected override void SetId(VeterinarioViewModel modelo, VeterinarioDTO dto) => modelo.Id = dto.Id;
+     public Task<VeterinarioViewModel> FindByDni(string valor) => FindOne("dni", valor);
+-    // Java requiere una cuenta existente; conservamos el id para no duplicarla si se reintenta.
+-    // Son dos solicitudes HTTP: Java no ofrece una transacción conjunta cuenta + persona.
+-    protected override async Task BeforeSave(VeterinarioViewModel modelo) {
+-        var cuenta = new CuentaDTO { Id = modelo.IdCuenta, NombreUsuario = modelo.NombreUsuario,
+-            Correo = modelo.Correo, Password = modelo.Password };
+-        if (modelo.IdCuenta == 0) {
+-            var creada = await HttpUtils.DoPost<CuentaDTO, CuentaDTO>($"{BaseUrl}/cuentas", cuenta);
+-            modelo.IdCuenta = creada.Id;
+-        } else {
+-            await HttpUtils.DoPut<CuentaDTO, CuentaDTO>($"{BaseUrl}/cuentas/{modelo.IdCuenta}", cuenta);
+-        }
+-    }
++    // El administrador solo escribe el correo: Java crea la persona y su cuenta en una sola transacción (RN-AC-07)
++    // y la persona elige su contraseña con el enlace que recibe por correo. Al modificar solo viaja el id de la cuenta.
++    protected override string InsertUrl => $"{RecursoUrl}/con-cuenta";
+ }
+diff --git a/Avances/patitasarriba-rest/src/main/java/patitasarriba/rest/dto/ServicioDTO.java b/Avances/patitasarriba-rest/src/main/java/patitasarriba/rest/dto/ServicioDTO.java
+index ad55f22..16378e2 100644
+--- a/Avances/patitasarriba-rest/src/main/java/patitasarriba/rest/dto/ServicioDTO.java
++++ b/Avances/patitasarriba-rest/src/main/java/patitasarriba/rest/dto/ServicioDTO.java
+@@ -8,7 +8,7 @@ public class ServicioDTO {
+     private double precioBase;
+     private String descripcion;
+     private String tipo;
+-    private int duracionEstimada;
++    private Integer duracionEstimada;
+ 
+     public ServicioDTO() {
+     }
+diff --git a/Avances/patitasarriba-rest/src/main/java/patitasarriba/rest/mapper/DetalleCitaMapper.java b/Avances/patitasarriba-rest/src/main/java/patitasarriba/rest/mapper/DetalleCitaMapper.java
+index 3dc28e1..d769fe6 100644
+--- a/Avances/patitasarriba-rest/src/main/java/patitasarriba/rest/mapper/DetalleCitaMapper.java
++++ b/Avances/patitasarriba-rest/src/main/java/patitasarriba/rest/mapper/DetalleCitaMapper.java
+@@ -28,7 +28,6 @@ public final class DetalleCitaMapper {
+         DetalleCitaDTO dto = new DetalleCitaDTO();
+         dto.setId(detalle.getId());
+         dto.setActivo(detalle.isActivo());
+-        dto.setIdCita(detalle.getCita() != null ? detalle.getCita().getId() : 0);
+         dto.setObservaciones(detalle.getObservaciones());
+         dto.setServicio(detalle.getServicio() != null ? ServicioMapper.toDTO(detalle.getServicio()) : null);
+         dto.setVeterinario(detalle.getVeterinario() != null ? VeterinarioMapper.toDTO(detalle.getVeterinario()) : null);

@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Propuesta de pantallas · Patitas Arriba</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+
+/* Mismos colores y estilos que la aplicación (app.css, paleta C) */
+:root{--verde:#3F6B52;--verde-o:#325642;--salvia:#E3ECDD;--salvia-o:#D3E0CB;--mostaza:#F2B33D;--mostaza-o:#E0A22B;--terracota:#B5483A;--terracota-o:#983B2F;--texto:#1F2A24;--crema:#FAF6EF;--linea:#ece3d2;--suave:#6b7a70}
+*{box-sizing:border-box}
+body{margin:0;background:var(--crema);color:var(--texto);font-family:Nunito,"Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1.45}
+h1,h2,h3,h4,h5{margin:0}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--verde);font-weight:700}
+.container{max-width:1320px;margin:0 auto;padding:1.5rem 1rem 4rem}
+svg{flex:none}
+
+/* Barra superior */
+.barra{background:linear-gradient(90deg,#325642 0%,#3F6B52 60%,#4a7a5e 100%);box-shadow:0 6px 18px rgba(31,42,36,.18);padding:.55rem 1rem;position:sticky;top:0;z-index:30}
+.barra-in{max-width:1320px;margin:0 auto;display:flex;align-items:center;gap:.3rem;flex-wrap:wrap}
+.marca{display:flex;align-items:center;gap:.55rem;font-weight:800;color:#fff;margin-right:.8rem;font-size:1.1rem}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--mostaza);color:var(--verde-o);display:grid;place-items:center}
+.nl{position:relative}
+.nl>button{display:flex;align-items:center;gap:.4rem;background:none;border:0;color:rgba(255,255,255,.88);font-weight:700;border-radius:.7rem;padding:.45rem .7rem}
+.nl>button:hover,.nl.abierto>button,.nl.activo>button{color:#fff;background:rgba(255,255,255,.14)}
+.menu{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border-radius:.9rem;padding:.4rem;box-shadow:0 14px 34px rgba(31,42,36,.16);min-width:15rem;display:none}
+.nl.abierto .menu{display:block}
+.menu button{display:flex;align-items:center;gap:.55rem;width:100%;text-align:left;background:none;border:0;border-radius:.6rem;padding:.45rem .7rem;font-weight:600}
+.menu button:hover{background:var(--salvia)}
+.menu button.on{background:var(--verde);color:#fff}
+.menu button.off{opacity:.5;cursor:not-allowed}
+.menu svg{color:var(--verde);width:16px;height:16px}.menu button.on svg{color:#fff}
+.usuario{margin-left:auto;display:flex;align-items:center;gap:.55rem;color:#fff}
+.avatar-b{width:34px;height:34px;border-radius:50%;background:var(--salvia);color:var(--verde-o);display:grid;place-items:center;font-weight:800;font-size:.85rem}
+.usuario small{display:block;opacity:.75;font-size:.75rem;line-height:1}
+.notas-btn{background:var(--mostaza);color:var(--texto);border:0;border-radius:.6rem;padding:.4rem .8rem;font-weight:800;margin-left:.6rem}
+
+/* Aviso de prototipo */
+.aviso{background:#fff7e0;border:1px solid #ecd48a;border-radius:.9rem;padding:.55rem .9rem;font-size:.9rem;display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;justify-content:space-between;margin-bottom:1.2rem}
+.aviso select{border:1px solid #ddd5c6;border-radius:.6rem;padding:.2rem .5rem;background:#fff}
+
+/* Botones (paleta C) */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;border:1px solid transparent;border-radius:.6rem;padding:.375rem .85rem;font-weight:600;white-space:nowrap;text-decoration:none;line-height:1.5}
+.btn:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--texto);outline-offset:2px}
+.btn-p{background:var(--verde);border-color:var(--verde);color:#fff;box-shadow:0 3px 10px rgba(31,42,36,.10)}.btn-p:hover{background:var(--verde-o)}
+.btn-y{background:var(--mostaza);border-color:var(--mostaza);color:var(--texto);box-shadow:0 3px 10px rgba(31,42,36,.10)}.btn-y:hover{background:var(--mostaza-o);color:#fff}
+.btn-s{background:var(--salvia);border-color:#c6d6bb;color:var(--verde-o)}.btn-s:hover{background:var(--salvia-o)}
+.btn-o{background:transparent;border-color:var(--verde);color:var(--verde)}.btn-o:hover{background:var(--verde);color:#fff}
+.btn-d{background:transparent;border-color:var(--terracota);color:var(--terracota)}.btn-d:hover:not(:disabled){background:var(--terracota);color:#fff}
+.btn-ds{background:var(--terracota);border-color:var(--terracota);color:#fff}.btn-ds:hover{background:var(--terracota-o)}
+.btn-i{width:2rem;height:2rem;padding:0}
+.btn-i svg{width:16px;height:16px}
+.btn-bloq{width:2rem;height:2rem;padding:0;border:1px dashed #c5c0b5;color:#9c988e;background:transparent;border-radius:.6rem;cursor:not-allowed;opacity:.7;display:inline-flex;align-items:center;justify-content:center}
+.btn-bloq svg{width:16px;height:16px}
+
+/* Encabezado de pantalla */
+.cab{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+.cab h3{font-size:1.75rem;font-weight:800;letter-spacing:-.01em}
+.cab p{margin:.2rem 0 0;color:var(--suave)}
+
+/* Tarjetas de resumen */
+.indicadores{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem;margin-bottom:1.2rem}
+.indicador{background:#fff;border:1px solid var(--linea);border-radius:1.1rem;padding:1rem 1.2rem;box-shadow:0 6px 18px rgba(31,42,36,.06);display:flex;flex-direction:column;gap:.15rem}
+.indicador .ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:.4rem}
+.indicador .ico svg{width:20px;height:20px}
+.ind-verde .ico{background:#e3ecdd;color:var(--verde)}.ind-mostaza .ico{background:#fdf0d2;color:#a8741a}.ind-terracota .ico{background:#f6e4e0;color:var(--terracota-o)}.ind-salvia .ico{background:#eef4ea;color:var(--verde-o)}
+.indicador b{font-size:1.5rem;line-height:1.15;font-weight:800}
+.indicador span.t{color:var(--suave);font-weight:600;font-size:.9rem}
+
+/* Barra de filtros */
+.filtros{background:#fff;border:1px solid var(--linea);border-radius:1rem;padding:.6rem .7rem;box-shadow:0 4px 14px rgba(31,42,36,.04);display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-bottom:1rem}
+.filtros label{font-weight:700;color:#3d4a42;white-space:nowrap}
+.filtros input[type=search]{flex:1 1 220px;border:1px solid #ddd5c6;border-radius:.7rem;padding:.4rem .75rem;background:#fff}
+.filtros input:focus{border-color:var(--verde);box-shadow:0 0 0 .25rem rgba(63,107,82,.22);outline:0}
+.seg{display:inline-flex;border:1px solid #ddd5c6;border-radius:.7rem;overflow:hidden;margin-left:auto}
+.seg button{border:0;background:#fff;padding:.35rem .8rem;font-weight:700;display:inline-flex;align-items:center;gap:.35rem}
+.seg button.on{background:var(--verde);color:#fff}
+.seg svg{width:16px;height:16px}
+
+/* Tarjetas de personal */
+.grilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1rem}
+.card{background:#fff;border:1px solid #e6dfd1;border-radius:1rem;box-shadow:0 6px 18px rgba(31,42,36,.06)}
+.persona{display:flex;flex-direction:column;gap:.7rem;padding:1.1rem 1.2rem;border-top:4px solid var(--verde)}
+.persona.yo{border-top-color:var(--mostaza)}
+.enc{display:flex;gap:.8rem;align-items:center}
+.avatar{width:56px;height:56px;border-radius:50%;background:var(--salvia);color:var(--verde-o);border:3px solid var(--salvia-o);display:grid;place-items:center;font-weight:800;font-size:1.3rem;flex:none}
+.persona h5{font-size:1.1rem;font-weight:800;line-height:1.2}
+.etq{display:inline-flex;align-items:center;gap:.3rem;border-radius:99px;padding:.12rem .65rem;font-size:.75rem;font-weight:700;border:1px solid transparent;white-space:nowrap}
+.etq svg{width:12px;height:12px}
+.e-verde{background:var(--salvia);color:var(--verde);border-color:#bcd0b0}
+.e-solido{background:var(--verde);color:#fff}
+.e-mostaza{background:#fdf0d2;color:#7a5410;border-color:#f0d9a0}
+.e-rojo{background:#f6e4e0;color:var(--terracota-o);border-color:#e3b9b1}
+.e-gris{background:#ece9e1;color:#4a4a44}
+.datos{display:grid;gap:.25rem;font-size:.9rem}
+.datos div{display:flex;align-items:center;gap:.5rem;color:#3d4a42}
+.datos svg{width:15px;height:15px;color:var(--verde)}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.chip{background:#f4efe6;border-radius:.6rem;padding:.15rem .55rem;font-size:.8rem;font-weight:700}
+.barra-prog{height:8px;border-radius:99px;background:#ece3d2;overflow:hidden}
+.barra-prog i{display:block;height:100%;border-radius:99px;background:var(--verde)}
+.prog-t{display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:#3d4a42;margin-bottom:.25rem}
+.pie{display:flex;justify-content:space-between;align-items:center;gap:.5rem;border-top:1px dashed var(--linea);padding-top:.7rem;margin-top:auto}
+.pie .acc{display:flex;gap:.35rem}
+
+/* Tablas */
+.tabla-wrap{background:#fff;border:1px solid var(--linea);border-radius:1rem;overflow:auto;box-shadow:0 6px 18px rgba(31,42,36,.06)}
+table{width:100%;border-collapse:separate;border-spacing:0}
+th{background:#f4efe6;color:#3d4a42;font-weight:800;font-size:.9rem;text-align:left;padding:.75rem .8rem;border-bottom:1px solid #e6dfd1;white-space:nowrap}
+td{padding:.6rem .8rem;border-bottom:1px solid #f0eadf;vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:nth-child(odd) td{background:rgba(227,236,221,.35)}
+.acc-celda{display:flex;gap:.35rem}
+.nota{color:var(--suave);font-size:.9rem;display:flex;gap:.4rem;align-items:center;margin:.7rem .2rem}
+.nota svg{width:16px;height:16px;flex:none}
+.pers{display:inline-flex;align-items:center;gap:.35rem;border-radius:.6rem;padding:.15rem .6rem;font-size:.82rem;font-weight:700;margin:.1rem .2rem .1rem 0}
+.pers svg{width:13px;height:13px}
+.p-vet{background:#e3ecdd;color:var(--verde-o)}.p-adm{background:#f1ece0;color:#5b5646}
+
+/* Cuadrante semanal */
+.cuad{background:#fff;border:1px solid var(--linea);border-radius:1rem;box-shadow:0 6px 18px rgba(31,42,36,.06);overflow-x:auto}
+.cuad-grid{display:grid;grid-template-columns:56px repeat(7,minmax(150px,1fr));min-width:1100px}
+.cuad-cab{padding:.6rem .7rem;font-weight:800;background:#faf4e8;border-bottom:1px solid var(--linea);border-left:1px solid var(--linea)}
+.cuad-cab small{display:block;color:var(--suave);font-weight:600}
+.cuad-cab.hoy{background:#fdf0d2}
+.cuad-horas{position:relative}
+.cuad-hora{position:absolute;right:.45rem;font-size:.75rem;font-weight:700;color:var(--suave);transform:translateY(-50%)}
+.cuad-col{position:relative;border-left:1px solid var(--linea);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--h) - 1px),#f0eadf calc(var(--h) - 1px),#f0eadf var(--h))}
+.cuad-col.cerrado{background-color:#faf8f3}
+.cuad-vacio{position:absolute;left:0;right:0;top:50%;text-align:center;color:#b5b0a4;font-weight:700;font-size:.85rem;transform:translateY(-50%)}
+.bloque{position:absolute;left:5px;right:5px;border-radius:.8rem;padding:.4rem .55rem;text-align:left;border:1px solid transparent;overflow:hidden;font-size:.8rem;line-height:1.25;box-shadow:0 2px 6px rgba(31,42,36,.12)}
+.bloque b{display:block;font-size:.88rem}
+.bl-ok{background:var(--salvia);border-color:#bcd0b0;color:#24402f}
+.bl-adm{background:#f1ece0;border-color:#ddd5c6;color:#5b5646}
+.bl-falta{background:#fdf0d2;border:2px dashed #c9922e;color:#7a5410}
+.bloque .pp{display:flex;align-items:center;gap:.25rem;margin-top:.1rem}
+.bloque .pp svg{width:12px;height:12px}
+.leyenda{display:flex;flex-wrap:wrap;gap:1.2rem;font-weight:700;font-size:.88rem;margin:.8rem .2rem}
+.leyenda i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:.35rem}
+
+/* Notas de diseño */
+.est-ad{background:var(--verde);color:#fff}.est-adapt{background:var(--mostaza);color:var(--texto)}.est-desc{background:#ece9e1;color:#4a4a44}
+.resumen-req{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1.2rem}
+.resumen-req .card{padding:1rem 1.2rem}
+.resumen-req h5{font-weight:800;margin-bottom:.4rem}
+.resumen-req ul{margin:0;padding-left:1.1rem}
+
+/* Ventanas y avisos */
+.ov{position:fixed;inset:0;background:rgba(10,20,14,.5);display:grid;place-items:center;padding:1rem;z-index:60}
+.md{background:#fff;border-radius:1rem;padding:1.3rem 1.4rem;max-width:480px;width:100%;display:flex;flex-direction:column;gap:.9rem;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.md h4{font-size:1.2rem;font-weight:800}
+.md p{margin:0;color:#4a574f}
+.md .f{display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap}
+.campo label{display:block;font-weight:700;margin-bottom:.25rem}
+.campo input,.campo select{width:100%;border:1px solid #ddd5c6;border-radius:.7rem;padding:.4rem .7rem;background:#fff}
+.campo input.invalido,.campo select.invalido{border-color:var(--terracota);background:#fdf3f1}
+.campo:has(.invalido) label{color:var(--terracota-o)}
+.campo .err{color:var(--terracota-o);font-size:.875rem;margin-top:.2rem}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;z-index:80}
+.toast{background:var(--verde-o);color:#fff;padding:.6rem 1.1rem;border-radius:.8rem;font-weight:700;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+@media print{.barra,.aviso,.cab .btn,.filtros,.acc-celda,.pie .acc,#toast{display:none!important}.container{padding:0}}
+
+
+/* ================= Estandarización de botones (propuesta) ================= */
+.btn{height:38px;padding:0 1rem;font-size:.9rem;font-weight:700;line-height:1;border-radius:.65rem;gap:.45rem}
+.btn svg{width:16px;height:16px}
+.btn-sm{height:32px;padding:0 .75rem;font-size:.82rem;gap:.35rem}
+.btn-lg{height:46px;padding:0 1.3rem;font-size:1rem}
+.btn-i{width:32px;height:32px;padding:0}
+.btn-i.md{width:38px;height:38px}
+.nl>button{height:38px;font-size:.9rem;font-weight:700}
+.nl>button svg{width:16px;height:16px}
+
+/* ================= Navegación del prototipo ================= */
+.pestanas{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 1rem}
+.pestanas button{border:1px solid #ddd5c6;background:#fff;border-radius:99px;padding:.3rem .85rem;font-weight:700;font-size:.85rem}
+.pestanas button.on{background:var(--verde);border-color:var(--verde);color:#fff}
+.pestanas button .n{opacity:.6;margin-right:.25rem}
+.cambia{background:#fff;border:1px solid var(--linea);border-radius:1rem;padding:.7rem 1rem;margin-bottom:1.1rem;box-shadow:0 4px 14px rgba(31,42,36,.04)}
+.cambia summary{font-weight:800;cursor:pointer}
+.cambia .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:.6rem}
+.cambia h6{margin:0 0 .25rem;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--suave)}
+.cambia ul{margin:0;padding-left:1.1rem;font-size:.92rem}
+.cambia li{margin:.15rem 0}
+.tag-back{display:inline-block;border-radius:99px;padding:.05rem .55rem;font-size:.72rem;font-weight:800;margin-left:.35rem;vertical-align:1px}
+.tb-front{background:var(--salvia);color:var(--verde-o)}.tb-back{background:#fdf0d2;color:#7a5410}.tb-jp{background:#f6e4e0;color:var(--terracota-o)}
+
+/* ================= Componentes nuevos ================= */
+.av{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-weight:800;flex:none;overflow:hidden;border:3px solid rgba(255,255,255,.7);box-shadow:0 0 0 1px rgba(31,42,36,.08)}
+.av img{width:100%;height:100%;object-fit:cover;object-position:center 30%}
+.av.lg{width:68px;height:68px;font-size:1.4rem}.av.sm{width:30px;height:30px;font-size:.72rem;border-width:2px}
+.c0{background:#e3ecdd;color:#325642}.c1{background:#fdf0d2;color:#7a5410}.c2{background:#f6e4e0;color:#983B2F}.c3{background:#e4e9ef;color:#3a4a5e}.c4{background:#efe6f0;color:#5d3f63}
+.tarjeta{background:#fff;border:1px solid #e6dfd1;border-radius:1rem;box-shadow:0 6px 18px rgba(31,42,36,.06);padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.65rem;position:relative;transition:box-shadow .15s,transform .15s}
+.tarjeta.click{cursor:pointer}.tarjeta.click:hover{box-shadow:0 10px 26px rgba(31,42,36,.12);transform:translateY(-2px)}
+.tarjeta.sel{outline:2px solid var(--verde)}
+.t-enc{display:flex;gap:.75rem;align-items:center}
+.t-enc h5{font-size:1.05rem;font-weight:800;line-height:1.2}
+.t-enc small{color:var(--suave);font-weight:600}
+.fila-chips{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.etq{height:24px;line-height:1}
+.t-pie{display:flex;justify-content:space-between;align-items:center;gap:.5rem;border-top:1px dashed var(--linea);padding-top:.65rem;margin-top:auto}
+.t-pie .acc{display:flex;gap:.35rem;align-items:center}
+.mini-mascota{display:inline-flex;align-items:center;gap:.35rem;background:#f4efe6;border-radius:99px;padding:.1rem .6rem .1rem .1rem;font-size:.8rem;font-weight:700}
+.panel-lado{background:#fff;border:1px solid #e6dfd1;border-radius:1rem;box-shadow:0 6px 18px rgba(31,42,36,.06);padding:1.1rem 1.2rem;display:flex;flex-direction:column;gap:.8rem;position:sticky;top:78px}
+.dos-col{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:1rem;align-items:start}
+@media(max-width:980px){.dos-col{grid-template-columns:1fr}.panel-lado{position:static}}
+.chips-f{display:flex;flex-wrap:wrap;gap:.4rem}
+.chips-f button{border:1px solid #ddd5c6;background:#fff;border-radius:99px;padding:.28rem .8rem;font-weight:700;font-size:.85rem;display:inline-flex;gap:.35rem;align-items:center}
+.chips-f button.on{background:var(--verde);border-color:var(--verde);color:#fff}
+.chips-f button .c{opacity:.65;font-weight:600}
+.precio{font-size:1.4rem;font-weight:800;color:var(--verde-o)}
+.ico-circ{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;flex:none}
+.ico-circ svg{width:22px;height:22px}
+.k-med{background:#e3ecdd;color:#325642}.k-vac{background:#e4e9ef;color:#3a4a5e}.k-ali{background:#fdf0d2;color:#7a5410}.k-acc{background:#efe6f0;color:#5d3f63}.k-hig{background:#dff0f0;color:#215a5a}.k-eme{background:#f6e4e0;color:#983B2F}.k-ope{background:#e9e4f2;color:#43366b}.k-est{background:#fbe6ee;color:#8a3358}
+.desc{color:#4a574f;font-size:.92rem}
+.mut{color:var(--suave)}
+.fila-lista{display:flex;align-items:center;gap:.85rem;padding:.7rem 1rem;border-bottom:1px solid #f0eadf;background:#fff}
+.fila-lista:last-child{border-bottom:0}
+.lista-wrap{background:#fff;border:1px solid var(--linea);border-radius:1rem;overflow:hidden;box-shadow:0 6px 18px rgba(31,42,36,.06)}
+.fila-lista .grow{flex:1;min-width:0}
+.fila-lista .grow b{display:block}
+.letra{background:#faf4e8;color:var(--verde-o);font-weight:800;padding:.35rem 1rem;border-bottom:1px solid var(--linea);font-size:.85rem;letter-spacing:.06em}
+.stepper{display:inline-flex;align-items:center;background:#f4efe6;border-radius:.7rem;overflow:hidden}
+.stepper button{border:0;background:transparent;width:30px;height:32px;font-weight:800}
+.stepper button:hover{background:var(--salvia-o)}
+.stepper span{min-width:36px;text-align:center;font-weight:800;background:#fff;height:32px;line-height:32px}
+.nombre-art small{display:block;color:var(--suave);font-weight:600;font-size:.82rem;max-width:34ch;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-v{background:linear-gradient(120deg,#325642,#3F6B52);color:#fff;border-radius:1.2rem;padding:1.2rem 1.4rem;display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem}
+.hero-v h3{font-weight:800;font-size:1.5rem}
+.hero-v .indicador{color:var(--texto)}
+.hero-v .btns{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem}
+.btn-glass{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.28);color:#fff}.btn-glass:hover{background:rgba(255,255,255,.26)}
+.linea-t{position:relative;display:flex;flex-direction:column;gap:.9rem}
+.linea-t::before{content:"";position:absolute;left:10px;top:14px;bottom:14px;width:3px;margin-left:-1.5px;background:var(--salvia-o);border-radius:2px}
+.linea-t .it{display:grid;grid-template-columns:20px minmax(0,1fr);column-gap:.9rem;align-items:center}
+.linea-t .it::before{content:"";box-sizing:border-box;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--verde);justify-self:center;position:relative;z-index:1}
+.linea-t .it.pend::before{border-color:var(--mostaza)}
+.linea-t .it.eme::before{border-color:var(--terracota)}
+.linea-t .it.top::before{align-self:start;margin-top:21px}
+.fila-cuenta{display:grid;grid-template-columns:48px minmax(160px,1.1fr) minmax(170px,1fr) 130px auto;align-items:center;gap:.9rem;padding:.7rem 1rem;border-bottom:1px solid #f0eadf;background:#fff}
+.fila-cuenta:last-child{border-bottom:0}
+.fila-cuenta .grow b{display:block}
+.fila-cuenta.cab-c{background:#faf4e8;padding:.5rem 1rem;font-size:.78rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--suave)}
+@media(max-width:760px){.fila-cuenta{grid-template-columns:48px 1fr auto}.fila-cuenta>:nth-child(3),.fila-cuenta>:nth-child(4){grid-column:2}.fila-cuenta.cab-c{display:none}}
+.pasos{display:flex;gap:.3rem;align-items:center;flex-wrap:wrap;font-size:.78rem;font-weight:700}
+.pasos span{display:inline-flex;align-items:center;gap:.25rem;border-radius:99px;padding:.1rem .55rem;background:#ece9e1;color:#6b6b60}
+.pasos span.ok{background:var(--salvia);color:var(--verde-o)}
+.pasos span.act{background:var(--mostaza);color:var(--texto)}
+.pasos svg{width:11px;height:11px}
+.receta{background:#fffdf7;border:1px solid #e6dfd1;border-left:5px solid var(--verde);border-radius:.9rem;padding:1rem 1.1rem;box-shadow:0 6px 18px rgba(31,42,36,.06);display:flex;flex-direction:column;gap:.55rem}
+.med{display:flex;justify-content:space-between;gap:.6rem;font-size:.9rem;border-bottom:1px dotted #e0d8c6;padding:.25rem 0}
+.sw{display:inline-flex;align-items:center;gap:.5rem;font-weight:700}
+.sw i{width:42px;height:24px;border-radius:99px;background:#d9d3c6;position:relative;transition:.15s;display:inline-block}
+.sw i::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s}
+.sw.on i{background:var(--terracota)}.sw.on i::after{left:21px}
+.form-card{background:#fff;border:1px solid #e6dfd1;border-radius:1rem;padding:1.1rem 1.2rem;box-shadow:0 6px 18px rgba(31,42,36,.06)}
+.form-card.eme{border-color:#e3b9b1;box-shadow:0 0 0 3px rgba(181,72,58,.10),0 6px 18px rgba(31,42,36,.06)}
+.grid-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.8rem}
+.campo input,.campo select{height:38px}
+.campo .opc{color:var(--suave);font-weight:600;font-size:.8rem}
+.tabla-guia td,.tabla-guia th{padding:.5rem .7rem}
+.demo-fila{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.medida{font-size:.78rem;color:var(--suave);font-weight:700}
+.antes-despues{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:780px){.antes-despues{grid-template-columns:1fr}}
+.rotulo{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border-radius:6px;padding:.1rem .5rem;margin-bottom:.4rem}
+.r-antes{background:#ece9e1;color:#4a4a44}.r-ahora{background:var(--verde);color:#fff}
+.dato-inc{background:#fdf0d2;border:1px dashed #c9922e;color:#7a5410}
+</style>
+</head>
+<body>
+
+<header class="barra"><div class="barra-in" id="barra"></div></header>
+
+<main class="container">
+  <div class="aviso">
+    <span><b>Propuesta de rediseño (prototipo).</b> Los datos son de ejemplo y no se guarda nada. Cada pestaña muestra una pantalla y, desplegando <i>"Qué cambia"</i>, el antes y el ahora.</span>
+    <label>Ver como: <select id="rol"><option value="admin">Administrador</option><option value="vet">Veterinario</option></select></label>
+  </div>
+  <div class="pestanas" id="pestanas" role="tablist"></div>
+  <section id="app"></section>
+</main>
+<div id="modal"></div>
+<div id="toast"></div>
+
+<script>
+var $ = function (s) { return document.querySelector(s); };
+function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+var IC = {
+  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  trash: '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  cal: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6M18 14.3c1.8.8 3 2.6 3 5.7"/>',
+  phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+  lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  steto: '<path d="M5 3v6a5 5 0 0 0 10 0V3"/><path d="M10 14v2a4 4 0 0 0 8 0v-3"/><circle cx="18" cy="11" r="2"/>',
+  id: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.5-1.5 1.7-2 3-2s2.5.5 3 2M15 10h3M15 14h3"/>',
+  print: '<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="9" rx="2"/><path d="M6 14h12v7H6z"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  chev: '<path d="M6 9l6 6 6-6"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  alert: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
+  paw: '<ellipse cx="12" cy="16" rx="4.5" ry="3.8"/><ellipse cx="5.8" cy="10.5" rx="1.8" ry="2.4"/><ellipse cx="9.4" cy="6.2" rx="1.8" ry="2.4"/><ellipse cx="14.6" cy="6.2" rx="1.8" ry="2.4"/><ellipse cx="18.2" cy="10.5" rx="1.8" ry="2.4"/>',
+  eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  ban: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
+  zap: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  pill: '<rect x="2.5" y="8.5" width="19" height="7" rx="3.5" transform="rotate(-35 12 12)"/><path d="M9 8.5l6 7"/>',
+  syringe: '<path d="M18 2l4 4M15.5 4.5l4 4M14 6l4 4-8.5 8.5-4-4z"/><path d="M5.5 14.5L2 18M9 11l4 4"/>',
+  bowl: '<path d="M3 12h18a9 9 0 0 1-18 0z"/><path d="M8 8c0-2 2-2 2-4M13 8c0-2 2-2 2-4"/>',
+  tag: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1"/>',
+  sparkle: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>',
+  camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+  file: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
+  clip: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12h6M9 16h4"/>',
+  wallet: '<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2"/>',
+  scalpel: '<path d="M3 21l9-9"/><path d="M12 12l7-7a2.8 2.8 0 0 1 2 2l-5 5z"/>',
+  home: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+  box: '<path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/>',
+  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'
+};
+function ic(n, z) { z = z || 16; return '<svg aria-hidden="true" width="' + z + '" height="' + z + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + IC[n] + '</svg>'; }
+function ini(n) { var p = n.split(' '); return (p[0][0] + (p[1] ? p[1][0] : '')).toUpperCase(); }
+function col(n) { var h = 0; for (var i = 0; i < n.length; i++) h += n.charCodeAt(i); return 'c' + (h % 5); }
+function fotoFalla(img, texto) { img.parentNode.innerHTML = texto ? esc(texto) : ic('paw', 24); }
+function av(n, cl, foto) { return '<span class="av ' + (cl || '') + ' ' + col(n) + '">' + (foto ? '<img src="' + foto + '" alt="" onerror="fotoFalla(this, ini(\'' + esc(n) + '\'))">' : esc(ini(n))) + '</span>'; }
+function toast(t) { var e = $('#toast'); e.innerHTML = '<div class="toast" role="status">' + esc(t) + '</div>'; clearTimeout(toast.t); toast.t = setTimeout(function () { e.innerHTML = ''; }, 3200); }
+var IMG = '../PROYECTO-FRONT/PatitasArriba.Web/wwwroot/img/mascotas/';
+
+/* ----------------------------- Datos de ejemplo ----------------------------- */
+var CLIENTES = [
+  { id: 1, n: 'Ana Torres Quispe', dni: '45879632', t: '987654321', c: 'ana.torres@gmail.com', m: ['Firulais', 'Michi'] },
+  { id: 2, n: 'Luis Ramírez Paredes', dni: '41236598', t: '912345678', c: 'luis.ramirez@hotmail.com', m: ['Rocky'] },
+  { id: 3, n: 'María Fernanda Salas Cáceres', dni: '70214563', t: '956321478', c: 'mfsalas@gmail.com', m: ['Luna'] },
+  { id: 4, n: 'Jorge Huamán Rojas', dni: '46987123', t: '998877665', c: 'jorge.huaman@gmail.com', m: ['Max', 'Canela'] },
+  { id: 5, n: 'Rosa Mendoza Vílchez', dni: '43219876', t: '944556677', c: 'rosa.mendoza@outlook.com', m: [] }
+];
+var MASCOTAS = [
+  { n: 'Firulais', tipo: 'Perro', raza: 'Mestizo', sexo: 'Macho', peso: 12.5, nac: '14/03/2021', edad: '5 años', dueno: 'Ana Torres Quispe', foto: IMG + 'firulais.webp' },
+  { n: 'Michi', tipo: 'Gato', raza: 'Siamés', sexo: 'Hembra', peso: 4.2, nac: '02/07/2022', edad: '4 años', dueno: 'Ana Torres Quispe', foto: IMG + 'michi.webp' },
+  { n: 'Rocky', tipo: 'Perro', raza: 'Labrador', sexo: 'Macho', peso: 28.0, nac: '20/11/2019', edad: '7 años', dueno: 'Luis Ramírez Paredes' },
+  { n: 'Luna', tipo: 'Gato', raza: 'Persa', sexo: 'Hembra', peso: 3.8, nac: '09/01/2023', edad: '3 años', dueno: 'María Fernanda Salas Cáceres' },
+  { n: 'Max', tipo: 'Perro', raza: 'Schnauzer', sexo: 'Macho', peso: 9.1, nac: '30/05/2020', edad: '6 años', dueno: 'Jorge Huamán Rojas' },
+  { n: 'Canela', tipo: 'Perro', raza: 'Shih Tzu', sexo: 'Hembra', peso: 6.4, nac: '18/09/2022', edad: '4 años', dueno: 'Jorge Huamán Rojas' }
+];
+var SERVICIOS = [
+  { n: 'Consulta general', k: 'cons', d: 'Evaluación clínica general de la mascota', min: 30, p: 60 },
+  { n: 'Vacuna antirrábica', k: 'vac', d: 'Aplicación de la vacuna contra la rabia', min: 15, p: 50 },
+  { n: 'Vacuna quíntuple', k: 'vac', d: 'Vacuna contra moquillo, parvovirus, hepatitis, parainfluenza y leptospira', min: 15, p: 70 },
+  { n: 'Baño y corte', k: 'est', d: 'Baño medicado, corte de pelo y de uñas', min: 60, p: 45 },
+  { n: 'Esterilización', k: 'ope', d: 'Cirugía de esterilización con anestesia general', min: 120, p: 350 },
+  { n: 'Atención de emergencia', k: 'eme', d: 'Atención inmediata de casos urgentes', min: 45, p: 120 },
+  { n: 'Limpieza dental', k: 'ope', d: 'Profilaxis dental con ultrasonido', min: 60, p: 180 }
+];
+var TIPOS = { cons: ['Consulta médica', 'steto', 'k-med'], vac: ['Vacunación', 'syringe', 'k-vac'], est: ['Estética', 'sparkle', 'k-est'], ope: ['Operación', 'scalpel', 'k-ope'], eme: ['Emergencia', 'zap', 'k-eme'] };
+var DIAGS = [
+  ['Dermatitis alérgica', 'Inflamación de la piel por alergia', 3], ['Deshidratación', 'Pérdida de líquidos y electrolitos', 1], ['Gastroenteritis', 'Inflamación del estómago e intestino con vómitos o diarrea', 2],
+  ['Intoxicación alimentaria', 'Ingesta de alimento o sustancia tóxica', 0], ['Otitis externa', 'Infección o inflamación del conducto auditivo externo', 1], ['Traqueobronquitis infecciosa', 'Tos de las perreras: infección respiratoria contagiosa', 1]
+];
+var ARTS = [
+  { n: 'Amoxicilina 250 mg', d: 'Antibiótico de amplio espectro', c: ['Medicamentos'], p: 2.5, s: 38, m: 10 },
+  { n: 'Vacuna antirrábica (dosis)', d: 'Dosis individual, cadena de frío', c: ['Vacunas'], p: 35, s: 12, m: 5 },
+  { n: 'Desparasitante Drontal', d: 'Antiparasitario interno', c: ['Medicamentos'], p: 10, s: 4, m: 10 },
+  { n: 'Shampoo antipulgas', d: 'Uso externo, 250 ml', c: ['Higiene'], p: 25, s: 15, m: 5 },
+  { n: 'Collar antipulgas', d: 'Protección por 8 meses', c: ['Accesorios', 'Higiene'], p: 30, s: 3, m: 5 },
+  { n: 'Alimento Pro Plan 3 kg', d: 'Alimento balanceado adulto', c: ['Alimentos'], p: 89.9, s: 20, m: 5 },
+  { n: 'Meloxicam 1.5 mg/ml', d: 'Antiinflamatorio', c: ['Medicamentos'], p: 18.5, s: 9, m: 5 },
+  { n: 'Algodón 100 g', d: 'Uso clínico', c: ['Higiene'], p: 4, s: 50, m: 10 }
+];
+var CATS = [
+  ['Medicamentos', 'Fármacos de uso veterinario', 'pill', 'k-med', 3], ['Vacunas', 'Vacunas para perros y gatos', 'syringe', 'k-vac', 1], ['Alimentos', 'Alimento balanceado y snacks', 'bowl', 'k-ali', 1],
+  ['Accesorios', 'Collares, correas, juguetes y camas', 'tag', 'k-acc', 1], ['Higiene', 'Shampoos, algodón y productos de limpieza', 'sparkle', 'k-hig', 3]
+];
+var VETS = [
+  { n: 'Carla Vega Soto', cmvp: 'CMVP-04521', dni: '40125896', t: '987112233', c: 'carla.vega@patasarriba.pe', h: ['Lun 08:00 - 14:00', 'Mié 08:00 - 14:00'], hoy: [1, 3] },
+  { n: 'Miguel Ángel Castro Ruiz', cmvp: 'CMVP-03987', dni: '42563187', t: '965443322', c: 'miguel.castro@patasarriba.pe', h: ['Lun 14:00 - 20:00', 'Mié 08:00 - 14:00'], hoy: [1, 1] },
+  { n: 'Patricia León Flores', cmvp: 'CMVP-05210', dni: '47896541', t: '954778899', c: 'patricia.leon@patasarriba.pe', h: ['Mar 08:00 - 14:00', 'Sáb 09:00 - 13:00'], hoy: [0, 0] }
+];
+var CUENTAS = [
+  ['diego.lopez', 'diego.lopez@patasarriba.pe', 'Administrador', 'Diego López Reyes', true], ['gabriela.rios', 'gabriela.rios@patasarriba.pe', 'Administrador', 'Gabriela Ríos Campos'],
+  ['carla.vega', 'carla.vega@patasarriba.pe', 'Veterinario', 'Carla Vega Soto'], ['miguel.castro', 'miguel.castro@patasarriba.pe', 'Veterinario', 'Miguel Ángel Castro Ruiz'],
+  ['patricia.leon', 'patricia.leon@patasarriba.pe', 'Veterinario', 'Patricia León Flores'], ['ana.torres', 'ana.torres@gmail.com', 'Cliente', 'Ana Torres Quispe'],
+  ['luis.ramirez', 'luis.ramirez@hotmail.com', 'Cliente', 'Luis Ramírez Paredes'], ['maria.salas', 'mfsalas@gmail.com', 'Cliente', 'María Fernanda Salas Cáceres']
+];
+var BOLETAS = [
+  ['B001-000125', '10/11/2026 12:30', 'Jorge Huamán Rojas', 50.0, 'Anulada'], ['B001-000124', '11/11/2026 08:45', 'Luis Ramírez Paredes', 89.9, 'Emitida'],
+  ['B001-000123', '04/11/2026 10:48', 'Ana Torres Quispe', 103.5, 'Emitida'], ['B001-000122', '12/10/2026 18:00', 'Ana Torres Quispe', 145.0, 'Emitida'], ['B001-000121', '01/11/2026 11:18', 'Jorge Huamán Rojas', 30.0, 'Emitida']
+];
+var HIST = {
+  Rocky: [{ f: '11/11/2026 10:45', s: 'Baño y corte', v: 'Miguel Ángel Castro Ruiz', o: 'Pelaje con nudos y pulgas. Se usó shampoo antipulgas.', d: [], i: [['Shampoo antipulgas', 1, true]] }],
+  Firulais: [
+    { f: '11/11/2026 09:00', s: 'Consulta general', v: 'Carla Vega Soto', o: 'Control de rutina. Buen estado general.', d: [], i: [] },
+    { f: '12/10/2026 17:00', s: 'Vacuna antirrábica', v: 'Carla Vega Soto', o: 'Aplicada sin reacción adversa.', d: [], i: [['Vacuna antirrábica (dosis)', 1, true]] }],
+  Michi: [{ f: '04/11/2026 10:00', s: 'Consulta general', v: 'Patricia León Flores', o: 'Estornudos frecuentes. Se indica observación.', d: [['Dermatitis alérgica', 'Leve']], i: [['Algodón 100 g', 1, false]] }]
+};
+
+/* ------------------------------- Estado ------------------------------- */
+var VISTAS = [
+  ['guia', 'Botones y menú'], ['clientes', 'Clientes'], ['mascotas', 'Mascotas'], ['emergencia', 'Emergencia'], ['servicios', 'Servicios'], ['diagnosticos', 'Diagnósticos'],
+  ['inventario', 'Inventario'], ['categorias', 'Categorías'], ['personal', 'Veterinarios'], ['cuentas', 'Cuentas'], ['boletas', 'Boletas'], ['historial', 'Historial clínico'], ['vet', 'Veterinario'], ['resumen', 'Resumen']
+];
+var S = { vista: 'guia', rol: 'admin', cli: { modo: 'tarjetas', sel: 1, q: '' }, mas: { modo: 'tarjetas', f: 'Todas' }, eme: { on: true }, srv: { f: 'Todos' }, dg: { q: '' }, inv: { f: 'Todas', bajo: false, q: '' },
+  per: { fotos: false }, cue: { f: 'Todos' }, hist: { q: '', sel: 'Rocky' }, vv: { tab: 'inicio' } };
+var NAV = {
+  admin: [['Clientes', 'users'], ['Citas', 'cal'], ['Catálogos', 'tag'], ['Inventario', 'box'], ['Personal', 'user'], ['Caja', 'wallet'], ['Reportes', 'chart']],
+  vet: [['Inicio', 'home'], ['Mi agenda', 'cal'], ['Atenciones', 'steto'], ['Recetas', 'file'], ['Reportes', 'chart']]
+};
+
+function barra() {
+  var user = S.rol === 'admin' ? ['Diego López', 'Administrador', 'DL'] : ['Carla Vega', 'Veterinaria', 'CV'];
+  $('#barra').innerHTML = '<div class="marca"><span class="logo">' + ic('paw', 20) + '</span>Patitas Arriba</div>' +
+    NAV[S.rol].map(function (x, i) { return '<div class="nl' + (i === 0 ? ' activo' : '') + '"><button type="button">' + ic(x[1]) + x[0] + (S.rol === 'admin' && x[0] !== 'Caja' && x[0] !== 'Reportes' ? ic('chev', 14) : '') + '</button></div>'; }).join('') +
+    '<div class="usuario"><span class="avatar-b">' + user[2] + '</span><div><b style="font-size:.9rem">' + user[0] + '</b><small>' + user[1] + '</small></div></div>';
+}
+function pestanas() {
+  $('#pestanas').innerHTML = VISTAS.map(function (v, i) { return '<button role="tab" data-a="vista" data-v="' + v[0] + '" class="' + (S.vista === v[0] ? 'on' : '') + '"><span class="n">' + (i + 1) + '</span>' + v[1] + '</button>'; }).join('');
+}
+function cambia(antes, ahora, back) {
+  return '<details class="cambia" open><summary>Qué cambia ' + (back || '') + '</summary><div class="cols"><div><h6>Antes</h6><ul>' + antes.map(function (a) { return '<li>' + a + '</li>'; }).join('') + '</ul></div><div><h6>Propuesta</h6><ul>' + ahora.map(function (a) { return '<li>' + a + '</li>'; }).join('') + '</ul></div></div></details>';
+}
+var TF = '<span class="tag-back tb-front">solo front</span>', TB = '<span class="tag-back tb-back">toca el backend</span>', TJ = '<span class="tag-back tb-jp">requiere aprobación del JP</span>';
+function cab(t, sub, accion) { return '<div class="cab"><div><h3>' + t + '</h3>' + (sub ? '<p>' + sub + '</p>' : '') + '</div>' + (accion || '') + '</div>'; }
+function btnNuevo(t) { return '<button class="btn btn-y" data-a="toast" data-t="Aquí se abre el formulario de alta">' + ic('plus') + t + '</button>'; }
+function acc(t) { return '<button class="btn btn-o btn-i" title="Editar" aria-label="Editar" data-a="toast" data-t="Editar">' + ic('edit') + '</button><button class="btn btn-d btn-i" title="Eliminar" aria-label="Eliminar" data-a="eliminar">' + ic('trash') + '</button>'; }
+function modo(m, a) { return '<div class="seg"><button class="' + (m === 'tarjetas' ? 'on' : '') + '" data-a="' + a + '" data-m="tarjetas">' + ic('grid') + 'Tarjetas</button><button class="' + (m === 'tabla' ? 'on' : '') + '" data-a="' + a + '" data-m="tabla">' + ic('list') + 'Tabla</button></div>'; }
+function filtro(label, id, ph, val, extra) { return '<div class="filtros"><label for="' + id + '">' + label + '</label><input type="search" id="' + id + '" placeholder="' + ph + '" value="' + esc(val || '') + '"><button class="btn btn-p" data-a="filtrar">' + ic('search') + 'Filtrar</button><button class="btn btn-s" data-a="limpiar">Limpiar</button>' + (extra || '') + '</div>'; }
+
+/* ------------------------------- 1. Botones y menú ------------------------------- */
+function vGuia() {
+  var b = function (c, t, i, sz) { return '<button class="btn ' + c + ' ' + (sz || '') + '">' + (i ? ic(i) : '') + t + '</button>'; };
+  return cab('Botones y menú', 'Estandarizar significa: misma tipografía, mismo alto y mismo radio en toda la aplicación. Solo cambia el color según la acción.') +
+    cambia(['Los accesos rápidos del inicio mezclan un botón relleno con otros translúcidos, con distinto peso de letra.', '"Aprobar" y "Rechazar" no miden lo mismo que "Nueva boleta".', 'El menú superior usa otro tamaño de letra que los botones.'],
+      ['Una sola escala de tamaños (S, M, L) y una sola tipografía: Nunito 700.', 'Cada pantalla tiene un solo botón mostaza (la acción principal).', 'Iconos siempre de 16 px; solo-icono para Ver, Editar, Eliminar.'], TF) +
+    '<div class="card" style="padding:1rem 1.2rem;margin-bottom:1rem"><h5 style="font-weight:800;margin-bottom:.6rem">La regla (qué cuenta para estar estandarizado)</h5>' +
+    '<div class="tabla-wrap"><table class="tabla-guia"><thead><tr><th>Propiedad</th><th>Valor único</th><th>Ejemplo</th></tr></thead><tbody>' +
+    '<tr><td><b>Tipografía</b></td><td>Nunito, 700, minúscula normal</td><td>«Nueva cita»</td></tr>' +
+    '<tr><td><b>Tamaño de letra</b></td><td>S 13 px · M 14,5 px · L 16 px</td><td class="demo-fila">' + b('btn-p', 'Aprobar', 'check', 'btn-sm') + b('btn-p', 'Filtrar', 'search') + b('btn-y', 'Reservar cita', 'plus', 'btn-lg') + '</td></tr>' +
+    '<tr><td><b>Alto</b></td><td>S 32 · M 38 · L 46 px (L solo para la acción principal del inicio)</td><td class="medida">32 / 38 / 46 px</td></tr>' +
+    '<tr><td><b>Radio y borde</b></td><td>10 px, borde de 1 px</td><td class="demo-fila">' + b('btn-o', 'Cancelar') + b('btn-s', 'Limpiar') + '</td></tr>' +
+    '<tr><td><b>Color = significado</b></td><td>Verde: acción · Mostaza: crear (1 por pantalla) · Salvia: neutral · Terracota: peligro</td><td class="demo-fila">' + b('btn-p', 'Guardar', 'check') + b('btn-y', 'Nuevo', 'plus') + b('btn-s', 'Limpiar') + b('btn-d', 'Anular', 'ban') + '</td></tr>' +
+    '<tr><td><b>Solo icono</b></td><td>32 × 32 px, con <i>tooltip</i> y etiqueta para lector de pantalla</td><td class="demo-fila"><button class="btn btn-o btn-i">' + ic('eye') + '</button><button class="btn btn-o btn-i">' + ic('edit') + '</button><button class="btn btn-d btn-i">' + ic('trash') + '</button></td></tr>' +
+    '</tbody></table></div></div>' +
+    '<div class="antes-despues"><div><span class="rotulo r-antes">Antes</span><div class="hero-v" style="margin:0"><div><h3 style="font-size:1.2rem">Accesos rápidos</h3><div class="btns"><button class="btn btn-y" style="height:36px;font-weight:600">' + ic('plus') + 'Nueva cita</button><button class="btn btn-glass" style="height:34px;font-weight:400;font-size:.85rem">' + ic('users') + 'Nuevo cliente</button><button class="btn btn-glass" style="height:40px;font-weight:500">' + ic('paw') + 'Nueva mascota</button></div></div></div></div>' +
+    '<div><span class="rotulo r-ahora">Propuesta</span><div class="hero-v" style="margin:0"><div><h3 style="font-size:1.2rem">Accesos rápidos</h3><div class="btns"><button class="btn btn-y">' + ic('plus') + 'Nueva cita</button><button class="btn btn-glass">' + ic('users') + 'Nuevo cliente</button><button class="btn btn-glass">' + ic('paw') + 'Nueva mascota</button><button class="btn btn-glass">' + ic('cal') + 'Agenda diaria</button></div></div></div></div></div>' +
+    '<h5 style="font-weight:800;margin:1.2rem 0 .5rem">Citas por aprobar (misma altura en todos los botones)</h5><div class="card" style="padding:.8rem 1rem;display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;justify-content:space-between"><div><b>Max · Esterilización</b><div class="mut" style="font-size:.88rem">Mañana 16:00 · Jorge Huamán Rojas</div></div><div class="demo-fila"><button class="btn btn-p btn-sm">' + ic('check') + 'Aprobar</button><button class="btn btn-d btn-sm">' + ic('trash').replace('trash', '') + 'Rechazar</button></div></div>';
+}
+
+/* ------------------------------- 2. Clientes ------------------------------- */
+function clientesFiltrados() { var q = S.cli.q.toLowerCase(); return CLIENTES.filter(function (c) { return !q || c.n.toLowerCase().indexOf(q) > -1 || c.dni.indexOf(q) > -1; }); }
+function tarjetaCli(c) {
+  return '<article class="tarjeta click ' + (S.cli.sel === c.id ? 'sel' : '') + '" data-a="selcli" data-id="' + c.id + '"><div class="t-enc">' + av(c.n) + '<div><h5>' + esc(c.n) + '</h5><div class="fila-chips"><span class="etq e-gris">DNI ' + c.dni + '</span></div></div></div>' +
+    '<div class="datos"><div>' + ic('phone', 15) + c.t + '</div><div>' + ic('mail', 15) + esc(c.c) + '</div></div>' +
+    '<div class="fila-chips">' + (c.m.length ? c.m.map(function (m) { var mm = MASCOTAS.filter(function (x) { return x.n === m; })[0]; return '<span class="mini-mascota">' + av(m, 'sm', mm && mm.foto) + m + '</span>'; }).join('') : '<span class="mut" style="font-size:.85rem">Sin mascotas registradas</span>') + '</div>' +
+    '<div class="t-pie"><button class="btn btn-s btn-sm" data-a="selcli" data-id="' + c.id + '">' + ic('eye') + 'Ver ficha</button><div class="acc">' + acc() + '</div></div></article>';
+}
+function fichaCli() {
+  var c = CLIENTES.filter(function (x) { return x.id === S.cli.sel; })[0]; if (!c) return '<div class="panel-lado"><p class="mut">Seleccione un cliente para ver su ficha.</p></div>';
+  return '<aside class="panel-lado"><div class="t-enc">' + av(c.n, 'lg') + '<div><h5 style="font-size:1.2rem;font-weight:800">' + esc(c.n) + '</h5><span class="etq e-verde">Cliente activo</span></div></div>' +
+    '<div class="datos"><div>' + ic('id', 15) + 'DNI ' + c.dni + '</div><div>' + ic('phone', 15) + c.t + '</div><div>' + ic('mail', 15) + esc(c.c) + '</div></div>' +
+    '<div><b>Mascotas (' + c.m.length + ')</b><div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.4rem">' + (c.m.length ? c.m.map(function (m) { var mm = MASCOTAS.filter(function (x) { return x.n === m; })[0]; return '<div class="fila-lista" style="border:1px solid #f0eadf;border-radius:.8rem;padding:.4rem .6rem">' + av(m, 'sm', mm && mm.foto) + '<div class="grow"><b>' + m + '</b><span class="mut" style="font-size:.82rem">' + mm.tipo + ' · ' + mm.raza + '</span></div><button class="btn btn-s btn-sm" data-a="toast" data-t="Abre el historial clínico de ' + m + '">Historial</button></div>'; }).join('') : '<p class="mut" style="margin:.2rem 0">Todavía no tiene mascotas.</p>') + '</div></div>' +
+    '<div class="demo-fila"><button class="btn btn-y" data-a="toast" data-t="Abre Nueva cita con este cliente">' + ic('plus') + 'Nueva cita</button><button class="btn btn-s" data-a="toast" data-t="Abre Nueva mascota con este dueño">' + ic('paw') + 'Nueva mascota</button></div></aside>';
+}
+function vClientes() {
+  var l = clientesFiltrados();
+  var cuerpo = S.cli.modo === 'tarjetas'
+    ? '<div class="grilla" style="grid-template-columns:repeat(auto-fill,minmax(270px,1fr))">' + l.map(tarjetaCli).join('') + '</div>'
+    : '<div class="tabla-wrap"><table><thead><tr><th>DNI</th><th>Nombre completo</th><th>Teléfono</th><th>Mascotas</th><th>Acciones</th></tr></thead><tbody>' + l.map(function (c) { return '<tr><td>' + c.dni + '</td><td><b>' + esc(c.n) + '</b></td><td>' + c.t + '</td><td>' + (c.m.join(', ') || '—') + '</td><td><div class="acc-celda"><button class="btn btn-o btn-i" data-a="selcli" data-id="' + c.id + '" title="Ver" aria-label="Ver">' + ic('eye') + '</button>' + acc() + '</div></td></tr>'; }).join('') + '</tbody></table></div>';
+  return cab('Clientes', '', btnNuevo('Nuevo cliente')) +
+    cambia(['Tabla simple y un panel vacío: «Seleccione un cliente…».', 'Para saber cuántas mascotas tiene hay que abrirlo.'], ['Tarjetas con avatar, DNI, contacto y las <b>mascotas como mini-chips</b> (con su foto).', 'La ficha del lado se llena al elegir un cliente: datos, mascotas y accesos «Nueva cita» / «Nueva mascota».', 'La tabla sigue disponible con el interruptor (igual que en Personal).'], TF) +
+    filtro('DNI o nombre:', 'q-cli', 'Ingrese el DNI o el nombre…', S.cli.q, modo(S.cli.modo, 'modo-cli')) +
+    '<div class="dos-col"><div>' + (l.length ? cuerpo : '<div class="aviso">No se encontraron clientes.</div>') + '</div>' + fichaCli() + '</div>';
+}
+
+/* ------------------------------- 3. Mascotas ------------------------------- */
+function mascotasFiltradas() { return MASCOTAS.filter(function (m) { return S.mas.f === 'Todas' || m.tipo + 's' === S.mas.f; }); }
+function fotoMascota(m, cl) { return m.foto ? '<span class="av ' + cl + ' ' + col(m.n) + '"><img src="' + m.foto + '" alt="Foto de ' + m.n + '" onerror="fotoFalla(this)"></span>' : '<span class="av ' + cl + ' ' + col(m.n) + '">' + ic('paw', cl === 'lg' ? 30 : 22) + '</span>'; }
+function tarjetaMas(m) {
+  return '<article class="tarjeta"><div class="t-enc">' + fotoMascota(m, 'lg') + '<div><h5 style="font-size:1.15rem">' + m.n + '</h5><small>' + m.tipo + ' · ' + m.raza + '</small></div></div>' +
+    '<div class="fila-chips"><span class="etq ' + (m.sexo === 'Macho' ? 'e-verde' : 'e-mostaza') + '">' + m.sexo + '</span><span class="etq e-gris">' + m.edad + '</span><span class="etq e-gris">' + m.peso.toFixed(1) + ' kg</span></div>' +
+    '<div class="datos"><div>' + ic('user', 15) + esc(m.dueno) + '</div><div>' + ic('cal', 15) + 'Nació el ' + m.nac + '</div></div>' +
+    '<div class="t-pie"><button class="btn btn-s btn-sm" data-a="toast" data-t="Abre el historial clínico de ' + m.n + '">' + ic('clip') + 'Historial</button><div class="acc">' + acc() + '</div></div></article>';
+}
+function vMascotas() {
+  var l = mascotasFiltradas();
+  var cuerpo = S.mas.modo === 'tarjetas' ? '<div class="grilla" style="grid-template-columns:repeat(auto-fill,minmax(285px,1fr))">' + l.map(tarjetaMas).join('') + '</div>'
+    : '<div class="tabla-wrap"><table><thead><tr><th></th><th>Nombre</th><th>Tipo</th><th>Raza</th><th>Sexo</th><th style="text-align:right">Peso (kg)</th><th>Dueño</th><th>Acciones</th></tr></thead><tbody>' + l.map(function (m) { return '<tr><td>' + fotoMascota(m, 'sm') + '</td><td><b>' + m.n + '</b></td><td>' + m.tipo + '</td><td>' + m.raza + '</td><td>' + m.sexo + '</td><td style="text-align:right">' + m.peso.toFixed(1) + '</td><td>' + esc(m.dueno) + '</td><td><div class="acc-celda"><button class="btn btn-s btn-sm" data-a="toast" data-t="Historial">Historial</button>' + acc() + '</div></td></tr>'; }).join('') + '</tbody></table></div>';
+  var n = function (t) { return MASCOTAS.filter(function (m) { return t === 'Todas' || m.tipo + 's' === t; }).length; };
+  return cab('Mascotas', '', btnNuevo('Nueva mascota')) +
+    cambia(['Tabla con 8 columnas y botón «Historial» ancho en cada fila.', 'No se ve la foto aunque la mascota la tenga.'], ['Tarjeta con <b>foto grande</b> (o el icono de patita con un color si no tiene foto), chips de sexo, edad y peso, y el dueño.', 'Filtros rápidos por tipo con contador: Perros · Gatos.', 'Los botones comparten alto y el «Historial» pasa a tamaño S.'], TF) +
+    filtro('Mascota o dueño:', 'q-mas', 'Ingrese el nombre de la mascota o del dueño…', '', modo(S.mas.modo, 'modo-mas')) +
+    '<div class="chips-f" style="margin-bottom:1rem">' + ['Todas', 'Perros', 'Gatos'].map(function (t) { return '<button class="' + (S.mas.f === t ? 'on' : '') + '" data-a="f-mas" data-f="' + t + '">' + t + ' <span class="c">' + n(t) + '</span></button>'; }).join('') + '</div>' + cuerpo;
+}
+
+/* ------------------------------- 4. Emergencia ------------------------------- */
+function vEmergencia() {
+  var e = S.eme.on;
+  var cliente = e
+    ? '<div class="form-card eme"><h5 style="font-weight:800;margin-bottom:.2rem">2 · Contacto mínimo <span class="etq e-rojo">Emergencia</span></h5><p class="mut" style="margin:0 0 .7rem;font-size:.9rem">Solo lo imprescindible para poder avisar. Los datos completos del dueño se terminan de llenar después de la atención.</p>' +
+      '<div class="grid-form"><div class="campo"><label>Teléfono de contacto</label><input placeholder="9 dígitos"></div><div class="campo"><label>Nombre de quien trae a la mascota <span class="opc">(opcional)</span></label><input placeholder="Nombre"></div><div class="campo"><label>DNI <span class="opc">(se completa después)</span></label><input placeholder="8 dígitos"></div></div></div>'
+    : '<div class="form-card"><h5 style="font-weight:800;margin-bottom:.6rem">2 · Cliente</h5><div class="grid-form"><div class="campo"><label>DNI</label><input placeholder="8 dígitos"></div><div class="campo"><label>Nombres</label><input></div><div class="campo"><label>Apellido paterno</label><input></div><div class="campo"><label>Apellido materno</label><input></div><div class="campo"><label>Teléfono</label><input></div><div class="campo"><label>Correo (para su cuenta)</label><input></div></div></div>';
+  return cab('Nueva cita', 'Registro del administrador', '') +
+    cambia(['Una emergencia pide los mismos datos que una cita normal: primero el cliente completo y luego la mascota.', 'En una urgencia hay que perder minutos escribiendo datos que no cambian la atención.'], ['Un interruptor <b>«Es emergencia»</b> al inicio del formulario.', 'Si está activo, solo se piden los datos de la <b>mascota</b> y un <b>teléfono de contacto</b>; el resto del dueño queda pendiente.', 'El veterinario disponible se asigna solo (el que está en turno ahora).', 'En los listados aparece la etiqueta <span class="etq e-mostaza">Datos del dueño incompletos</span> con el botón «Completar».'], TB + TJ) +
+    '<div class="card" style="padding:.9rem 1.1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap"><div><b>¿Es una emergencia?</b><div class="mut" style="font-size:.9rem">Se atiende de inmediato y se piden solo los datos esenciales.</div></div><button class="sw ' + (e ? 'on' : '') + '" data-a="eme" role="switch" aria-checked="' + e + '" style="border:0;background:none"><i></i>' + (e ? 'Emergencia' : 'Cita normal') + '</button></div>' +
+    '<div style="display:grid;gap:1rem">' +
+    '<div class="form-card ' + (e ? 'eme' : '') + '"><h5 style="font-weight:800;margin-bottom:.6rem">1 · Mascota</h5><div class="grid-form"><div class="campo"><label>Nombre</label><input placeholder="Si no se sabe: «Sin nombre»"></div><div class="campo"><label>Especie</label><select><option>Perro</option><option>Gato</option></select></div><div class="campo"><label>Sexo</label><select><option>Macho</option><option>Hembra</option></select></div>' +
+      (e ? '<div class="campo"><label>Peso aproximado (kg)</label><input></div><div class="campo"><label>Edad aproximada</label><select><option>Cachorro (menos de 1 año)</option><option>Adulto</option><option>Senior (más de 8 años)</option></select></div><div class="campo"><label>Motivo de la emergencia</label><input placeholder="Ej.: atropello, convulsiones"></div>' : '<div class="campo"><label>Raza</label><input></div><div class="campo"><label>Fecha de nacimiento</label><input type="date"></div><div class="campo"><label>Peso (kg)</label><input></div>') + '</div></div>' +
+    cliente +
+    (e ? '<div class="form-card eme" style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;justify-content:space-between"><div><b>3 · Atiende ahora</b><div class="datos"><div>' + ic('steto', 15) + 'Carla Vega Soto · en turno hasta las 14:00</div></div></div><div class="demo-fila"><button class="btn btn-s" data-a="eme">Cancelar</button><button class="btn btn-d" data-a="toast" data-t="Se crea la cita de emergencia y se avisa al veterinario">' + ic('zap') + 'Registrar y atender</button></div></div>' : '') + '</div>' +
+    '<div class="aviso" style="margin-top:1rem"><span><b>Importante para el backend:</b> hoy la base exige un cliente con DNI y teléfono únicos para cada mascota. Para este flujo hay dos caminos: (a) crear un <i>cliente provisional</i> con el teléfono de contacto y un DNI temporal que se corrige después, o (b) permitir DNI vacío hasta completar la ficha. Cualquiera cambia reglas y necesita aprobación del JP.</span></div>';
+}
+
+/* ------------------------------- 5. Servicios ------------------------------- */
+function vServicios() {
+  var f = S.srv.f; var l = SERVICIOS.filter(function (s) { return f === 'Todos' || TIPOS[s.k][0] === f; });
+  var cnt = function (t) { return SERVICIOS.filter(function (s) { return t === 'Todos' || TIPOS[s.k][0] === t; }).length; };
+  return cab('Catálogo de servicios', '', btnNuevo('Nuevo servicio')) +
+    cambia(['Tabla con 5 columnas donde el tipo, la duración y el precio se pierden entre texto.'], ['Tarjeta por servicio con un <b>icono y color por tipo</b>; el precio es lo más grande.', 'Filtro rápido por tipo con contador.', 'La emergencia se distingue con el color terracota.'], TF) +
+    filtro('Nombre:', 'q-srv', 'Ingrese el nombre…', '') +
+    '<div class="chips-f" style="margin-bottom:1rem">' + ['Todos', 'Consulta médica', 'Vacunación', 'Estética', 'Operación', 'Emergencia'].map(function (t) { return '<button class="' + (f === t ? 'on' : '') + '" data-a="f-srv" data-f="' + t + '">' + t + ' <span class="c">' + cnt(t) + '</span></button>'; }).join('') + '</div>' +
+    '<div class="grilla" style="grid-template-columns:repeat(auto-fill,minmax(285px,1fr))">' + l.map(function (s) {
+      var t = TIPOS[s.k];
+      return '<article class="tarjeta"><div class="t-enc"><span class="ico-circ ' + t[2] + '">' + ic(t[1], 22) + '</span><div><h5>' + s.n + '</h5><small>' + t[0] + '</small></div></div><p class="desc" style="margin:0">' + s.d + '</p>' +
+        '<div style="display:flex;justify-content:space-between;align-items:end"><span class="precio">S/ ' + s.p.toFixed(2) + '</span><span class="etq e-gris">' + ic('clock', 12) + s.min + ' min</span></div><div class="t-pie"><span class="mut" style="font-size:.82rem">Activo</span><div class="acc">' + acc() + '</div></div></article>';
+    }).join('') + '</div>';
+}
+
+/* ------------------------------- 6. Diagnósticos ------------------------------- */
+function vDiag() {
+  var q = S.dg.q.toLowerCase(); var l = DIAGS.filter(function (d) { return !q || d[0].toLowerCase().indexOf(q) > -1; });
+  var html = ''; var letra = '';
+  l.forEach(function (d) {
+    if (d[0][0] !== letra) { letra = d[0][0]; html += '<div class="letra">' + letra + '</div>'; }
+    html += '<div class="fila-lista"><span class="ico-circ k-med" style="width:40px;height:40px;border-radius:12px">' + ic('steto', 18) + '</span><div class="grow"><b>' + d[0] + '</b><span class="desc">' + d[1] + '</span></div><span class="etq ' + (d[2] ? 'e-verde' : 'e-gris') + '" title="Veces que se usó en una atención">' + (d[2] ? d[2] + ' atención' + (d[2] > 1 ? 'es' : '') : 'Sin usar') + '</span><div class="acc-celda">' +
+      '<button class="btn btn-o btn-i" title="Editar" aria-label="Editar" data-a="toast" data-t="Editar">' + ic('edit') + '</button>' + (d[2] ? '<span class="btn-bloq" title="No se puede eliminar: se usó en atenciones (RN-DI-02)" tabindex="0">' + ic('lock') + '</span>' : '<button class="btn btn-d btn-i" title="Eliminar" aria-label="Eliminar" data-a="eliminar">' + ic('trash') + '</button>') + '</div></div>';
+  });
+  return cab('Catálogo de diagnósticos', '', btnNuevo('Nuevo diagnóstico')) +
+    cambia(['Tabla de dos columnas con mucho espacio vacío.', 'El botón eliminar siempre parece disponible aunque la regla lo impida.'], ['Lista agrupada por <b>letra inicial</b> con icono: se encuentra rápido aunque crezca el catálogo.', 'Cada fila dice <b>en cuántas atenciones se usó</b>; si se usó, el eliminar se bloquea con candado y el motivo (RN-DI-02), igual que en Personal.'], TF + ' <span class="tag-back tb-back">el conteo se calcula en el front</span>') +
+    '<div class="filtros"><label for="q-dg">Enfermedad:</label><input type="search" id="q-dg" placeholder="Ingrese el nombre de la enfermedad…" value="' + esc(S.dg.q) + '"><button class="btn btn-p" data-a="filtrar">' + ic('search') + 'Filtrar</button><button class="btn btn-s" data-a="limpiar">Limpiar</button></div>' +
+    '<div class="lista-wrap">' + (html || '<div style="padding:1rem">No se encontraron diagnósticos.</div>') + '</div>';
+}
+
+/* ------------------------------- 7. Inventario ------------------------------- */
+function vInventario() {
+  var l = ARTS.filter(function (a) { return (S.inv.f === 'Todas' || a.c.indexOf(S.inv.f) > -1) && (!S.inv.bajo || a.s < a.m) && (!S.inv.q || a.n.toLowerCase().indexOf(S.inv.q.toLowerCase()) > -1); });
+  var nombresCat = ['Todas'].concat(CATS.map(function (c) { return c[0]; }));
+  return cab('Inventario de artículos', '', btnNuevo('Nuevo artículo')) +
+    cambia(['Un recuadro de instrucciones al final de la pantalla («Cambie el stock con − y +…»).', 'Un icono <b>i</b> junto al nombre que solo muestra la descripción al pasar el mouse.'], ['<b>Se quita la nota final.</b> Las instrucciones no van en pantalla: el control ya se explica solo y los errores aparecen donde ocurren.', 'La descripción pasa a ser una <b>segunda línea tenue</b> bajo el nombre (no depende del mouse, también se ve en celular).', 'La categoría se filtra con chips en vez de una lista desplegable.', 'El stock bajo se indica <b>solo con la etiqueta «Stock bajo»</b>: no se pinta la fila de rojo. El color de fondo es decoración y no debe significar nada; el significado va siempre en una etiqueta con texto.'], TF) +
+    '<div class="filtros"><input type="search" id="q-inv" placeholder="Buscar artículo…" value="' + esc(S.inv.q) + '"><label class="sw" style="font-weight:700"><input type="checkbox" id="bajo" ' + (S.inv.bajo ? 'checked' : '') + '> Solo stock bajo</label><button class="btn btn-p" data-a="filtrar">' + ic('search') + 'Filtrar</button><button class="btn btn-s" data-a="limpiar">Limpiar</button></div>' +
+    '<div class="chips-f" style="margin-bottom:1rem">' + nombresCat.map(function (c) { return '<button class="' + (S.inv.f === c ? 'on' : '') + '" data-a="f-inv" data-f="' + c + '">' + c + '</button>'; }).join('') + '</div>' +
+    '<div class="tabla-wrap"><table><thead><tr><th>Artículo</th><th>Categorías</th><th style="text-align:right">Precio (S/)</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>' + l.map(function (a) {
+      var bajo = a.s < a.m;
+      return '<tr class="' + (bajo ? 'fila-bajo' : '') + '"><td class="nombre-art"><b>' + a.n + '</b><small>' + a.d + '</small></td><td><div class="fila-chips">' + a.c.map(function (c) { return '<span class="etq e-verde">' + c + '</span>'; }).join('') + '</div></td><td style="text-align:right">' + a.p.toFixed(2) + '</td>' +
+        '<td><div class="stepper"><button aria-label="Quitar uno">−</button><span>' + a.s + '</span><button aria-label="Agregar uno">+</button></div><div class="mut" style="font-size:.78rem">mín. ' + a.m + '</div></td><td><span class="etq ' + (bajo ? 'e-rojo' : 'e-verde') + '">' + (bajo ? 'Stock bajo' : 'Normal') + '</span></td><td><div class="acc-celda">' + acc() + '</div></td></tr>';
+    }).join('') + '</tbody></table></div>';
+}
+
+/* ------------------------------- 8. Categorías ------------------------------- */
+function vCategorias() {
+  return cab('Categorías de artículos', '', btnNuevo('Nueva categoría')) +
+    cambia(['Tabla de 2 columnas.'], ['Tarjetas con <b>icono y color por categoría</b> y cuántos artículos tiene.', 'Si la categoría tiene artículos, eliminar se bloquea con candado y el motivo.', '<b>Sobre las fotos:</b> hoy la base no guarda una imagen por categoría. Con iconos se ve bien sin cambiar el backend; si se quiere foto, sería una columna nueva (como la de la mascota).'], TF) +
+    '<div class="grilla" style="grid-template-columns:repeat(auto-fill,minmax(270px,1fr))">' + CATS.map(function (c) {
+      return '<article class="tarjeta"><div class="t-enc"><span class="ico-circ ' + c[3] + '" style="width:56px;height:56px;border-radius:16px">' + ic(c[2], 28) + '</span><div><h5 style="font-size:1.15rem">' + c[0] + '</h5><span class="etq e-gris">' + c[4] + ' artículo' + (c[4] > 1 ? 's' : '') + '</span></div></div><p class="desc" style="margin:0">' + c[1] + '</p>' +
+        '<div class="t-pie"><button class="btn btn-s btn-sm" data-a="f-inv-ir" data-f="' + c[0] + '">' + ic('box') + 'Ver artículos</button><div class="acc"><button class="btn btn-o btn-i" title="Editar" aria-label="Editar" data-a="toast" data-t="Editar">' + ic('edit') + '</button><span class="btn-bloq" title="No se puede eliminar: tiene artículos" tabindex="0">' + ic('lock') + '</span></div></div></article>';
+    }).join('') + '</div>';
+}
+
+/* ------------------------------- 9. Veterinarios ------------------------------- */
+function avatarVet(v, grande) {
+  if (S.per.fotos) return '<span class="av ' + (grande ? 'lg' : '') + ' c0" style="background:linear-gradient(160deg,#cfe0c5,#9db98f);color:#325642"><svg viewBox="0 0 64 64" width="100%" height="100%" aria-hidden="true"><circle cx="32" cy="24" r="11" fill="#f2e3d0"/><path d="M10 64c2-14 12-20 22-20s20 6 22 20z" fill="#fff"/><path d="M26 44l6 8 6-8" fill="none" stroke="#3F6B52" stroke-width="3"/></svg></span>';
+  return av(v.n, grande ? 'lg' : '');
+}
+function vPersonal() {
+  return cab('Veterinarios', '', btnNuevo('Nuevo veterinario')) +
+    cambia(['Los chips de colegiatura y DNI tienen alturas distintas y quedan desalineados.', 'Los botones de las tarjetas tienen un tamaño distinto al del resto.', 'Una nota al pie repite lo que la pantalla ya muestra («Los horarios se asignan desde la ficha…»).', 'Solo iniciales: no hay forma de poner una foto.'], ['Chips con <b>la misma altura (24 px)</b> y alineados en una sola línea; botones de acción de 32 px.', '<b>Se quita la nota al pie</b>: esa explicación va en el formulario de horarios, donde se usa. Lo mismo para las notas finales de las demás pantallas.', '<b>Fotos:</b> avatar con iniciales por defecto, y <b>foto opcional</b> que se sube desde el formulario (se guarda como la foto de la mascota). Pruébalo con el interruptor de abajo.'], TF + TB + TJ) +
+    '<div class="filtros"><label>DNI, nombre o colegiatura:</label><input type="search" placeholder="Ingrese el texto a buscar…"><button class="btn btn-p">' + ic('search') + 'Filtrar</button><button class="btn btn-s">Limpiar</button><label class="sw ' + (S.per.fotos ? 'on' : '') + '" data-a="fotos" style="margin-left:auto;cursor:pointer"><i></i>Ver con fotos</label></div>' +
+    '<div class="grilla" style="grid-template-columns:repeat(auto-fill,minmax(310px,1fr))">' + VETS.map(function (v) {
+      return '<article class="tarjeta" style="border-top:4px solid var(--verde)"><div class="t-enc">' + avatarVet(v, true) + '<div><h5 style="font-size:1.1rem">' + v.n + '</h5><span class="etq e-gris">Próximo: Hoy 08:00</span></div></div>' +
+        '<div class="fila-chips"><span class="etq e-verde">' + ic('id', 12) + v.cmvp + '</span><span class="etq e-gris">DNI ' + v.dni + '</span></div>' +
+        '<div class="datos"><div>' + ic('phone', 15) + v.t + '</div><div>' + ic('mail', 15) + v.c + '</div></div>' +
+        '<div class="fila-chips">' + v.h.map(function (h) { return '<span class="chip">' + h + '</span>'; }).join('') + '</div>' +
+        '<div><div class="prog-t"><span>Servicios de hoy</span><span>' + (v.hoy[1] ? v.hoy[0] + ' de ' + v.hoy[1] + ' atendidos' : 'Sin servicios') + '</span></div><div class="barra-prog"><i style="width:' + (v.hoy[1] ? v.hoy[0] / v.hoy[1] * 100 : 0) + '%"></i></div></div>' +
+        '<div class="t-pie"><a href="#" data-a="toast" data-t="Abre la agenda de ' + v.n + '">Ver citas asignadas</a><div class="acc">' + acc() + '</div></div></article>';
+    }).join('') + '</div>' +
+    '<div class="form-card" style="margin-top:1.2rem"><h5 style="font-weight:800;margin-bottom:.6rem">Así se vería la foto en el formulario de alta o edición</h5><div class="demo-fila" style="gap:1rem">' + avatarVet(VETS[0], true) + '<div><button class="btn btn-s" data-a="toast" data-t="Se abre el selector de imagen; se reduce a 300 px antes de guardar">' + ic('camera') + 'Subir foto</button> <span class="mut" style="font-size:.85rem">JPG o PNG. Opcional.</span></div></div></div>';
+}
+
+/* ------------------------------- 10. Cuentas ------------------------------- */
+function vCuentas() {
+  var f = S.cue.f; var rol = { Administrador: 'e-mostaza', Veterinario: 'e-verde', Cliente: 'e-gris' };
+  var l = CUENTAS.filter(function (c) { return f === 'Todos' || c[2] + 'es' === f || c[2] + 's' === f; });
+  var cnt = function (t) { return CUENTAS.filter(function (c) { return t === 'Todos' || c[2] + 'es' === t || c[2] + 's' === t; }).length; };
+  return cab('Cuentas de usuario', 'Las cuentas se crean al registrar un cliente, un veterinario o un administrador.', '') +
+    cambia(['Tabla de 5 columnas donde todos los roles se ven iguales.'], ['<b>Pestañas por rol</b> con contador y avatar de color por persona.', 'El rol es una etiqueta de color, no solo texto.', 'Tu propia cuenta lleva «tú» y su eliminar está bloqueado con candado.'], TF) +
+    '<div class="filtros"><label for="q-cu">Usuario o correo:</label><input type="search" id="q-cu" placeholder="Ingrese el usuario o el correo…"><button class="btn btn-p">' + ic('search') + 'Filtrar</button><button class="btn btn-s">Limpiar</button></div>' +
+    '<div class="chips-f" style="margin-bottom:1rem">' + ['Todos', 'Administradores', 'Veterinarios', 'Clientes'].map(function (t) { return '<button class="' + (f === t ? 'on' : '') + '" data-a="f-cue" data-f="' + t + '">' + t + ' <span class="c">' + cnt(t) + '</span></button>'; }).join('') + '</div>' +
+    '<div class="lista-wrap"><div class="fila-cuenta cab-c"><span></span><span>Usuario</span><span>Pertenece a</span><span>Rol</span><span>Acciones</span></div>' + l.map(function (c) {
+      return '<div class="fila-cuenta">' + av(c[3]) + '<div class="grow"><b>' + c[0] + (c[4] ? ' <span class="etq e-solido" style="margin-left:.3rem">tú</span>' : '') + '</b><span class="mut" style="font-size:.88rem">' + c[1] + '</span></div><div class="mut">' + c[3] + '</div><span class="etq ' + rol[c[2]] + '" style="justify-self:start">' + c[2] + '</span><div class="acc-celda"><button class="btn btn-o btn-i" title="Editar" aria-label="Editar" data-a="toast" data-t="Editar">' + ic('edit') + '</button>' + (c[4] ? '<span class="btn-bloq" title="No puede eliminar su propia cuenta" tabindex="0">' + ic('lock') + '</span>' : '<button class="btn btn-d btn-i" title="Eliminar" aria-label="Eliminar" data-a="eliminar">' + ic('trash') + '</button>') + '</div></div>';
+    }).join('') + '</div>';
+}
+
+/* ------------------------------- 11. Boletas ------------------------------- */
+function vBoletas() {
+  return cab('Boletas de venta', '', btnNuevo('Nueva boleta')) +
+    cambia(['«Anular» es un botón ancho con texto que compite con Ver y Editar.', 'Las acciones de cada fila miden distinto.'], ['<b>Anular pasa a icono</b> (circulo tachado, terracota) con <i>tooltip</i> y siempre pide confirmación en una ventana: es una acción grave y poco frecuente, no debe estar a un clic de un descuido.', 'Las tres acciones (Ver, Modificar, Anular) son iconos del mismo tamaño y quedan alineadas.', 'Las boletas anuladas no muestran acciones: solo un guion.'], TF) +
+    '<div class="indicadores" style="grid-template-columns:repeat(3,1fr)"><div class="indicador ind-verde"><span class="ico">' + ic('wallet', 20) + '</span><b>S/ 89.90</b><span class="t">Cobrado hoy</span></div><div class="indicador ind-mostaza"><span class="ico">' + ic('cal', 20) + '</span><b>S/ 89.90</b><span class="t">Cobrado en la semana</span></div><div class="indicador ind-salvia"><span class="ico">' + ic('chart', 20) + '</span><b>S/ 223.40</b><span class="t">Cobrado en el mes · 3 boletas</span></div></div>' +
+    '<div class="tabla-wrap"><table><thead><tr><th>N.° boleta</th><th>Fecha</th><th>Cliente</th><th style="text-align:right">Total (S/)</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>' + BOLETAS.map(function (b) {
+      var an = b[4] === 'Anulada';
+      return '<tr><td><b>' + b[0] + '</b></td><td>' + b[1] + '</td><td>' + b[2] + '</td><td style="text-align:right">' + b[3].toFixed(2) + '</td><td><span class="etq ' + (an ? 'e-rojo' : 'e-solido') + '">' + b[4] + '</span></td><td><div class="acc-celda"><button class="btn btn-o btn-i" title="Ver boleta" aria-label="Ver boleta">' + ic('eye') + '</button>' +
+        (an ? '<span class="mut" style="width:32px;text-align:center">—</span><span class="mut" style="width:32px;text-align:center">—</span>' : '<button class="btn btn-o btn-i" title="Modificar" aria-label="Modificar">' + ic('edit') + '</button><button class="btn btn-d btn-i" title="Anular boleta" aria-label="Anular boleta" data-a="anular" data-b="' + b[0] + '">' + ic('ban') + '</button>') + '</div></td></tr>';
+    }).join('') + '</tbody></table></div>';
+}
+
+/* ------------------------------- 12. Historial clínico ------------------------------- */
+function vHistorial() {
+  var q = S.hist.q; var nombres = Object.keys(HIST);
+  var m = MASCOTAS.filter(function (x) { return x.n === S.hist.sel; })[0];
+  var at = HIST[S.hist.sel] || [];
+  return cab('Reporte de historial clínico', '', '') +
+    cambia(['Si la búsqueda encuentra una sola mascota, se salta directo al historial (Rocky); si encuentra varias, muestra chips y hay que elegir (Firulais y Michi). Son dos pantallas distintas para lo mismo.', 'Las atenciones son un bloque de texto.'], ['<b>Siempre</b> se muestran las mascotas encontradas como tarjetas, aunque sea una (queda seleccionada): el flujo es el mismo en todos los casos.', 'La ficha de la mascota queda fija a la izquierda y las atenciones se leen como una <b>línea de tiempo</b> a la derecha, con diagnósticos como chips.', 'Mismo estilo de tarjeta que Clientes y Mascotas.'], TF) +
+    '<div class="filtros"><label for="q-h">Mascota o DNI del dueño:</label><input type="search" id="q-h" placeholder="Ej.: 41236598 o Rocky" value="' + esc(q) + '"><button class="btn btn-p">' + ic('search') + 'Buscar</button><button class="btn btn-s" data-a="toast" data-t="Abre el diálogo de impresión / PDF">' + ic('print') + 'Imprimir / exportar PDF</button></div>' +
+    '<div class="chips-f" style="margin-bottom:1rem;gap:.6rem">' + nombres.map(function (n) { var mm = MASCOTAS.filter(function (x) { return x.n === n; })[0]; return '<button class="tarjeta click ' + (S.hist.sel === n ? 'sel' : '') + '" data-a="hist" data-n="' + n + '" style="flex-direction:row;align-items:center;gap:.6rem;padding:.5rem .8rem;border-radius:.9rem;font-weight:700">' + fotoMascota(mm, 'sm') + '<span style="text-align:left">' + n + '<small style="display:block;color:var(--suave);font-weight:600">' + mm.dueno + '</small></span></button>'; }).join('') + '</div>' +
+    '<div class="dos-col" style="grid-template-columns:300px minmax(0,1fr)"><aside class="panel-lado">' + '<div class="t-enc">' + fotoMascota(m, 'lg') + '<div><h5 style="font-size:1.25rem;font-weight:800">' + m.n + '</h5><small>' + m.tipo + ' · ' + m.raza + ' · ' + m.sexo + '</small></div></div><div class="datos"><div>' + ic('cal', 15) + 'Nació el ' + m.nac + '</div><div>' + ic('clip', 15) + m.peso.toFixed(1) + ' kg</div><div>' + ic('user', 15) + esc(m.dueno) + '</div></div></aside>' +
+    '<div><h5 style="font-weight:800;margin-bottom:.8rem">Atenciones (' + at.length + ')</h5><div class="linea-t">' + at.map(function (a) {
+      return '<div class="it top"><div class="tarjeta" style="gap:.5rem"><div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap"><b>' + a.f + ' · ' + a.s + '</b><span class="mut" style="font-size:.88rem">' + a.v + '</span></div><div class="desc"><b>Observaciones:</b> ' + a.o + '</div>' +
+        '<div class="fila-chips"><b style="font-size:.85rem">Diagnósticos:</b>' + (a.d.length ? a.d.map(function (d) { return '<span class="etq e-mostaza">' + d[0] + ' · ' + d[1] + '</span>'; }).join('') : '<span class="mut" style="font-size:.85rem">Sin diagnósticos registrados</span>') + '</div>' +
+        (a.i.length ? '<div class="fila-chips"><b style="font-size:.85rem">Insumos:</b>' + a.i.map(function (i) { return '<span class="etq e-gris">' + i[0] + ' ×' + i[1] + (i[2] ? ' · se cobra aparte' : '') + '</span>'; }).join('') + '</div>' : '') + '</div></div>';
+    }).join('') + '</div></div></div>';
+}
+
+/* ------------------------------- 13. Veterinario ------------------------------- */
+var AGENDA = [
+  { h: '09:00', m: 'Firulais', s: 'Consulta general', d: 'Ana Torres Quispe', e: 'at' }, { h: '09:30', m: 'Firulais', s: 'Vacuna antirrábica', d: 'Ana Torres Quispe', e: 'pen' },
+  { h: '10:30', m: 'Rocky', s: 'Baño y corte', d: 'Luis Ramírez Paredes', e: 'at' }, { h: '11:00', m: 'Luna', s: 'Atención de emergencia', d: 'María Fernanda Salas Cáceres', e: 'eme' }
+];
+function pasos(e) {
+  var p = [['Cita', 'cal'], ['Atención', 'steto'], ['Receta', 'file'], ['Cobro', 'wallet']]; var hecho = e === 'at' ? 3 : (e === 'pen' ? 1 : 1);
+  return '<div class="pasos">' + p.map(function (x, i) { return '<span class="' + (i < hecho ? 'ok' : (i === hecho ? 'act' : '')) + '">' + ic(x[1], 11) + x[0] + '</span>'; }).join('') + '</div>';
+}
+function vVet() {
+  var t = S.vv.tab; var tabs = [['inicio', 'Inicio'], ['agenda', 'Mi agenda'], ['atenciones', 'Atenciones'], ['recetas', 'Recetas']];
+  var cuerpo = '';
+  if (t === 'inicio') {
+    cuerpo = '<div class="hero-v"><div style="flex:1;min-width:240px"><span class="etq" style="background:rgba(255,255,255,.18);color:#fff">Siguiente paciente · 09:30</span><h3 style="margin-top:.4rem">Firulais · Vacuna antirrábica</h3><div style="opacity:.85">Ana Torres Quispe · Perro, mestizo, 5 años, 12,5 kg</div><div class="btns"><button class="btn btn-y btn-lg">' + ic('steto') + 'Iniciar atención</button><button class="btn btn-glass">' + ic('clip') + 'Ver historial</button></div></div>' +
+      '<div class="indicadores" style="margin:0;grid-template-columns:repeat(3,110px);gap:.6rem"><div class="indicador" style="padding:.7rem"><b>4</b><span class="t">Servicios hoy</span></div><div class="indicador" style="padding:.7rem"><b>2</b><span class="t">Atendidos</span></div><div class="indicador" style="padding:.7rem"><b>1</b><span class="t">Emergencia</span></div></div></div>' +
+      '<h5 style="font-weight:800;margin-bottom:.8rem">Agenda de hoy</h5>' + lineaAgenda();
+  } else if (t === 'agenda') {
+    cuerpo = '<div class="filtros"><label>Fecha:</label><input type="date" value="2026-11-11" style="max-width:190px"><button class="btn btn-s" data-a="toast" data-t="Hoy">Hoy</button><div class="chips-f" style="margin-left:auto"><button class="on">Todas</button><button>Por atender</button><button>Atendidas</button></div></div>' + lineaAgenda();
+  } else if (t === 'atenciones') {
+    cuerpo = '<div class="chips-f" style="margin-bottom:1rem"><button class="on">Todas <span class="c">4</span></button><button>Sin receta <span class="c">1</span></button><button>Por cobrar <span class="c">2</span></button></div><div class="grilla" style="grid-template-columns:repeat(auto-fill,minmax(330px,1fr))">' + AGENDA.map(function (a) {
+      return '<article class="tarjeta"><div class="t-enc">' + fotoMascota(MASCOTAS.filter(function (x) { return x.n === a.m; })[0], '') + '<div><h5>' + a.m + ' · ' + a.s + '</h5><small>' + a.d + '</small></div></div>' + pasos(a.e) + '<div class="t-pie"><span class="etq ' + (a.e === 'at' ? 'e-solido' : (a.e === 'eme' ? 'e-rojo' : 'e-mostaza')) + '">' + (a.e === 'at' ? 'Atendido' : (a.e === 'eme' ? 'Emergencia' : 'Por atender')) + '</span><div class="acc"><button class="btn btn-s btn-sm" data-a="toast" data-t="Abre la atención">' + ic('eye') + 'Abrir</button></div></div></article>';
+    }).join('') + '</div>';
+  } else {
+    cuerpo = '<div class="grilla" style="grid-template-columns:repeat(auto-fill,minmax(340px,1fr))">' + [['Rocky', '11/11/2026', [['Meloxicam 1.5 mg/ml', '0,5 ml · cada 24 h · 5 días'], ['Algodón 100 g', '1 paquete']]], ['Firulais', '12/10/2026', [['Amoxicilina 250 mg', '1 tableta · cada 12 h · 7 días']]]].map(function (r) {
+      return '<article class="receta"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:1.05rem">' + ic('file', 16) + ' Receta · ' + r[0] + '</b><span class="mut" style="font-size:.85rem">' + r[1] + '</span></div>' + r[2].map(function (m) { return '<div class="med"><b>' + m[0] + '</b><span class="mut">' + m[1] + '</span></div>'; }).join('') +
+        '<div class="t-pie"><span class="mut" style="font-size:.85rem">Dra. Carla Vega Soto</span><div class="acc"><button class="btn btn-s btn-sm" data-a="toast" data-t="Vista de impresión">' + ic('print') + 'Imprimir</button>' + '<button class="btn btn-o btn-i" title="Editar" aria-label="Editar">' + ic('edit') + '</button></div></div></article>';
+    }).join('') + '</div>';
+  }
+  return cab(S.rol === 'vet' ? 'Mi día' : 'Pantallas del veterinario', S.rol === 'vet' ? '' : 'Prueba también «Ver como: Veterinario» arriba para ver el menú que le corresponde.', '') +
+    cambia(['Tablas de agenda, atenciones y recetas, todas parecidas entre sí.', 'No se ve qué falta de cada atención (receta, cobro).'], ['<b>Inicio:</b> una tarjeta con el <i>siguiente paciente</i> y el botón principal «Iniciar atención».', '<b>Agenda:</b> línea de tiempo del día con los estados (por atender, atendido, emergencia).', '<b>Atenciones:</b> tarjeta con una barra de pasos <i>Cita → Atención → Receta → Cobro</i> para ver qué sigue.', '<b>Recetas:</b> tarjeta con aspecto de receta: medicamentos, dosis y botón de imprimir.'], TF) +
+    '<div class="pestanas">' + tabs.map(function (x) { return '<button class="' + (t === x[0] ? 'on' : '') + '" data-a="vtab" data-t="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>' + cuerpo;
+}
+function lineaAgenda() {
+  return '<div class="linea-t">' + AGENDA.map(function (a) {
+    var cl = a.e === 'at' ? '' : (a.e === 'eme' ? 'eme' : 'pend');
+    return '<div class="it ' + cl + '"><div class="tarjeta" style="flex-direction:row;align-items:center;gap:.9rem;flex-wrap:wrap"><span class="etq e-gris" style="font-size:.9rem;height:28px">' + a.h + '</span>' + fotoMascota(MASCOTAS.filter(function (x) { return x.n === a.m; })[0], 'sm') + '<div style="flex:1;min-width:180px"><b>' + a.m + ' · ' + a.s + '</b>' + (a.e === 'eme' ? ' <span class="etq e-rojo">Emergencia</span>' : '') + '<div class="mut" style="font-size:.88rem">' + a.d + '</div></div><span class="etq ' + (a.e === 'at' ? 'e-solido' : 'e-mostaza') + '">' + (a.e === 'at' ? 'Atendido' : 'Por atender') + '</span></div></div>';
+  }).join('') + '</div>';
+}
+
+/* ------------------------------- 14. Resumen ------------------------------- */
+function vResumen() {
+  var f = [
+    ['Botones y menú', 'Escala única de tamaños y tipografía', 'Front', '—'], ['Clientes', 'Tarjetas con mascotas y ficha lateral', 'Front', '—'], ['Mascotas', 'Tarjetas con foto y filtros por tipo', 'Front', '—'],
+    ['Emergencia', 'Registro rápido con datos mínimos', 'Front + <b>backend</b> (cliente provisional o DNI diferido)', '<b>Sí</b>'], ['Servicios', 'Tarjetas por tipo con precio destacado', 'Front', '—'],
+    ['Diagnósticos', 'Lista por letra, uso y bloqueo con motivo', 'Front (el conteo se calcula con las atenciones)', '—'], ['Inventario', 'Se quita la nota final y el icono i; chips de categoría', 'Front', '—'],
+    ['Categorías', 'Tarjetas con icono y cantidad de artículos', 'Front (fotos serían una columna nueva)', 'Solo si hay fotos'], ['Veterinarios / Administradores', 'Chips y botones alineados; fotos opcionales', 'Front; fotos: <b>SQL + Java</b> (2 tablas)', '<b>Sí</b> (fotos)'],
+    ['Cuentas', 'Pestañas por rol y etiquetas de color', 'Front', '—'], ['Boletas', 'Anular como icono con confirmación', 'Front', '—'], ['Historial clínico', 'Un solo flujo con tarjetas y línea de tiempo', 'Front', '—'], ['Veterinario', 'Inicio, agenda, atenciones y recetas rediseñadas', 'Front', '—']
+  ];
+  return cab('Resumen de la propuesta', 'Qué se puede hacer solo en el front y qué toca el backend o necesita al JP.', '') +
+    '<div class="tabla-wrap"><table><thead><tr><th>Pantalla</th><th>Cambio</th><th>Dónde</th><th>¿Aprobación del JP?</th></tr></thead><tbody>' + f.map(function (x) { return '<tr><td><b>' + x[0] + '</b></td><td>' + x[1] + '</td><td>' + x[2] + '</td><td>' + x[3] + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+    '<div class="resumen-req" style="margin-top:1.2rem"><div class="card"><h5>Criterio para las notas al pie</h5><ul><li>Una nota explica algo que la pantalla <b>no puede mostrar</b> (una regla que bloquea una acción): va como <i>tooltip</i> en el candado.</li><li>Las instrucciones de uso («cambie el stock con − y +») se quitan.</li><li>Las explicaciones de otra pantalla («los horarios se asignan desde…») van en esa pantalla.</li></ul></div>' +
+    '<div class="card"><h5>Criterio para los colores</h5><ul><li>El <b>fondo</b> (verde de las filas alternas, crema) es solo estético y no indica nada.</li><li>Lo que sí significa algo (stock bajo, anulada, emergencia) se muestra con una <b>etiqueta con texto</b>, nunca solo con el color de fondo de una fila.</li></ul></div>' +
+    '<div class="card"><h5>Lo que ayudaría para afinar</h5><ul><li>Capturas de las pantallas del veterinario (inicio, agenda, atenciones, recetas) y de Administradores, Horarios y Citas.</li><li>Fotos de ejemplo de los veterinarios y administradores, si se quiere probar la foto.</li><li>Confirmar con el JP el caso de emergencia con datos mínimos.</li></ul></div></div>';
+}
+
+var VIEWS = { guia: vGuia, clientes: vClientes, mascotas: vMascotas, emergencia: vEmergencia, servicios: vServicios, diagnosticos: vDiag, inventario: vInventario, categorias: vCategorias, personal: vPersonal, cuentas: vCuentas, boletas: vBoletas, historial: vHistorial, vet: vVet, resumen: vResumen };
+function render() { barra(); pestanas(); $('#app').innerHTML = VIEWS[S.vista](); }
+
+function modal(titulo, texto, ok) {
+  $('#modal').innerHTML = '<div class="ov" data-a="cerrar"><div class="md" role="dialog" aria-modal="true" aria-label="' + esc(titulo) + '"><h4>' + esc(titulo) + '</h4><p>' + texto + '</p><div class="f"><button class="btn btn-s" data-a="cerrar-m">Cancelar</button><button class="btn btn-ds" data-a="ok-m" data-t="' + esc(ok) + '">' + ic('ban') + 'Confirmar</button></div></div></div>';
+}
+document.addEventListener('click', function (e) {
+  var el = e.target.closest('[data-a]'); if (!el) return; var a = el.dataset.a;
+  if (a === 'cerrar' && e.target !== el) return;
+  if (a === 'vista') { S.vista = el.dataset.v; render(); window.scrollTo(0, 0); }
+  else if (a === 'toast') { toast(el.dataset.t); }
+  else if (a === 'eliminar') { modal('¿Eliminar este registro?', 'Dejará de aparecer en los listados. Si otra parte del sistema lo usa, el backend lo rechazará y se mostrará el motivo.', 'Registro eliminado (simulado)'); }
+  else if (a === 'anular') { modal('¿Anular la boleta ' + el.dataset.b + '?', 'La boleta quedará marcada como <b>anulada</b> y no se podrá modificar. Su número no se vuelve a usar.', 'Boleta ' + el.dataset.b + ' anulada (simulado)'); }
+  else if (a === 'cerrar' || a === 'cerrar-m') { $('#modal').innerHTML = ''; }
+  else if (a === 'ok-m') { $('#modal').innerHTML = ''; toast(el.dataset.t); }
+  else if (a === 'selcli') { S.cli.sel = +el.dataset.id; render(); }
+  else if (a === 'modo-cli') { S.cli.modo = el.dataset.m; render(); }
+  else if (a === 'modo-mas') { S.mas.modo = el.dataset.m; render(); }
+  else if (a === 'f-mas') { S.mas.f = el.dataset.f; render(); }
+  else if (a === 'f-srv') { S.srv.f = el.dataset.f; render(); }
+  else if (a === 'f-inv') { S.inv.f = el.dataset.f; render(); }
+  else if (a === 'f-inv-ir') { S.inv.f = el.dataset.f; S.vista = 'inventario'; render(); window.scrollTo(0, 0); }
+  else if (a === 'f-cue') { S.cue.f = el.dataset.f; render(); }
+  else if (a === 'eme') { S.eme.on = !S.eme.on; render(); }
+  else if (a === 'fotos') { S.per.fotos = !S.per.fotos; render(); }
+  else if (a === 'hist') { S.hist.sel = el.dataset.n; render(); }
+  else if (a === 'vtab') { S.vv.tab = el.dataset.t; render(); }
+  else if (a === 'filtrar' || a === 'limpiar') {
+    var campo = a === 'limpiar' ? '' : null;
+    var m = { cliente: 'q-cli', diagnosticos: 'q-dg', inventario: 'q-inv' }; var id = m[S.vista];
+    if (S.vista === 'clientes') S.cli.q = campo === '' ? '' : $('#q-cli').value;
+    if (S.vista === 'diagnosticos') S.dg.q = campo === '' ? '' : $('#q-dg').value;
+    if (S.vista === 'inventario') { S.inv.q = campo === '' ? '' : $('#q-inv').value; S.inv.bajo = campo === '' ? false : $('#bajo').checked; if (campo === '') S.inv.f = 'Todas'; }
+    render();
+  }
+});
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') $('#modal').innerHTML = ''; if (e.key === 'Enter' && e.target.matches('.filtros input[type=search]')) { var b = e.target.parentNode.querySelector('[data-a=filtrar]'); if (b) b.click(); } });
+$('#rol').addEventListener('change', function (e) { S.rol = e.target.value; if (S.rol === 'vet') S.vista = 'vet'; render(); });
+render();
+</script>
+</body>
+</html>

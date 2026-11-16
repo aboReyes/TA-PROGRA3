@@ -1,6 +1,5 @@
 @inherits LayoutComponentBase
 @inject SesionDemo Sesion;
-@inject NavigationManager Nav;
 
 <nav class="navbar navbar-expand barra-principal px-3 sticky-top">
     <a class="navbar-brand marca-barra" href="">
@@ -26,7 +25,8 @@
                 <ul class="dropdown-menu">
                     @foreach (OpcionMenu opcion in grupo.Value) {
                         <li>
-                            <NavLink class="dropdown-item" href="@opcion.Href">
+                            @* "boletas" también coincide con "boletas/nueva": si el grupo tiene una opción hija, la ruta debe ser exacta *@
+                            <NavLink class="dropdown-item" href="@opcion.Href" Match="@(TieneOpcionHija(grupo.Value, opcion) ? NavLinkMatch.All : NavLinkMatch.Prefix)">
                                 <Icono Nombre="@opcion.Icono" /><span>@opcion.Texto</span>
                             </NavLink>
                         </li>
@@ -50,9 +50,13 @@
                     <li><NavLink class="dropdown-item" href="" Match="NavLinkMatch.All"><Icono Nombre="home" /><span>Inicio</span></NavLink></li>
                     <li><hr class="dropdown-divider" /></li>
                     <li>
-                        <button class="dropdown-item" type="button" @onclick="() => CerrarSesion()">
-                            <Icono Nombre="log-out" /><span>Cerrar sesión</span>
-                        </button>
+                        @* POST /cuenta/logout borra la cookie de sesión (Seguridad/SeguridadExtensions.cs) *@
+                        <form method="post" action="cuenta/logout">
+                            <AntiforgeryToken />
+                            <button class="dropdown-item" type="submit">
+                                <Icono Nombre="log-out" /><span>Cerrar sesión</span>
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </li>
@@ -75,8 +79,8 @@
 </div>
 
 @code {
-    private void CerrarSesion() {
-        Sesion.CerrarSesion();
-        Nav.NavigateTo("/login");
+    // Hay otra opción del mismo grupo cuya ruta empieza con la de esta (por ejemplo "boletas" y "boletas/nueva")
+    private static bool TieneOpcionHija(List<OpcionMenu> opciones, OpcionMenu opcion) {
+        return opciones.Any(o => o.Href.StartsWith(opcion.Href + "/"));
     }
 }

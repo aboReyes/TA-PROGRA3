@@ -3,25 +3,27 @@ using Microsoft.Playwright.NUnit;
 
 namespace PatitasArriba.Tests;
 
-// Pruebas de interfaz (Lab 9): requieren que el front este corriendo en BaseUrl
+// Pruebas de interfaz (Lab 9): requieren que el front este corriendo en BaseUrl y el backend desplegado
 //   cd PatitasArriba.Web ; dotnet run --launch-profile http
-// La sesion del front es por circuito Blazor: despues de iniciar sesion hay que navegar con el menu,
-// no con GotoAsync (una URL directa abre un circuito nuevo y pierde el rol).
+// La sesion vive en una cookie (Seguridad/SeguridadExtensions.cs): sobrevive a recargar la pagina y
+// a abrir una URL directa, y cada pagina exige el rol de su permiso (Permisos.RolesPorPermiso).
 [TestFixture]
 public class PruebasInterfaz : PageTest
 {
     private const string BaseUrl = "http://localhost:5118";
 
-    // Cuenta de los datos de ejemplo para cada rol: el rol ya no se elige, se deduce de la cuenta
+    // Cuentas de Avances/sql/datos-prueba.sql (el login es real: requiere el backend en GlassFish con esos datos).
+    // El rol no se elige, se deduce de la cuenta
+    private const string ClavePrueba = "Patitas123";
     private static string UsuarioDelRol(string rol) => rol switch
     {
-        "ADMINISTRADOR" => "diego.lopez@patasarriba.pe",
-        "VETERINARIO" => "carla.vega@patasarriba.pe",
+        "ADMINISTRADOR" => "rosa.admin@patitas.pe",
+        "VETERINARIO" => "dra.lucia@patitas.pe",
         _ => "ana.torres@gmail.com"
     };
 
     // Inicia sesion con la cuenta del rol. Blazor Server tarda un instante en enlazar los eventos,
-    // por eso se reintenta si todavia no aparece el saludo.
+    // por eso se reintenta si todavia no aparece el usuario en la barra superior.
     private async Task IniciarSesionAsync(string rol)
     {
         for (int intento = 0; intento < 3; intento++)
@@ -30,12 +32,12 @@ public class PruebasInterfaz : PageTest
             await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
             await Page.Locator("#correo").FillAsync(UsuarioDelRol(rol));
-            await Page.Locator("#clave").FillAsync("clave123");
+            await Page.Locator("#clave").FillAsync(ClavePrueba);
             await Page.GetByRole(AriaRole.Button, new() { Name = "Ingresar", Exact = true }).ClickAsync();
 
             try
             {
-                await Expect(Page.GetByText("Bienvenido,")).ToBeVisibleAsync(new() { Timeout = 4000 });
+                await Expect(Page.Locator(".usuario-barra")).ToBeVisibleAsync(new() { Timeout = 15000 });
                 return;
             }
             catch (Exception)
@@ -97,5 +99,39 @@ public class PruebasInterfaz : PageTest
 
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Inventario de artículos" })).ToBeVisibleAsync();
         await Expect(Page.Locator("table tbody tr").First).ToBeVisibleAsync();
+    }
+
+    // Seguridad: sin sesion, una pagina protegida manda al login
+    [Test]
+    public async Task Sin_sesion_una_pagina_protegida_lleva_al_login()
+    {
+        await Page.GotoAsync($"{BaseUrl}/clientes");
+
+        await Expect(Page).ToHaveURLAsync(new System.Text.RegularExpressions.Regex("/login"));
+    }
+
+    // Seguridad: el cliente no entra por URL a pantallas de otros roles
+    [TestCase("/clientes")]
+    [TestCase("/boletas")]
+    [TestCase("/cuentas-usuario")]
+    public async Task Cliente_no_entra_a_pantallas_de_gestion(string ruta)
+    {
+        await IniciarSesionAsync("CLIENTE");
+
+        await Page.GotoAsync($"{BaseUrl}{ruta}");
+
+        await Expect(Page.GetByText("No tiene permisos para acceder a esta página.")).ToBeVisibleAsync();
+    }
+
+    // Seguridad: recargar la pagina no pierde la sesion
+    [Test]
+    public async Task Recargar_la_pagina_mantiene_la_sesion()
+    {
+        await IniciarSesionAsync("ADMINISTRADOR");
+
+        await Page.ReloadAsync();
+
+        await Expect(Page.Locator(".usuario-barra")).ToBeVisibleAsync();
+        await Expect(GrupoDelMenu("Personal")).ToBeVisibleAsync();
     }
 }

@@ -1,3 +1,4 @@
+using PatitasArriba.Web.Servicios.Rest;
 using PatitasArriba.Web.Components;
 using PatitasArriba.Web.Seguridad;
 
@@ -7,8 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Mientras no se enlaza con el backend: sesión simulada para mostrar el menú de cada rol
+// Sesión con cookie y permisos por rol (Seguridad/SeguridadExtensions.cs)
+builder.Services.AddSeguridad();
 builder.Services.AddScoped<SesionDemo>();
+
+builder.Services.AddPatitasRestServices();
 
 var app = builder.Build();
 
@@ -22,10 +26,14 @@ if (!app.Environment.IsDevelopment())
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapSesionEndpoints();
 
 app.Run();
